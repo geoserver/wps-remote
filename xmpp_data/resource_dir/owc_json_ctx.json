@@ -1,0 +1,24 @@
+"lang" : "en",
+"title" : "Sample Title goes here",
+"subtitle" : "Sample sub-title goes here",
+"generator" : "Sample generator",
+"rights" : "Sample Legal Constraints and CopyRights (C)",
+"authors" : [{"name" : "Author1 Name"}, {"name" : "Author2 Name"}],
+"contributors" : [{"name" : "Contrib1 Name"}, {"name" : "Contrib2 Name"}],
+"categories" : [{
+        "term" : "wms",
+        "label" : "This file is compliant with version 1.0 of OGC Context"
+    },{
+        "term" : "maps",
+        "label" : "This file contains maps"
+}],
+"links" : [{
+        "rel" : "profile",
+        "href" : "http://www.opengis.net/spec/owc-atom/1.0/req/core",
+        "title" : "This file is compliant with version 1.0 of OGC Context"
+    },{
+        "rel" : "via",
+        "type" : "application/xml",
+        "href" : "http://www.opengis.uab.cat/wms/satcat/metadades/EPSG_23031/Cat_20110301.htm",
+        "title" : "HMTL metadata in Catalan"
+    }]

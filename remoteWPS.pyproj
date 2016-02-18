@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{794a2e68-e0ca-4ab7-9aa3-ee7faac6926c}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>wpsagent.py</StartupFile>
+    <SearchPath>D:\python;D:\python\Libs</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments>-r .\configs\remote.config -s .\configs\OAAonDemand\service.config service</CommandLineArguments>
+    <InterpreterPath />
+    <InterpreterArguments />
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <InterpreterId>{76cf4d95-0665-4992-9b00-2596c08475e2}</InterpreterId>
+    <InterpreterVersion>2.7</InterpreterVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <ItemGroup>
+    <Compile Include="action.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="bus.py" />
+    <Compile Include="command_line_parameter.py" />
+    <Compile Include="computational_job_input_action.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="computational_job_input_actions.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="computational_job_input_action_cmd_param.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="computational_job_input_action_copyfile.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="computational_job_input_action_create_json_file.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="computational_job_input_action_update_ini_file.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="computational_job_input_action_update_json_file.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="computation_job_const.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="configInstance.py" />
+    <Compile Include="busIndipendentMessages.py" />
+    <Compile Include="ConfigParser.py" />
+    <Compile Include="configs\myservice\code\test.py" />
+    <Compile Include="config_file_parameter.py" />
+    <Compile Include="config_file_parameter_cmre_oaa.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="computation_job_input.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="computation_job_param.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="computation_job_inputs.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="introspection.py" />
+    <Compile Include="mockutils.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="output_file_parameter.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="path.py" />
+    <Compile Include="processbot.py" />
+    <Compile Include="input_parameter.py" />
+    <Compile Include="input_parameters.py" />
+    <Compile Include="output_parameters.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="resource_cleaner.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="serviceTester.py" />
+    <Compile Include="servicebot.py" />
+    <Compile Include="termination_handler.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_computation_job_inputs.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_process_input_parameters.py" />
+    <Compile Include="wpsagent.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="xmppBus.py" />
+    <Compile Include="xmppMessages.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="configs\OAAonDemand\asset_schema.json" />
+    <Content Include="configs\OAAonDemand\CMREOAA_MainConfigFile_template.json" />
+    <Content Include="configs\OAAonDemand\CMREOAA_MainConfigFile_template_no_nav_pot.json" />
+    <Content Include="configs\OAAonDemand\geoserverCommands_template.properties" />
+    <Content Include="configs\OAAonDemand\logger.properties" />
+    <Content Include="configs\OAAonDemand\OAAonDemandWrapper_template.properties" />
+    <Content Include="configs\OAAonDemand\oaaOnDemand_template.properties" />
+    <Content Include="configs\OAAonDemand\service.config" />
+    <Content Include="configs\OAAonDemand\wcsOAAonDemand_template.properties" />
+    <Content Include="configs\OAAonDemand\wcsSimpleOAAOnDemand_template.properties" />
+    <Content Include="configs\RiskMaps\logger.properties" />
+    <Content Include="configs\RiskMaps\riskmap_template.ini" />
+    <Content Include="configs\RiskMaps\service.config" />
+    <Content Include="continoustest.bat" />
+    <Content Include="logger_serviceTester.properties" />
+    <Content Include="configs\logger.properties" />
+    <Content Include="configs\remote.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="configs\" />
+    <Folder Include="configs\myservice\" />
+    <Folder Include="configs\myservice\code\" />
+    <Folder Include="configs\RiskMaps\" />
+    <Folder Include="configs\OAAonDemand\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="..\..\..\Users\Cimino\Envs\master\">
+      <Id>{76cf4d95-0665-4992-9b00-2596c08475e2}</Id>
+      <BaseInterpreter>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</BaseInterpreter>
+      <Version>2.7</Version>
+      <Description>master (Python 2.7)</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <LibraryPath>Lib\</LibraryPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X86</Architecture>
+    </Interpreter>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <PtvsTargetsFile>$(VSToolsPath)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <Import Condition="Exists($(PtvsTargetsFile))" Project="$(PtvsTargetsFile)" />
+  <Import Condition="!Exists($(PtvsTargetsFile))" Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+</Project>

@@ -1,0 +1,8 @@
+
+http://demo.geo-solutions.it/share/RemoteWPS-wheels/
+
+pip install --no-index --find-links=wheels -r requirements.txt --upgrade
+
+pip freeze > requirements.txt
+
+pip wheel --wheel-dir=wheels -r requirements.txt --allow-unverified netCDF4 --allow-external netCDF4 --allow-all-external
