@@ -1,0 +1,9 @@
+[DEFAULT]
+
+extract=wcsOAAonDemand.properties
+
+transform = OAAonDemandWrapper.properties
+
+load_1 = GeoserverCommands.properties
+
+durations = [10,80,10]

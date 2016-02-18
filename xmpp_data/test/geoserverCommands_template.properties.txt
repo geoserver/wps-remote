@@ -1,0 +1,21 @@
+[DEFAULT]
+
+class_name = geoserverCommands.GeoserverCommands
+
+workdir = {{workdir}}\
+
+waypoint_file_name = waypoints.csv
+tracks_file_name = tracks_filtered.csv
+costs_file_name = costs.csv
+
+geoserver_xml_template_filepath = geoserverLoadOAAOutput.xml
+geoserver_xml_output_filepath = {{workdir}}\geoserverLoadOAAOutput.xml
+
+unique_id = c5b4e49463e3f6cc52b20cad84b916a5_6372f7586782d53aac853e492c77aa55
+geoserver_layers_namespace = remotewps_oaa
+
+geoserver_tracks_layer_name = oaa_tracks_%(unique_id)s.csv
+tracks_outfile_url = file:/storage/remoteWPS_data/AssetAllocatorOnDemand/runs/%(unique_id)s/%(geoserver_tracks_layer_name)s
+
+geoserver_waypoint_layer_name = oaa_waypoint_%(unique_id)s.csv
+waypoint_outfile_url = file:/storage/remoteWPS_data/AssetAllocatorOnDemand/runs/%(unique_id)s/%(geoserver_waypoint_layer_name)s

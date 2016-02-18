@@ -21,13 +21,13 @@ import mockutils
 class Test(unittest.TestCase):
 
     def test_set_int_param(self):
-        p1 = computation_job_param.ComputationJobParam("mypar", "int", "par descr")
+        p1 = computation_job_param.ComputationJobParam("mypar", "int", "par title", "par descr")
         p1.set_value("1")
         self.assertEquals( p1.get_value_string(), "1" )
 
                    
     def test_set_int_param_wrong_value(self):
-        p1 = computation_job_param.ComputationJobParam("mypar", "int", "par descr")
+        p1 = computation_job_param.ComputationJobParam("mypar", "int", "par title", "par descr")
         #self.assertRaises( TypeError, p1.set_value("zxc") )
         try:
             p1.set_value("all your base are belong to us")
@@ -36,12 +36,12 @@ class Test(unittest.TestCase):
             self.assertTrue(True)
 
     def test_set_multiple_int_param(self):
-        p1 = computation_job_param.ComputationJobParam("mypar", "int", "par descr", max_occurencies=2)
+        p1 = computation_job_param.ComputationJobParam("mypar", "int", "par title", "par descr", max_occurencies=2)
         p1.set_value(["1","2"])
         self.assertEquals( p1.get_value_string(), ["1","2"] )
 
     def test_set_multiple_int_param_wrong_occurrencies(self):
-        p1 = computation_job_param.ComputationJobParam("mypar", "int", "par descr", max_occurencies=1)
+        p1 = computation_job_param.ComputationJobParam("mypar", "int", "par title", "par descr", max_occurencies=1)
         try:
             p1.set_value(["1","2"])
             self.fail()
@@ -50,8 +50,8 @@ class Test(unittest.TestCase):
 
 
     def test_two_params(self):
-        p1 = computation_job_param.ComputationJobParam("mypar1", "int", "par descr 1")
-        p2 = computation_job_param.ComputationJobParam("mypar2", "string", "par descr 2")
+        p1 = computation_job_param.ComputationJobParam("mypar1", "int", "par 1", "par descr 1")
+        p2 = computation_job_param.ComputationJobParam("mypar2", "string", "par 2", "par descr 2")
         inputs = computation_job_inputs.ComputationJobInputs()
         inputs.add_input( [p1, p2] )
         inputs.set_values( { "mypar1" : "1", "mypar2" : "abc"} )
@@ -61,7 +61,7 @@ class Test(unittest.TestCase):
 
     def test_cmd_line_action(self):
         inputs = computation_job_inputs.ComputationJobInputs()
-        inputs.add_input(  computation_job_param.ComputationJobParam("mypar1", "int", "par descr 1") )
+        inputs.add_input(  computation_job_param.ComputationJobParam("mypar1", "int", "par 1", "par descr 1") )
 
         actions = computational_job_input_actions.ComputationalJobInputActions()
         actions.add_actions( computational_job_input_action_cmd_param.ComputationalJobInputActionCmdParam("mypar1", "--name=value") )
@@ -73,8 +73,8 @@ class Test(unittest.TestCase):
 
 
     def test_cmd_line_action_2_values(self):
-        p1 = computation_job_param.ComputationJobParam("mypar1", "int", "par descr 1")
-        p2 = computation_job_param.ComputationJobParam("mypar2", "string", "par descr 2")
+        p1 = computation_job_param.ComputationJobParam("mypar1", "int", "par 1", "par descr 1")
+        p2 = computation_job_param.ComputationJobParam("mypar2", "string", "par 2", "par descr 2")
         inputs = computation_job_inputs.ComputationJobInputs()
         inputs.add_input( [p1, p2] )
         
@@ -89,12 +89,12 @@ class Test(unittest.TestCase):
         self.assertEquals(actions.get_cmd_line(), "--mypar1=1 --mypar2=abc")
 
     def test_create_json_file_action(self):
-        p1 = computation_job_param.ComputationJobParam("mypar1", "application/json", "par descr 1")
+        p1 = computation_job_param.ComputationJobParam("mypar1", "application/json", "par 1", "par descr 1")
         inputs = computation_job_inputs.ComputationJobInputs()
         inputs.add_input( p1 )
 
         actions = computational_job_input_actions.ComputationalJobInputActions()
-        a1 = computational_job_input_action_create_json_file.ComputationalJobInputActionCreateJSONFile("mypar1", path.path("d:\\tmp\\json_out_${json_path_expr}.json"), "['Asset']['id']", path.path(".\\configs\\OAAonDemand\\asset_schema.json")) 
+        a1 = computational_job_input_action_create_json_file.ComputationalJobInputActionCreateJSONFile("mypar1", path.path(".\\json_out_${json_path_expr}.json"), "['Asset']['id']", path.path(".\\xmpp_data\\test\\asset_schema.json")) 
         actions.add_actions( a1 )
         
         
@@ -104,12 +104,12 @@ class Test(unittest.TestCase):
         self.assertTrue( a1.exists() )
 
     def test_create_2_json_file_action(self):
-        p1 = computation_job_param.ComputationJobParam("mypar1", "application/json", "par descr 1",  max_occurencies=2)
+        p1 = computation_job_param.ComputationJobParam("mypar1", "application/json", "par 1", "par descr 1",  max_occurencies=2)
         inputs = computation_job_inputs.ComputationJobInputs()
         inputs.add_input( p1 )
 
         actions = computational_job_input_actions.ComputationalJobInputActions()
-        a1 = computational_job_input_action_create_json_file.ComputationalJobInputActionCreateJSONFile("mypar1", path.path("d:\\tmp\\json_out_${json_path_expr}.json"), "['Asset']['id']", path.path(".\\configs\\OAAonDemand\\asset_schema.json")) 
+        a1 = computational_job_input_action_create_json_file.ComputationalJobInputActionCreateJSONFile("mypar1", path.path(".\\json_out_${json_path_expr}.json"), "['Asset']['id']", path.path(".\\xmpp_data\\test\\asset_schema.json")) 
         actions.add_actions( a1 )
         
         
@@ -119,12 +119,12 @@ class Test(unittest.TestCase):
         self.assertTrue( a1.exists() )
         
     def test_update_json_file_action_with_int(self):
-        target_json_file = path.path("d:\\tmp\\json_out.json")
+        target_json_file = path.path(".\\json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
-        source_template_json_file = path.path(r".\configs\OAAonDemand\CMREOAA_MainConfigFile_template.json")
+        source_template_json_file = path.path(r".\xmpp_data\test\CMREOAA_MainConfigFile_template.json")
 
-        param1 = computation_job_param.ComputationJobParam("numberOfevaluations", "int", "numberOfevaluations descr")
+        param1 = computation_job_param.ComputationJobParam("numberOfevaluations", "int", "par 1", "numberOfevaluations descr")
         inputs = computation_job_inputs.ComputationJobInputs()
         action1 = computational_job_input_action_update_json_file.ComputationalJobInputActionUpdateJSONFile("numberOfevaluations", target_json_file , "['Config']['nEvaluations']", source_template_json_file)
 
@@ -138,12 +138,12 @@ class Test(unittest.TestCase):
         self.assertTrue( 100, j['Config']['nEvaluations'] )
 
     def test_update_json_file_action_with_string(self):
-        target_json_file = path.path("d:\\tmp\\json_out.json")
+        target_json_file = path.path(".\\json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
-        source_template_json_file = path.path(r".\configs\OAAonDemand\CMREOAA_MainConfigFile_template.json")
+        source_template_json_file = path.path(r".\xmpp_data\test\CMREOAA_MainConfigFile_template.json")
 
-        param1 = computation_job_param.ComputationJobParam("path_file_name", "string", "path_file_name descr")
+        param1 = computation_job_param.ComputationJobParam("path_file_name", "string", "par 1", "path_file_name descr")
         inputs = computation_job_inputs.ComputationJobInputs()
         action1 = computational_job_input_action_update_json_file.ComputationalJobInputActionUpdateJSONFile("path_file_name", target_json_file , "['Config']['pathFilename']", source_template_json_file)
 
@@ -190,7 +190,7 @@ class Test(unittest.TestCase):
         
         inputs = computation_job_inputs.ComputationJobInputs()
         inputs.add_input (
-            computation_job_param.ComputationJobParam("mypar1", "int", "par descr")
+            computation_job_param.ComputationJobParam("mypar1", "int", "par 1", "par descr")
         )
 
         actions = computational_job_input_actions.ComputationalJobInputActions.create_from_config( { 'Action1' : input_section })
@@ -235,11 +235,11 @@ template = value'''
         actions = computational_job_input_actions.ComputationalJobInputActions.create_from_config( { 'Action1' : config.items('Action1'), 'Action2' : config.items('Action2') }) 
 
 
-        inputs.set_values( {'workingdir' : 'd:\\tmp' } )
+        inputs.set_values( {'workingdir' : '.' } )
 
         actions.execute( inputs )
 
-        self.assertEquals(actions.get_cmd_line(), '-w d:\\tmp oaaOnDemand')
+        self.assertEquals(actions.get_cmd_line(), '-w . oaaOnDemand')
 
     def test_cmdpar_order(self):
 
@@ -276,19 +276,19 @@ template = -name value
         actions = computational_job_input_actions.ComputationalJobInputActions.create_from_config( { 'Action2' : config.items('Action2'), 'Action1' : config.items('Action1') }) 
 
 
-        inputs.set_values( {'workingdir' : 'd:\\tmp', 'coeff' : 2.4 } )
+        inputs.set_values( {'workingdir' : '.', 'coeff' : 2.4 } )
 
         actions.execute( inputs )
 
-        self.assertEquals(actions.get_cmd_line(), '-w d:\\tmp --k=2.4')
+        self.assertEquals(actions.get_cmd_line(), '-w . --k=2.4')
 
     def test_update_json_list_in_file(self):
-        target_json_file = path.path("d:\\tmp\\json_out.json")
+        target_json_file = path.path(".\\json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
-        source_template_json_file = path.path(r".\configs\OAAonDemand\CMREOAA_MainConfigFile_template.json")
+        source_template_json_file = path.path(r".\xmpp_data\test\CMREOAA_MainConfigFile_template.json")
 
-        param1 = computation_job_param.ComputationJobParam("maxlat", "float", "max latitude")
+        param1 = computation_job_param.ComputationJobParam("maxlat", "float", "par title", "max latitude")
         inputs = computation_job_inputs.ComputationJobInputs()
         action1 = computational_job_input_action_update_json_file.ComputationalJobInputActionUpdateJSONFile("maxlat", target_json_file , "['Config']['latLim'][1]", source_template_json_file)
 
@@ -302,13 +302,13 @@ template = -name value
         self.assertTrue( 45.5, j['Config']['latLim'][1] )
 
     def test_update_json_list_in_file_two_times(self):
-        target_json_file = path.path("d:\\tmp\\json_out.json")
+        target_json_file = path.path(".\\json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
-        source_template_json_file = path.path(r".\configs\OAAonDemand\CMREOAA_MainConfigFile_template.json")
+        source_template_json_file = path.path(r".\xmpp_data\test\CMREOAA_MainConfigFile_template.json")
 
-        param1 = computation_job_param.ComputationJobParam("minlat", "float", "min latitude")
-        param2 = computation_job_param.ComputationJobParam("maxlat", "float", "max latitude")
+        param1 = computation_job_param.ComputationJobParam("minlat", "float", "par title", "min latitude")
+        param2 = computation_job_param.ComputationJobParam("maxlat", "float", "par title", "max latitude")
         
         inputs = computation_job_inputs.ComputationJobInputs()
         

@@ -296,12 +296,12 @@ class Test(unittest.TestCase):
         
         import subprocess
         import random
-        sendbox_root = path.path("d:\\tmp\\")
+        sendbox_root = path.path(".\\")
 
         Resource.sleep_time_seconds = datetime.timedelta( seconds=5)
         Resource.process_time_threshold = datetime.timedelta( seconds=1)
         Resource.workdir_time_threshold = datetime.timedelta( seconds=1)
-        Resource.pid_files_dir = path.path("d:\\tmp2\\")
+        Resource.pid_files_dir = path.path(".\\")
 
         #srv bot
         #create process bot
@@ -312,7 +312,7 @@ class Test(unittest.TestCase):
         sendbox_path =  sendbox_root / str(unique_id)
 
         r = Resource()
-        r.set_from_servicebot(unique_id, sendbox_path, prcbot_pid)
+        r.set_from_servicebot(unique_id, sendbox_path)
         r.write()
 
         #proc bot
@@ -321,7 +321,7 @@ class Test(unittest.TestCase):
 
         #add the pid of the computational job to the resource file
         rc = Resource.create_from_file(unique_id, prcbot_pid)
-        rc.set_from_processbot( [ comp_job.pid ] ) 
+        rc.set_from_processbot( prcbot_pid, [ comp_job.pid ] ) 
         rc.write()
 
         #resource cleaner, should run in separate thread
