@@ -8,7 +8,7 @@ python:
     - 2.7
 
 install:
-    - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then travis_retry pip install -r requirements.txt ; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then travis_retry pip install --quiet -r requirements.txt ; fi
 script:
   - pylint -r n --disable=C --disable=W0141 wpsagent.py
   - pylint -r n --disable=C --disable=W0141 servicebot.py
