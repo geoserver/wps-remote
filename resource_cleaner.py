@@ -296,12 +296,12 @@ class Test(unittest.TestCase):
         
         import subprocess
         import random
-        sendbox_root = path.path(".\\")
+        sendbox_root = path.path("./")
 
         Resource.sleep_time_seconds = datetime.timedelta( seconds=5)
         Resource.process_time_threshold = datetime.timedelta( seconds=1)
         Resource.workdir_time_threshold = datetime.timedelta( seconds=1)
-        Resource.pid_files_dir = path.path(".\\")
+        Resource.pid_files_dir = path.path("./")
 
         #srv bot
         #create process bot

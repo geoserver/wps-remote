@@ -94,7 +94,7 @@ class Test(unittest.TestCase):
         inputs.add_input( p1 )
 
         actions = computational_job_input_actions.ComputationalJobInputActions()
-        a1 = computational_job_input_action_create_json_file.ComputationalJobInputActionCreateJSONFile("mypar1", path.path(".\\json_out_${json_path_expr}.json"), "['Asset']['id']", path.path(".\\xmpp_data\\test\\asset_schema.json")) 
+        a1 = computational_job_input_action_create_json_file.ComputationalJobInputActionCreateJSONFile("mypar1", path.path("./json_out_${json_path_expr}.json"), "['Asset']['id']", path.path("./xmpp_data/test/asset_schema.json")) 
         actions.add_actions( a1 )
         
         
@@ -109,7 +109,7 @@ class Test(unittest.TestCase):
         inputs.add_input( p1 )
 
         actions = computational_job_input_actions.ComputationalJobInputActions()
-        a1 = computational_job_input_action_create_json_file.ComputationalJobInputActionCreateJSONFile("mypar1", path.path(".\\json_out_${json_path_expr}.json"), "['Asset']['id']", path.path(".\\xmpp_data\\test\\asset_schema.json")) 
+        a1 = computational_job_input_action_create_json_file.ComputationalJobInputActionCreateJSONFile("mypar1", path.path("./json_out_${json_path_expr}.json"), "['Asset']['id']", path.path("./xmpp_data/test/asset_schema.json")) 
         actions.add_actions( a1 )
         
         
@@ -119,7 +119,7 @@ class Test(unittest.TestCase):
         self.assertTrue( a1.exists() )
         
     def test_update_json_file_action_with_int(self):
-        target_json_file = path.path(".\\json_out.json")
+        target_json_file = path.path("./json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
         source_template_json_file = path.path(r".\xmpp_data\test\CMREOAA_MainConfigFile_template.json")
@@ -138,7 +138,7 @@ class Test(unittest.TestCase):
         self.assertTrue( 100, j['Config']['nEvaluations'] )
 
     def test_update_json_file_action_with_string(self):
-        target_json_file = path.path(".\\json_out.json")
+        target_json_file = path.path("./json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
         source_template_json_file = path.path(r".\xmpp_data\test\CMREOAA_MainConfigFile_template.json")
@@ -283,7 +283,7 @@ template = -name value
         self.assertEquals(actions.get_cmd_line(), '-w . --k=2.4')
 
     def test_update_json_list_in_file(self):
-        target_json_file = path.path(".\\json_out.json")
+        target_json_file = path.path("./json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
         source_template_json_file = path.path(r".\xmpp_data\test\CMREOAA_MainConfigFile_template.json")
@@ -302,7 +302,7 @@ template = -name value
         self.assertTrue( 45.5, j['Config']['latLim'][1] )
 
     def test_update_json_list_in_file_two_times(self):
-        target_json_file = path.path(".\\json_out.json")
+        target_json_file = path.path("./json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
         source_template_json_file = path.path(r".\xmpp_data\test\CMREOAA_MainConfigFile_template.json")
