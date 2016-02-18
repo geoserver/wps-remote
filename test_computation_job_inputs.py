@@ -122,7 +122,7 @@ class Test(unittest.TestCase):
         target_json_file = path.path("./json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
-        source_template_json_file = path.path(r".\xmpp_data\test\CMREOAA_MainConfigFile_template.json")
+        source_template_json_file = path.path(r"./xmpp_data/test/CMREOAA_MainConfigFile_template.json")
 
         param1 = computation_job_param.ComputationJobParam("numberOfevaluations", "int", "par 1", "numberOfevaluations descr")
         inputs = computation_job_inputs.ComputationJobInputs()
@@ -141,7 +141,7 @@ class Test(unittest.TestCase):
         target_json_file = path.path("./json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
-        source_template_json_file = path.path(r".\xmpp_data\test\CMREOAA_MainConfigFile_template.json")
+        source_template_json_file = path.path(r"./xmpp_data/test/CMREOAA_MainConfigFile_template.json")
 
         param1 = computation_job_param.ComputationJobParam("path_file_name", "string", "par 1", "path_file_name descr")
         inputs = computation_job_inputs.ComputationJobInputs()
@@ -286,7 +286,7 @@ template = -name value
         target_json_file = path.path("./json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
-        source_template_json_file = path.path(r".\xmpp_data\test\CMREOAA_MainConfigFile_template.json")
+        source_template_json_file = path.path(r"./xmpp_data/test/CMREOAA_MainConfigFile_template.json")
 
         param1 = computation_job_param.ComputationJobParam("maxlat", "float", "par title", "max latitude")
         inputs = computation_job_inputs.ComputationJobInputs()
@@ -305,7 +305,7 @@ template = -name value
         target_json_file = path.path("./json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
-        source_template_json_file = path.path(r".\xmpp_data\test\CMREOAA_MainConfigFile_template.json")
+        source_template_json_file = path.path(r"./xmpp_data/test/CMREOAA_MainConfigFile_template.json")
 
         param1 = computation_job_param.ComputationJobParam("minlat", "float", "par title", "min latitude")
         param2 = computation_job_param.ComputationJobParam("maxlat", "float", "par title", "max latitude")
