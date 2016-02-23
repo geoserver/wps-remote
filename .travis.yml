@@ -1,12 +1,11 @@
 sudo: false
 cache:
   directories:
-    - "$HOME/.m2"
+    - "$HOME"
 language: python
 python:
     - 2.7.8
     - 2.7
-
 install:
     - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then travis_retry pip install -r requirements.txt ; fi
     - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then travis_retry pip install coveralls ; fi
@@ -33,7 +32,6 @@ script:
   - pylint -r n --disable=C --disable=W0141 output_file_parameter.py
   - python test_computation_job_inputs.py
   - python test_process_input_parameters.py
-  #- python resource_cleaner.py
   - coverage run test_computation_job_inputs.py
   - coverage run test_process_input_parameters.py
 after_success: coveralls
