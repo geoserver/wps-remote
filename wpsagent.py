@@ -158,6 +158,7 @@ class WPSAgentService(WPSAgent):
         return bot
 
 class SleekXMPPLoggerFilter(logging.Filter):
+
     def filter(self, record):
         return not 'sleekxmpp' in record.name 
 
