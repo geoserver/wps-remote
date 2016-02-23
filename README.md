@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/geosolutions-it/wps-remote.svg?branch=master)](https://travis-ci.org/geosolutions-it/wps-remote)
-[![Coverage Status](https://coveralls.io/repos/geosolutions-it/wps-remote/badge.svg?branch=master&service=github)](https://coveralls.io/github/geosolutions-it/wps-remote?branch=master)
+[![Build Status](https://travis-ci.org/geoserver/wps-remote.svg?branch=master)](https://travis-ci.org/geoserver/wps-remote)
+[![Coverage Status](https://coveralls.io/repos/github/geoserver/wps-remote/badge.svg?branch=master)](https://coveralls.io/github/geoserver/wps-remote?branch=master)
 
 RemoteWPS
 =========
