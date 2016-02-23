@@ -10,10 +10,8 @@ install:
     - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then travis_retry pip install -r requirements.txt ; fi
     - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then travis_retry pip install coveralls ; fi
 script:
-  - python test_computation_job_inputs.py
-  - python test_process_input_parameters.py
-  - coverage run test_computation_job_inputs.py
-  - coverage run test_process_input_parameters.py
+  - python setup.py test
+  - coverage run --source=src setup.py test
 after_success: coveralls
 notifications:
   email:
