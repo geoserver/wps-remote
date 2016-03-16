@@ -16,6 +16,7 @@ setup(
     version = "2.9",
     author = "GeoServer Developers",
     author_email = "geoserver-devel@lists.sourceforge.net",
+    description = "A library that allows users to publish their executables as GeoServer WPS Processes through the XMPP protocol",
     keywords = "XMPP Beckend for GeoServer Remote WPS ProcessFactory.",
     long_description = readme_text,
     license = "GPL",
