@@ -112,6 +112,8 @@ class XMPPBus(bus.Bus):
                     return busIndipendentMessages.InviteMessage(payload, msg['from'])
                 elif ("topic=finish" in payload):
                     return busIndipendentMessages.FinishMessage(payload, msg['from'])
+                elif ("topic=getloadavg" in payload):
+                    return busIndipendentMessages.GetLoadAverageMessage(payload, msg['from'])
                 else:
                     pass
         return None
@@ -141,6 +143,9 @@ class XMPPBus(bus.Bus):
 
         if (type(busIndipendentMsg) is busIndipendentMessages.ErrorMessage):
             return xmppMessages.XMPPErrorMessage(busIndipendentMsg.originator, self, busIndipendentMsg.msg)
+
+        if (type(busIndipendentMsg) is busIndipendentMessages.LoadAverageMessage):
+            return xmppMessages.XMPPLoadAverageMessage(busIndipendentMsg.originator, self, busIndipendentMsg.outputs() )
 
         else:
             raise Exception("unknown message")

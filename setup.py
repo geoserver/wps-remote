@@ -13,7 +13,7 @@ except IOError,e:
 
 setup(
     name = "wps-remote",
-    version = "2.9",
+    version = "2.9.1",
     author = "GeoServer Developers",
     author_email = "geoserver-devel@lists.sourceforge.net",
     keywords = "XMPP Beckend for GeoServer Remote WPS ProcessFactory.",

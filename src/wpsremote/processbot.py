@@ -202,7 +202,7 @@ class ProcessBot(object):
             for p in self._output_parameters_defs.parameters():
                 outputs[p.get_name()] = [p.get_value(), p.get_description(), p.get_title(), p.get_type(), p.is_publish_as_layer(), p.get_publish_layer_name(), p.get_publish_default_style(), p.get_publish_target_workspace(), p.get_metadata()]
             with self._lock_bus:
-                print str(outputs)
+                #print str(outputs)
                 self.bus.SendMessage(busIndipendentMessages.CompletedMessage( self._remote_wps_endpoint, self._remote_wps_baseurl, outputs ))
             logger.info( "after send job-completed message to WPS")
         else:

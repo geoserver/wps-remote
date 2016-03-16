@@ -8,6 +8,9 @@ __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
 
+import os
+import psutil
+
 import introspection
 import thread
 from collections import OrderedDict
@@ -22,6 +25,7 @@ import configInstance
 import computation_job_inputs
 import output_parameters
 import resource_cleaner
+import resource_monitor
 
 class ServiceBot(object):
     """This script is the remote WPS agent. One instance of this agent runs on each computational node connected to the WPS for each algorithm available. The script runs continuosly.
@@ -68,12 +72,19 @@ class ServiceBot(object):
 
         self.bus.RegisterMessageCallback(busIndipendentMessages.InviteMessage, self.handle_invite) 
         self.bus.RegisterMessageCallback(busIndipendentMessages.ExecuteMessage, self.handle_execute)
+
+        # -- Register here the callback to the "getloadavg" message
+        self.bus.RegisterMessageCallback(busIndipendentMessages.GetLoadAverageMessage, self.handle_getloadavg)
         
         #self._lock_running_process =  thread.allocate_lock() #critical section to access running_process from separate threads
         self.running_process={}
 
         self._redirect_process_stdout_to_logger = False #send the process bot (aka request handler) stdout to service bot (remote wps agent) log file
         self._remote_wps_endpoint = None
+
+        # Allocate and start a Resource Monitoring Thread
+        self._resource_monitor = resource_monitor.ResourceMonitor()
+        self._resource_monitor.start()
 
     def get_resource_file_dir(self):
         return self._resource_file_dir
@@ -111,7 +122,7 @@ class ServiceBot(object):
         """Handler for WPS execute message."""
         logger = logging.getLogger("servicebot.handle_execute")
 
-        #save execute messsage to tmmp file to enable the process bot to read the inputs
+        #save execute messsage to tmp file to enable the process bot to read the inputs
         tmp_file = tempfile.NamedTemporaryFile(prefix='wps_params_', suffix=".tmp", delete=False)
         execute_message.serialize( tmp_file )
         param_filepath = tmp_file.name
@@ -135,6 +146,28 @@ class ServiceBot(object):
         thread.start_new_thread(self.output_parser_verbose, (invoked_process,))
 
         logger.info("end of execute message handler, going back in listening mode")
+
+    def handle_getloadavg(self, getloadavg_message):
+        """Handler for WPS 'getloadavg' message."""
+        logger = logging.getLogger("servicebot.handle_getloadavg")
+        logger.info("handle getloadavg message from WPS " + str(getloadavg_message.originator()))
+        # Collect current Machine Load Average and Available Memory info
+
+        try:
+
+            outputs = dict()
+            outputs['loadavg'] = [self._resource_monitor.cpu_perc[0], 'Average Load on CPUs during the last 15 minutes.']
+            outputs['vmem']    = [self._resource_monitor.vmem_perc[0], 'Percentage of Memory used by the server.']
+
+            # Send the message back to the WPS
+            self.bus.SendMessage(
+                busIndipendentMessages.LoadAverageMessage(
+                    getloadavg_message.originator(), 
+                    outputs
+                    )
+                )
+        except Exception, err:
+            print traceback.format_exc()
 
     def output_parser(self, invoked_process):
         #silently wait the end of the computaion
