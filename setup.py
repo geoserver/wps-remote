@@ -4,6 +4,25 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
+"""
+   To deploy a new version of the package on PyPi
+   
+   1. Update "version" and REAMDE.md
+   
+   2. Follow the instruction at http://peterdowns.com/posts/first-time-with-pypi.html
+   
+   3. Deploy on pypitest:
+      
+      python setup.py sdist upload -r pypitest
+      python setup.py bdist --format=gztar upload -r pypitest
+      python setup.py bdist_wheel upload -r pypitest
+
+   4. Deploy on pypi:
+      
+      python setup.py sdist upload -r pypi
+      python setup.py bdist --format=gztar upload -r pypi
+      python setup.py bdist_wheel upload -r pypi
+"""
 from setuptools import setup, find_packages
 
 try:

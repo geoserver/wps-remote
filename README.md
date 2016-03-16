@@ -21,7 +21,7 @@ RemoteWPS licensed under the [GPL](http://www.gnu.org/licenses/old-licenses/gpl-
 
 You can install the "wps-remote" Python package by using the PyPi distribution ::
 
-    pip install wps-remote==2.9
+    pip install wps-remote==2.9.1
 
 Please refer to the [user guide](http://docs.geoserver.org/latest/en/user/community/remote-wps/index.html) for detailed 
 information on how to install and use RemoteWPS.
