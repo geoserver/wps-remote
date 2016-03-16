@@ -16,7 +16,7 @@ import psutil
 class ResourceMonitor(threading.Thread):
 
     cores = psutil.cpu_count()
-    cpu_perc = []
+    cpu_perc  = []
     vmem_perc = []
     lock = threading.Lock()
     
@@ -31,7 +31,31 @@ class ResourceMonitor(threading.Thread):
         ResourceMonitor.cpu_perc.append(psutil.cpu_percent(interval = 0, percpu= False))
 
         ResourceMonitor.lock.release() 
- 
+
+    def proc_is_running(self, proc_names):
+        for proc in psutil.process_iter(): 
+        
+            process = psutil.Process(proc.pid).as_dict() # Get the process info using PID
+
+            pid    = str(process["pid"])
+            ppid   = str(process["ppid"])
+            status = process["status"]
+
+            cpu_percent = process["cpu_percent"]
+            mem_percent = process["memory_percent"]
+        
+            rss = str(process["memory_info"].rss)
+            vms = str(process["memory_info"].vms)
+            username = process["username"]
+            name = process["name"] # Here is the process name
+            path = process["cwd"]
+
+            for proc_name in proc_names:
+                if status.lower() == "running" and proc_name in name.lower():
+                    return True
+
+        return False
+
     def run(self): 
         while True: 
             ResourceMonitor.lock.acquire() 

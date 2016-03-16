@@ -56,6 +56,11 @@ class ServiceBot(object):
         self._output_dir =  serviceConfig.get_path("DEFAULT", "output_dir") 
         self._max_running_time = datetime.timedelta( seconds = serviceConfig.getint("DEFAULT", "max_running_time_seconds") )
 
+        try:
+            self._process_blacklist = serviceConfig.get_list("DEFAULT", "process_blacklist")
+        except:
+            self._process_blacklist = []
+
         input_sections = OrderedDict()
         for input_section in [s for s in serviceConfig.sections() if 'input' in s.lower() or 'const' in s.lower()]:
             #service bot doesn't have yet the execution unique id, thus the serviceConfig is read with raw=True to avoid config file variables interpolation 
@@ -154,10 +159,16 @@ class ServiceBot(object):
         # Collect current Machine Load Average and Available Memory info
 
         try:
+            loadavg = self._resource_monitor.cpu_perc[0]
+            vmem    = self._resource_monitor.vmem_perc[0]
+
+            if self._resource_monitor.proc_is_running(self._process_blacklist) == True:
+                loadavg = 100.0
+                vmem    = 100.0
 
             outputs = dict()
-            outputs['loadavg'] = [self._resource_monitor.cpu_perc[0], 'Average Load on CPUs during the last 15 minutes.']
-            outputs['vmem']    = [self._resource_monitor.vmem_perc[0], 'Percentage of Memory used by the server.']
+            outputs['loadavg'] = [loadavg, 'Average Load on CPUs during the last 15 minutes.']
+            outputs['vmem']    = [vmem, 'Percentage of Memory used by the server.']
 
             # Send the message back to the WPS
             self.bus.SendMessage(
@@ -199,3 +210,4 @@ class ServiceBot(object):
 
     def disconnect(self):
         self.bus.disconnect()
+
