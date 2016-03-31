@@ -21,7 +21,7 @@ RemoteWPS licensed under the [GPL](http://www.gnu.org/licenses/old-licenses/gpl-
 
 You can install the "wps-remote" Python package by using the PyPi distribution ::
 
-    pip install wps-remote==2.9.2
+    pip install wps-remote==2.9.3
 
 Please refer to the [user guide](http://docs.geoserver.org/latest/en/user/community/remote-wps/index.html) for detailed 
 information on how to install and use RemoteWPS.
@@ -56,6 +56,11 @@ Visit the [website](http://geoserver.org/) or read the [docs](http://docs.geoser
 
 Change Log
 ==========
+
+2.9.3 [2016-03-31 17:24:47]
+ - Added "processbot" XMPP connection checks
+ - Added "servicebot" check "processbot" status error and send error message impersonating the underlying process
+ - Added "NetCDF Output" example on service.config
 
 2.9.2 [2016-03-17 17:33:19]
  - Added "process_blacklist" property to "service.config" file

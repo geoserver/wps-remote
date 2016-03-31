@@ -118,17 +118,21 @@ class XMPPCompletedMessage(object):
 
 class XMPPErrorMessage(object):
 
-    def __init__(self, originator, xmppChannel, msg):
+    def __init__(self, originator, xmppChannel, msg, id=None):
         self.originator = originator
         self.xmppChannel = xmppChannel
         self.msg  = msg
+        if id:
+            self.id = id
+        else:
+            self.id = self.xmppChannel.id
 
     def send(self):
 
         error_json = json.dumps(self.msg)
         error_json_url_enc=urllib.quote(error_json)
 
-        body = ''.join(['topic=error', '&id=', self.xmppChannel.id, "&message=", error_json_url_enc])
+        body = ''.join(['topic=error', '&id=', self.id, "&message=", error_json_url_enc])
         self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')
 
 class XMPPLoadAverageMessage(object):

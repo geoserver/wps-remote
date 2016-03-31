@@ -142,7 +142,7 @@ class XMPPBus(bus.Bus):
             return xmppMessages.XMPPCompletedMessage(busIndipendentMsg.originator, self, busIndipendentMsg.base_url, busIndipendentMsg.outputs() )
 
         if (type(busIndipendentMsg) is busIndipendentMessages.ErrorMessage):
-            return xmppMessages.XMPPErrorMessage(busIndipendentMsg.originator, self, busIndipendentMsg.msg)
+            return xmppMessages.XMPPErrorMessage(busIndipendentMsg.originator, self, busIndipendentMsg.msg, busIndipendentMsg.id)
 
         if (type(busIndipendentMsg) is busIndipendentMessages.LoadAverageMessage):
             return xmppMessages.XMPPLoadAverageMessage(busIndipendentMsg.originator, self, busIndipendentMsg.outputs() )

@@ -104,9 +104,10 @@ class FinishMessage(BusInipendentMessage):
 
 class ErrorMessage(BusInipendentMessage):
 
-    def __init__(self, originator, msg):
+    def __init__(self, originator, msg, id=None):
         self.originator = originator
         self.msg = msg
+        self.id = id
 
 class AbortMessage(BusInipendentMessage):
 

@@ -150,7 +150,20 @@ class ProcessBot(object):
         logger.info( "start parsing stdout of created process " + self.service )
 
         with self._lock_bus:
-            self.bus.SendMessage( busIndipendentMessages.LogMessage(  self._remote_wps_endpoint, "INFO", "start parsing stdout of created process " + self.service ) )
+            if self.bus.state() == 'connected':
+                self.bus.SendMessage( busIndipendentMessages.LogMessage(  self._remote_wps_endpoint, "INFO", "start parsing stdout of created process " + self.service ) )
+            else:
+                try:
+                    self.bus.xmpp.reconnect()
+                    self.bus.xmpp.send_presence()
+                    self.bus.xmpp.get_roster()
+
+                    if self.bus.state() == 'connected':
+                        self.bus.SendMessage( busIndipendentMessages.LogMessage(  self._remote_wps_endpoint, "INFO", "start parsing stdout of created process " + self.service ) )
+                    else:
+                        logger.info( "[XMPP Disconnected]: Process "+str(self._uniqueExeId)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
+                except:
+                    logger.info( "[XMPP Disconnected]: Process "+str(self._uniqueExeId)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
 
         # Listen to stdout
         stdout_parser_compiled = [re.compile(r) for r in self._stdout_parser]
@@ -168,16 +181,37 @@ class ProcessBot(object):
                     if (res):
                         if (action=="progress"):
                             with self._lock_bus:
+                                if self.bus.state() != 'connected':
+                                    try:
+                                        self.bus.xmpp.reconnect()
+                                        self.bus.xmpp.send_presence()
+                                        self.bus.xmpp.get_roster()
+                                    except:
+                                        logger.info( "[XMPP Disconnected]: Process "+str(self._uniqueExeId)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
                                 self.bus.SendMessage( busIndipendentMessages.ProgressMessage(  self._remote_wps_endpoint, float(res.group(1).strip() ) ) )
                             match=True
                             break
                         elif (action=="log"):
                             with self._lock_bus:
+                                if self.bus.state() != 'connected':
+                                    try:
+                                        self.bus.xmpp.reconnect()
+                                        self.bus.xmpp.send_presence()
+                                        self.bus.xmpp.get_roster()
+                                    except:
+                                        logger.info( "[XMPP Disconnected]: Process "+str(self._uniqueExeId)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
                                 self.bus.SendMessage( busIndipendentMessages.LogMessage(  self._remote_wps_endpoint, res.group(1).strip(), res.group(2).strip() ) )
                             match=True
                             break
                         elif (action=="abort"):
                             with self._lock_bus:
+                                if self.bus.state() != 'connected':
+                                    try:
+                                        self.bus.xmpp.reconnect()
+                                        self.bus.xmpp.send_presence()
+                                        self.bus.xmpp.get_roster()
+                                    except:
+                                        logger.info( "[XMPP Disconnected]: Process "+str(self._uniqueExeId)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
                                 self.bus.SendMessage( busIndipendentMessages.ErrorMessage(  self._remote_wps_endpoint, res.group(2).strip() ) )
                             match=True
                             break
@@ -202,12 +236,18 @@ class ProcessBot(object):
             for p in self._output_parameters_defs.parameters():
                 outputs[p.get_name()] = [p.get_value(), p.get_description(), p.get_title(), p.get_type(), p.is_publish_as_layer(), p.get_publish_layer_name(), p.get_publish_default_style(), p.get_publish_target_workspace(), p.get_metadata()]
             with self._lock_bus:
-                #print str(outputs)
+                if self.bus.state() != 'connected':
+                    try:
+                        self.bus.xmpp.reconnect()
+                        self.bus.xmpp.send_presence()
+                        self.bus.xmpp.get_roster()
+                    except:
+                        logger.info( "[XMPP Disconnected]: Process "+str(self._uniqueExeId)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
                 self.bus.SendMessage(busIndipendentMessages.CompletedMessage( self._remote_wps_endpoint, self._remote_wps_baseurl, outputs ))
             logger.info( "after send job-completed message to WPS")
         else:
             error_message = "process exit code is " + str(return_code) + ": failure\n" + "\n".join(str(e) for e in stack_trace)
-            logger.info( "process exit code is " + str(return_code) + ": failure")
+            logger.critical( "process exit code is " + str(return_code) + ": failure")
 
             #todo: should i wait for finish message here as well? No
             self.send_error_message( error_message )
@@ -230,8 +270,24 @@ class ProcessBot(object):
         logger = logging.getLogger("ProcessBot.send_error_message to " + str(self._remote_wps_endpoint))
         logger.error( msg ) 
         with self._lock_bus:
-            self.bus.SendMessage( busIndipendentMessages.ErrorMessage( self._remote_wps_endpoint, msg ) )
+            if self.bus.state() == 'connected':
+                self.bus.SendMessage( busIndipendentMessages.ErrorMessage( self._remote_wps_endpoint, msg ) )
+            else:
+                try:
+                    self.bus.xmpp.reconnect()
+                    self.bus.xmpp.send_presence()
+                    self.bus.xmpp.get_roster()
+
+                    if self.bus.state() == 'connected':
+                        self.bus.SendMessage( busIndipendentMessages.ErrorMessage( self._remote_wps_endpoint, msg ) )
+                    else:
+                        sys.stdout.write( "[XMPP Disconnected]: Process <UID>"+str(self._uniqueExeId)+"</UID> Could not send error message to GeoServer Endpoint <JID>"+str(self._remote_wps_endpoint)+"</JID> <MSG>"+msg.replace('\n', ' ').replace('\r', '')+"</MSG>")
+                except:
+                    sys.stdout.write( "[XMPP Disconnected]: Process <UID>"+str(self._uniqueExeId)+"</UID> Could not send error message to GeoServer Endpoint <JID>"+str(self._remote_wps_endpoint)+"</JID> <MSG>"+msg.replace('\n', ' ').replace('\r', '')+"</MSG>")
+
         logger.debug( "send error msg complete" ) 
+        thread.interrupt_main()
+        os._exit(-1)
 
     def disconnect(self):
         with self._lock_bus:
