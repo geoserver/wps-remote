@@ -4,6 +4,26 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
+"""
+   To deploy a new version of the package on PyPi
+   
+   1. Update "version" 
+   2. Update REAMDE.md Change Log and pip install version
+   
+   3. Follow the instruction at http://peterdowns.com/posts/first-time-with-pypi.html
+   
+   4. Deploy on pypitest:
+      
+      python setup.py sdist upload -r pypitest
+      python setup.py bdist --format=gztar upload -r pypitest
+      python setup.py bdist_wheel upload -r pypitest
+
+   5. Deploy on pypi:
+      
+      python setup.py sdist upload -r pypi
+      python setup.py bdist --format=gztar upload -r pypi
+      python setup.py bdist_wheel upload -r pypi
+"""
 from setuptools import setup, find_packages
 
 try:
@@ -13,7 +33,7 @@ except IOError,e:
 
 setup(
     name = "wps-remote",
-    version = "2.9",
+    version = "2.9.3",
     author = "GeoServer Developers",
     author_email = "geoserver-devel@lists.sourceforge.net",
     description = "A library that allows users to publish their executables as GeoServer WPS Processes through the XMPP protocol",

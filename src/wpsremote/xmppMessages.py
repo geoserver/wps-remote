@@ -19,6 +19,7 @@ import sleekxmpp
 from sleekxmpp.exceptions import IqError, IqTimeout
 
 class XMPPPresenceMessage(object):
+
     def __init__(self, xmppChannel):
         self.xmppChannel=xmppChannel
 
@@ -27,6 +28,7 @@ class XMPPPresenceMessage(object):
         self.xmppChannel.JoinmMUC()
 
 class XMPPRegisterMessage(object):
+
     def __init__(self, xmppChannel, originator, service, namespace, descritpion, par, output):
         self.xmppChannel=xmppChannel
         self.originator=originator
@@ -55,6 +57,7 @@ class XMPPRegisterMessage(object):
         self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')
 
 class XMPPProgressMessage(object):
+
     def __init__(self, originator, xmppChannel, progress):
         self.xmppChannel=xmppChannel
         self.progress=progress
@@ -65,6 +68,7 @@ class XMPPProgressMessage(object):
         self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')
 
 class XMPPLogMessage(object):
+
     def __init__(self, originator, xmppChannel, level, msg):
         self.xmppChannel=xmppChannel
         self.level=level
@@ -76,6 +80,7 @@ class XMPPLogMessage(object):
         self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')
 
 class XMPPCompletedMessage(object):
+
     def __init__(self, originator, xmppChannel, base_url, outputs):
         self.xmppChannel = xmppChannel
         self.originator = originator
@@ -88,7 +93,7 @@ class XMPPCompletedMessage(object):
             message = ""
             for out_param_name, out_param_values in self._outputs.items():
                 result = dict()
-                print str(out_param_values)
+                #print str(out_param_values)
                 result[out_param_name+'_value']         = out_param_values[0] #value
                 result[out_param_name+'_description']   = out_param_values[1] #description
                 result[out_param_name+'_title']         = out_param_values[2] #title
@@ -112,15 +117,49 @@ class XMPPCompletedMessage(object):
             self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')
 
 class XMPPErrorMessage(object):
-    def __init__(self, originator, xmppChannel, msg):
+
+    def __init__(self, originator, xmppChannel, msg, id=None):
         self.originator = originator
         self.xmppChannel = xmppChannel
         self.msg  = msg
+        if id:
+            self.id = id
+        else:
+            self.id = self.xmppChannel.id
 
     def send(self):
 
         error_json = json.dumps(self.msg)
         error_json_url_enc=urllib.quote(error_json)
 
-        body = ''.join(['topic=error', '&id=', self.xmppChannel.id, "&message=", error_json_url_enc])
+        body = ''.join(['topic=error', '&id=', self.id, "&message=", error_json_url_enc])
         self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')
+
+class XMPPLoadAverageMessage(object):
+
+    def __init__(self, originator, xmppChannel, outputs):
+        self.xmppChannel = xmppChannel
+        self.originator = originator
+        self._outputs = outputs
+
+    def send(self):
+        try:
+            message = ""
+            for out_param_name, out_param_values in self._outputs.items():
+                result = dict()
+                #print str(out_param_values)
+                result[out_param_name+'_value']         = out_param_values[0] #value
+                result[out_param_name+'_description']   = out_param_values[1] #description
+                result_json = json.dumps(result)
+                result_json_url_enc=urllib.quote(result_json)
+                if len(message) > 0:
+                    message = message + "&"
+                message = message + "result_" + out_param_name + "=" + result_json_url_enc
+
+            body = ''.join(['topic=loadavg', '&id=', self.xmppChannel.id, "&message=loadavg","&",message])
+            self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')
+        except Exception, err:
+            print traceback.format_exc()
+            body = ''.join(['topic=log', '&id=', self.xmppChannel.id, '&level=warning', "&message=", "Critical error while encoding LoadAverageMessage outuputs!"])
+            self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')
+

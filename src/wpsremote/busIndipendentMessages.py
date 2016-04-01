@@ -17,6 +17,7 @@ class PresenceMessage(BusInipendentMessage):
     pass
 
 class InviteMessage(BusInipendentMessage):
+
     def __init__(self, payload, originator):
         self._originator=originator
         self._payload=payload
@@ -25,6 +26,7 @@ class InviteMessage(BusInipendentMessage):
         return self._originator 
 
 class RegisterMessage(BusInipendentMessage):
+
     def __init__(self, originator, service, namespace, descritpion, par, output):
         self._originator = originator
         self.service = service
@@ -72,17 +74,20 @@ class ExecuteMessage(BusInipendentMessage):
         pickle.dump(self, fileptr)
 
 class ProgressMessage(BusInipendentMessage):
+
    def __init__(self,  originator, progress):
         self.originator = originator
         self.progress = progress
 
 class LogMessage(BusInipendentMessage):
+
    def __init__(self,  originator, level, msg):
         self.level = level
         self.originator = originator
         self.msg = msg
 
 class CompletedMessage(BusInipendentMessage):
+
     def __init__(self, originator, base_url, outputs):
         self.originator = originator
         self.base_url=base_url
@@ -92,16 +97,38 @@ class CompletedMessage(BusInipendentMessage):
         return self._outputs
 
 class FinishMessage(BusInipendentMessage):
+
     def __init__(self, payload, originator):
         self.originator=originator
         self.payload=payload
 
 class ErrorMessage(BusInipendentMessage):
-    def __init__(self, originator, msg):
+
+    def __init__(self, originator, msg, id=None):
         self.originator = originator
         self.msg = msg
+        self.id = id
 
 class AbortMessage(BusInipendentMessage):
+
     def __init__(self, originator, msg):
         self.msg = msg
         self.originator = originator
+
+class GetLoadAverageMessage(BusInipendentMessage):
+
+    def __init__(self, payload, originator):
+        self._originator=originator
+        self._payload=payload
+    
+    def originator(self):
+        return self._originator 
+
+class LoadAverageMessage(BusInipendentMessage):
+
+    def __init__(self, originator, outputs):
+        self.originator = originator
+        self._outputs = outputs
+
+    def outputs(self):
+        return self._outputs

@@ -21,7 +21,7 @@ RemoteWPS licensed under the [GPL](http://www.gnu.org/licenses/old-licenses/gpl-
 
 You can install the "wps-remote" Python package by using the PyPi distribution ::
 
-    pip install wps-remote==2.9
+    pip install wps-remote==2.9.3
 
 Please refer to the [user guide](http://docs.geoserver.org/latest/en/user/community/remote-wps/index.html) for detailed 
 information on how to install and use RemoteWPS.
@@ -53,3 +53,22 @@ Please read [the contribution guidelines](https://github.com/geoserver/geoserver
 ## More Information
 
 Visit the [website](http://geoserver.org/) or read the [docs](http://docs.geoserver.org/). 
+
+Change Log
+==========
+
+2.9.3 [2016-03-31 17:24:47]
+ - Added "processbot" XMPP connection checks
+ - Added "servicebot" check "processbot" status error and send error message impersonating the underlying process
+ - Added "NetCDF Output" example on service.config
+
+2.9.2 [2016-03-17 17:33:19]
+ - Added "process_blacklist" property to "service.config" file
+ - Added "proc_is_running(self, proc_names)" to "ResourceMonitor(threading.Thread)" background thread
+ 
+2.9.1 [2016-03-16 11:09:56]
+ - Added "GetLoadAverageMessage" XMPP message for resource monitoring
+ - Added "ResourceMonitor(threading.Thread)" background thread collecting resource consuption data
+ - On GeoServer side the "remoteConfig.properties" file on GEOSERVER_DATA must be updated with the properties
+   xmpp_cpu_perc_threshold = 80.0
+   xmpp_mem_perc_threshold = 80.0
