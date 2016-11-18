@@ -33,7 +33,7 @@ except IOError,e:
 
 setup(
     name = "wps-remote",
-    version = "2.9.3",
+    version = "2.11.0",
     author = "GeoServer Developers",
     author_email = "geoserver-devel@lists.sourceforge.net",
     description = "A library that allows users to publish their executables as GeoServer WPS Processes through the XMPP protocol",
@@ -77,11 +77,11 @@ setup(
         "lazy-object-proxy==1.2.1",
         "mccabe==0.4.0",
         "pep8==1.7.0",
-        "psutil==4.0.0",
+        "psutil>=4.0.0",
         "pyflakes==1.0.0",
         "pylint==1.5.4",
         "six==1.10.0",
-        "sleekxmpp==1.3.1",
+        "sleekxmpp>=1.3.1",
         "wheel==0.24.0",
         "wrapt==1.10.6",
     ],

@@ -20,8 +20,8 @@ import zipfile
 # constants
 #id = os.urandom(10)
 id = str(uuid.uuid4())
-gdalContour = r'C:\apps\GDAL\gdal_contour.exe'
-src = r'C:\share\xmpp_data\resource_dir\srtm_39_04\srtm_39_04_c.tif'
+gdalContour = r'/usr/bin/gdal_contour'
+src = r'/share/xmpp_data/resource_dir/srtm_39_04/srtm_39_04_c.tif'
 dst = r'contour_'+id[:13]
 cmd = '-a elev'  # just for example!
 interval = '-i'

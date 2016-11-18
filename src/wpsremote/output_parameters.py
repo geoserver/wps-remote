@@ -17,7 +17,7 @@ import logging
 class OutputParameters(object):
 
     @staticmethod
-    def create_from_config(output_sections, wps_execution_shared_dir=None):
+    def create_from_config(output_sections, wps_execution_shared_dir=None, uploader=None):
         '''Static constructor.
         input_sections: a dictionary such as { par1_name : [( 'par1_attrubute1_name' : par1_attrubute1_value ), ( 'par2_attrubute1_name' : par2_attrubute1_value ), ...], par2_name : { ... }, ... }
         '''
@@ -28,9 +28,9 @@ class OutputParameters(object):
             name = d['name']
             del d['name']
             output_sections_reshaped[name] = d
-        return OutputParameters( output_sections_reshaped, wps_execution_shared_dir )
+        return OutputParameters( output_sections_reshaped, wps_execution_shared_dir, uploader )
 
-    def __init__(self, parameters_types_defs, wps_execution_shared_dir):
+    def __init__(self, parameters_types_defs, wps_execution_shared_dir, uploader):
         '''
         Static constructor.
         parameters_types: ('out_par_name1', {"out_par_name1_attrib1": "value1", "out_par_name1_attrib1": "value2", ...})
@@ -42,13 +42,13 @@ class OutputParameters(object):
             if ('type' in d):
 
                 if ('string' == d['type']):
-                    self._params[name] = output_file_parameter.OutputFileParameter( name, d, wps_execution_shared_dir=self._wps_execution_shared_dir )
+                    self._params[name] = output_file_parameter.OutputFileParameter( name, d, wps_execution_shared_dir=self._wps_execution_shared_dir, uploader=uploader)
 
                 elif ('image/geotiff' in d['type'] or 'text/xml' in d['type'] or 'application/gml' in d['type'] or 'application/zip' in d['type'] or 'application/x-netcdf' in d['type'] or 'video/mp4' in d['type']):
-                    self._params[name] = output_file_parameter.RawFileParameter( name, d, wps_execution_shared_dir=self._wps_execution_shared_dir )
+                    self._params[name] = output_file_parameter.RawFileParameter( name, d, wps_execution_shared_dir=self._wps_execution_shared_dir, uploader=uploader)
 
                 elif ('application/owc' in d['type']):
-                    self._params[name] = output_file_parameter.OWCFileParameter( name, d, parameters_types_defs, wps_execution_shared_dir=self._wps_execution_shared_dir )
+                    self._params[name] = output_file_parameter.OWCFileParameter( name, d, parameters_types_defs, wps_execution_shared_dir=self._wps_execution_shared_dir, uploader=uploader)
 
                 else:
                     logger = logging.getLogger("OutputParameters.__init__")

@@ -19,6 +19,7 @@ import subprocess
 import datetime
 import logging
 import re
+import sys
 
 import busIndipendentMessages
 
@@ -27,6 +28,7 @@ import computation_job_inputs
 import output_parameters
 import resource_cleaner
 import resource_monitor
+
 
 class ServiceBot(object):
     """This script is the remote WPS agent. One instance of this agent runs on each computational node connected to the WPS for each algorithm available. The script runs continuosly.
@@ -89,7 +91,11 @@ class ServiceBot(object):
         self._remote_wps_endpoint = None
 
         # Allocate and start a Resource Monitoring Thread
-        self._resource_monitor = resource_monitor.ResourceMonitor()
+        try:
+            load_average_scan_minutes = serviceConfig.getint("DEFAULT", "load_average_scan_minutes")
+        except:
+            load_average_scan_minutes = 15
+        self._resource_monitor = resource_monitor.ResourceMonitor( load_average_scan_minutes )
         self._resource_monitor.start()
 
     def get_resource_file_dir(self):
@@ -118,7 +124,7 @@ class ServiceBot(object):
             try:
                 self.bus.xmpp.reconnect()
                 self.bus.xmpp.send_presence()
-                self.bus.xmpp.get_roster()
+                # self.bus.xmpp.get_roster()
             except:
                 logger.info( "[XMPP Disconnected]: Service "+str(self.service)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
         self.bus.SendMessage(
@@ -183,7 +189,7 @@ class ServiceBot(object):
                 try:
                     self.bus.xmpp.reconnect()
                     self.bus.xmpp.send_presence()
-                    self.bus.xmpp.get_roster()
+                    # self.bus.xmpp.get_roster()
                 except:
                     logger.info( "[XMPP Disconnected]: Service "+str(self.service)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
             self.bus.SendMessage(
@@ -252,7 +258,7 @@ class ServiceBot(object):
             try:
                 self.bus.xmpp.reconnect()
                 self.bus.xmpp.send_presence()
-                self.bus.xmpp.get_roster()
+                # self.bus.xmpp.get_roster()
             except:
                 logger.info( "[XMPP Disconnected]: Service "+str(self.service)+" Could not send error message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
         self.bus.SendMessage( busIndipendentMessages.ErrorMessage(  self._remote_wps_endpoint, msg ) )
