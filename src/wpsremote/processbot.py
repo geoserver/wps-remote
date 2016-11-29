@@ -18,6 +18,7 @@ from collections import OrderedDict
 import introspection
 import thread
 import logging
+import traceback
 import sys
 
 import busIndipendentMessages
@@ -28,6 +29,7 @@ import output_parameters
 import action
 import resource_cleaner
 from time import sleep
+
 
 class ProcessBot(object):
     """
@@ -46,6 +48,11 @@ class ProcessBot(object):
         #read remote config
         remote_config = configInstance.create(remote_config_filepath)
         bus_class_name = remote_config.get("DEFAULT", "bus_class_name")
+        uploader_class_name = None
+        try:
+            uploader_class_name = remote_config.get("UPLOADER", "uploader_class_name")
+        except:
+            pass
         self._resource_file_dir = remote_config.get_path("DEFAULT", "resource_file_dir")
         if remote_config.has_option("DEFAULT", "wps_execution_shared_dir"):
             self._wps_execution_shared_dir = remote_config.get_path("DEFAULT", "wps_execution_shared_dir")
@@ -70,22 +77,31 @@ class ProcessBot(object):
         self._stdout_parser = serviceConfig.get_list("Logging", "stdout_parser")
         self._stdout_action = serviceConfig.get_list("Logging", "stdout_action")
         self._output_dir =  serviceConfig.get_path("DEFAULT", "output_dir")
-        self._max_running_time = datetime.timedelta( seconds = serviceConfig.getint("DEFAULT", "max_running_time_seconds") )
+        self._max_running_time = datetime.timedelta(seconds = serviceConfig.getint("DEFAULT", "max_running_time_seconds"))
+
+        #create the concrete uploader object
+        if uploader_class_name:
+            uploader_host = remote_config.get("UPLOADER", "uploader_host")
+            uploader_username = remote_config.get("UPLOADER", "uploader_username")
+            uploader_password = remote_config.get("UPLOADER", "uploader_password")
+            self._uploader = introspection.get_class_four_arg(uploader_class_name, uploader_host, uploader_username, uploader_password, self._uniqueExeId)
+        else:
+            self._uploader = None
 
         input_sections = OrderedDict()
         for input_section in [s for s in serviceConfig.sections() if 'input' in s.lower() or 'const' in s.lower()]:
             input_sections[input_section] = serviceConfig.items_without_defaults(input_section, raw=False)
-        self._input_parameters_defs = computation_job_inputs.ComputationJobInputs.create_from_config( input_sections )
+        self._input_parameters_defs = computation_job_inputs.ComputationJobInputs.create_from_config(input_sections)
 
         output_sections=OrderedDict()
         for output_section in [s for s in serviceConfig.sections() if 'output' in s.lower()]:
             output_sections[output_section] = serviceConfig.items_without_defaults(output_section, raw=False)
-        self._output_parameters_defs = output_parameters.OutputParameters.create_from_config( output_sections, self._wps_execution_shared_dir )
+        self._output_parameters_defs = output_parameters.OutputParameters.create_from_config( output_sections, self._wps_execution_shared_dir, self._uploader)
 
         action_sections=OrderedDict()
         for action_section in [s for s in serviceConfig.sections() if 'action' in s.lower()]:
             action_sections[action_section] = serviceConfig.items_without_defaults(action_section, raw=False)
-        self._input_params_actions = computational_job_input_actions.ComputationalJobInputActions.create_from_config( action_sections )
+        self._input_params_actions = computational_job_input_actions.ComputationalJobInputActions.create_from_config(action_sections)
 
         #create the concrete bus object
         self._lock_bus =  thread.allocate_lock()
@@ -156,7 +172,7 @@ class ProcessBot(object):
                 try:
                     self.bus.xmpp.reconnect()
                     self.bus.xmpp.send_presence()
-                    self.bus.xmpp.get_roster()
+                    # self.bus.xmpp.get_roster()
 
                     if self.bus.state() == 'connected':
                         self.bus.SendMessage( busIndipendentMessages.LogMessage(  self._remote_wps_endpoint, "INFO", "start parsing stdout of created process " + self.service ) )
@@ -185,7 +201,7 @@ class ProcessBot(object):
                                     try:
                                         self.bus.xmpp.reconnect()
                                         self.bus.xmpp.send_presence()
-                                        self.bus.xmpp.get_roster()
+                                        # self.bus.xmpp.get_roster()
                                     except:
                                         logger.info( "[XMPP Disconnected]: Process "+str(self._uniqueExeId)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
                                 self.bus.SendMessage( busIndipendentMessages.ProgressMessage(  self._remote_wps_endpoint, float(res.group(1).strip() ) ) )
@@ -197,7 +213,7 @@ class ProcessBot(object):
                                     try:
                                         self.bus.xmpp.reconnect()
                                         self.bus.xmpp.send_presence()
-                                        self.bus.xmpp.get_roster()
+                                        # self.bus.xmpp.get_roster()
                                     except:
                                         logger.info( "[XMPP Disconnected]: Process "+str(self._uniqueExeId)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
                                 self.bus.SendMessage( busIndipendentMessages.LogMessage(  self._remote_wps_endpoint, res.group(1).strip(), res.group(2).strip() ) )
@@ -209,7 +225,7 @@ class ProcessBot(object):
                                     try:
                                         self.bus.xmpp.reconnect()
                                         self.bus.xmpp.send_presence()
-                                        self.bus.xmpp.get_roster()
+                                        # self.bus.xmpp.get_roster()
                                     except:
                                         logger.info( "[XMPP Disconnected]: Process "+str(self._uniqueExeId)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
                                 self.bus.SendMessage( busIndipendentMessages.ErrorMessage(  self._remote_wps_endpoint, res.group(2).strip() ) )
@@ -230,19 +246,32 @@ class ProcessBot(object):
         
         if return_code==0:
             #success
-            logger.info( "process exit code is " + str(return_code) + ": success")
-            logger.info( "send job-completed message to WPS with output parameter")
+            logger.info("process exit code is " + str(return_code) + ": success")
+            logger.info("send job-completed message to WPS with output parameter")
             outputs = dict()
-            for p in self._output_parameters_defs.parameters():
-                outputs[p.get_name()] = [p.get_value(), p.get_description(), p.get_title(), p.get_type(), p.is_publish_as_layer(), p.get_publish_layer_name(), p.get_publish_default_style(), p.get_publish_target_workspace(), p.get_metadata()]
+            try:
+                for p in self._output_parameters_defs.parameters():
+                    outputs[p.get_name()] = [p.get_value(), p.get_description(), p.get_title(), p.get_type(), p.is_publish_as_layer(), p.get_publish_layer_name(), p.get_publish_default_style(), p.get_publish_target_workspace(), p.get_metadata()]
+            except:
+                logging.exception( "Process "+str(self._uniqueExeId)+" Exception: "+str(traceback.format_exc(sys.exc_info())))
+                error_message = "process exit code is " + str(return_code) + ": failure\n" + "\n".join(str(e) for e in stack_trace)
+                self.send_error_message( error_message )
+                #self.bus.disconnect()
+                logger.info( "after send job-error message to WPS")
+                thread.interrupt_main()
+                os._exit(return_code)
+
+            logger.info("trying to acquire bus lock...")
             with self._lock_bus:
+                logger.info("bus lock acquired...")
                 if self.bus.state() != 'connected':
                     try:
                         self.bus.xmpp.reconnect()
                         self.bus.xmpp.send_presence()
-                        self.bus.xmpp.get_roster()
+                        # self.bus.xmpp.get_roster()
                     except:
                         logger.info( "[XMPP Disconnected]: Process "+str(self._uniqueExeId)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
+                logger.info("sending 'completed' message")
                 self.bus.SendMessage(busIndipendentMessages.CompletedMessage( self._remote_wps_endpoint, self._remote_wps_baseurl, outputs ))
             logger.info( "after send job-completed message to WPS")
         else:
@@ -276,7 +305,7 @@ class ProcessBot(object):
                 try:
                     self.bus.xmpp.reconnect()
                     self.bus.xmpp.send_presence()
-                    self.bus.xmpp.get_roster()
+                    # self.bus.xmpp.get_roster()
 
                     if self.bus.state() == 'connected':
                         self.bus.SendMessage( busIndipendentMessages.ErrorMessage( self._remote_wps_endpoint, msg ) )

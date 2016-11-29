@@ -10,24 +10,28 @@ __license__ = "GPL"
 
 import socket
 import logging
+import traceback
 import urllib
 import pickle
 import sleekxmpp
 import busIndipendentMessages
 import xmppMessages
 import bus
+import sys
+import time
+
 
 class XMPPBus(bus.Bus):
     def __init__(self, config, service_name, service_name_namespace, id="master"):
         bus.Bus.__init__(self, id)
-        
 
         self.config=config
         self.address=(config.get("DEFAULT", "address"), config.get("DEFAULT", "port")) # As address use mnemonic names
-        self.domain = config.get("DEFAULT", "domain") #"whale.nurc.nato.int"
+        self.domain = config.get("DEFAULT", "domain")
         self.MUC_name = config.get("DEFAULT", "mucService")
-        self.password=config.get("DEFAULT", "password") #'Crociera100!'
-        self.nameSpacePassword = config.get("DEFAULT", "mucServicePassword") #"admin"
+        self.username=config.get("DEFAULT", "user")
+        self.password=config.get("DEFAULT", "password")
+        self.nameSpacePassword = config.get("DEFAULT", "mucServicePassword")
         
         self._service_name = service_name
         self._service_name_namespace = service_name_namespace
@@ -53,8 +57,9 @@ class XMPPBus(bus.Bus):
 
 
     def _get_JId(self):
-        #default.Service@whale.nurc.nato.int/master@WW717962
-        return ''.join([self._fully_qualified_service_name, '@', self.domain, '/', self.id, '@', socket.gethostname()])
+        # default.Service@whale.nurc.nato.int/master@WW717962
+        # return ''.join([self._fully_qualified_service_name, '@', self.domain, '/', self.id, '@', socket.gethostname()])
+        return ''.join([self.username, '@', self.domain, '/', self.id, '@', socket.gethostname()])
 
     def _get_MUC_JId(self):
         return self._service_name_namespace + "@" + self.MUC_name
@@ -70,13 +75,27 @@ class XMPPBus(bus.Bus):
         return self._fully_qualified_service_name
 
     def Listen(self):
-        if self.xmpp.connect(self.address, use_tls=False, use_ssl=True):
-            self.xmpp.process(block=True)
-        else:
-            print "Cannot connect to xmpp server"
+        logging.info('Trying to connect...')
+        for x in xrange(5):
+            if self.xmpp.connect(self.address, use_tls=False, use_ssl=True):
+                logging.info('State: %s' % (str(self.state())))
+                if self.state() == 'connected':
+                    try:
+                        self.xmpp.send_presence()
+                        # self.xmpp.get_roster()
+                        self.xmpp.process(block = True)
+                        break
+                    except:
+                        stack_trace = traceback.format_exc(sys.exc_info())
+                        logging.exception( "Service "+str(self._service_name)+" Exception: "+str(stack_trace))
+                    finally:
+                        self.xmpp.disconnect()
+                else:
+                    logging.info('Cannot connect to xmpp server. Tentative # ' + str(x+1))
+                    time.sleep(2)
 
     def _startService(self, event):
-        #once the connection is established, immidiatelly join the MUC, no notification is sent to the calling class (serviceBot and processBot)
+        # once the connection is established, immidiatelly join the MUC, no notification is sent to the calling class (serviceBot and processBot)
         self.JoinMUC()
 
     def JoinMUC(self):

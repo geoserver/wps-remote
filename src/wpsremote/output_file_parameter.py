@@ -8,6 +8,8 @@ __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
 
+import os
+import tempfile
 import path
 import json
 import uuid
@@ -19,7 +21,7 @@ import uuid
 # ############################################################################################################# #
 class OutputFileParameter(object):
     
-    def __init__(self, par_name, d, template_vars_for_param_types=None, wps_execution_shared_dir=None):
+    def __init__(self, par_name, d, template_vars_for_param_types=None, wps_execution_shared_dir=None, uploader=None):
         #{"type": "string", "description": "xml OAA output file", "filepath" : "%workdir\\\\output_file.xml" }
         self._name=par_name
         self._type=None
@@ -29,7 +31,9 @@ class OutputFileParameter(object):
         self._output_mime_type = None
 
         self._wps_execution_shared_dir = wps_execution_shared_dir
+        self._uploader = uploader
         self._backup_on_wps_execution_shared_dir = None
+        self._upload_data = None
         self._publish_as_layer = None
         self._publish_layer_name = None
         self._publish_default_style = None
@@ -71,6 +75,18 @@ class OutputFileParameter(object):
             dst = path.path(dst)
 
             return dst.text()
+        elif self._upload_data != None and self._upload_data and self._uploader != None:
+            unique_dirname = str(uuid.uuid4())
+            bkp_dir = path.path(tempfile.gettempdir() + "/" + unique_dirname)
+            bkp_dir.makedirs()
+            dst = bkp_dir.abspath() + "/" + self._filepath.basename()
+
+            self._filepath.copy(dst)
+            dst = path.path(dst)
+
+            src_path = os.path.abspath(os.path.join(dst.abspath(), os.pardir))
+            self._uploader.Upload(hostdir=unique_dirname, text='', binary='*.*', src=src_path)
+            return self._filepath.text()
         else:
             return self._filepath.text()
 
@@ -110,7 +126,7 @@ class OutputFileParameter(object):
 # ############################################################################################################# #
 class RawFileParameter(object):
     
-    def __init__(self, par_name, d, template_vars_for_param_types=None, wps_execution_shared_dir=None):
+    def __init__(self, par_name, d, template_vars_for_param_types=None, wps_execution_shared_dir=None, uploader=None):
         #{"type": "string", "description": "xml OAA output file", "filepath" : "%workdir\\\\output_file.xml" }
         self._name=par_name
         self._type=None
@@ -120,7 +136,9 @@ class RawFileParameter(object):
         self._output_mime_type = None
 
         self._wps_execution_shared_dir = wps_execution_shared_dir
+        self._uploader = uploader
         self._backup_on_wps_execution_shared_dir = None
+        self._upload_data = None
         self._publish_as_layer = None
         self._publish_layer_name = None
         self._publish_default_style = None
@@ -162,6 +180,18 @@ class RawFileParameter(object):
             dst = path.path(dst)
 
             return dst
+        elif self._upload_data != None and self._upload_data and self._uploader != None:
+            unique_dirname = str(uuid.uuid4())
+            bkp_dir = path.path(tempfile.gettempdir() + "/" + unique_dirname)
+            bkp_dir.makedirs()
+            dst = bkp_dir.abspath() + "/" + self._filepath.basename()
+
+            self._filepath.copy(dst)
+            dst = path.path(dst)
+
+            src_path = os.path.abspath(os.path.join(dst.abspath(), os.pardir))
+            self._uploader.Upload(hostdir=unique_dirname, text='', binary='*.*', src=src_path)
+            return path.path(unique_dirname + "/" + self._filepath.basename())
         else:
             return self._filepath
 
@@ -202,7 +232,7 @@ class RawFileParameter(object):
 # ############################################################################################################# #
 class OWCFileParameter(object):
     
-    def __init__(self, par_name, d, parameters_types_defs, template_vars_for_param_types=None, wps_execution_shared_dir=None):
+    def __init__(self, par_name, d, parameters_types_defs, template_vars_for_param_types=None, wps_execution_shared_dir=None, uploader=None):
         #{"type": "string", "description": "xml OAA output file", "filepath" : "%workdir\\\\output_file.xml" }
         self._name=par_name
         self._type=None
@@ -213,7 +243,9 @@ class OWCFileParameter(object):
         self._layers_to_publish = None
 
         self._wps_execution_shared_dir = wps_execution_shared_dir
+        self._uploader = uploader
         self._backup_on_wps_execution_shared_dir = None
+        self._upload_data = None
         self._publish_as_layer = "true"
         self._publish_layer_name = None
         self._publish_metadata = None
@@ -281,6 +313,27 @@ class OWCFileParameter(object):
                 if len(files_to_publish) > 0:
                     files_to_publish = files_to_publish + ";"
                 files_to_publish = files_to_publish + dst.abspath()
+
+            return files_to_publish
+        elif self._upload_data != None and self._upload_data and self._uploader != None:
+            unique_dirname = str(uuid.uuid4())
+            bkp_dir = path.path(tempfile.gettempdir() + "/" + unique_dirname)
+            bkp_dir.makedirs()
+
+            tokens = self._files_to_publish.split(';')
+
+            files_to_publish = ""
+            for token in tokens:
+                filepath = path.path(token)
+                dst = bkp_dir.abspath() + "/" + filepath.basename()
+                filepath.copy(dst)
+                dst = path.path(dst)
+
+                if len(files_to_publish) > 0:
+                    files_to_publish = files_to_publish + ";"
+                files_to_publish = files_to_publish + "/" + unique_dirname + "/" + filepath.basename()
+
+            self._uploader.Upload(hostdir=unique_dirname, text='', binary='*.*', src=bkp_dir.abspath())
 
             return files_to_publish
         else:

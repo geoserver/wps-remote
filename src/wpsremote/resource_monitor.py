@@ -15,14 +15,16 @@ import psutil
 
 class ResourceMonitor(threading.Thread):
 
+    load_average_scan_minutes = 15
     cores = psutil.cpu_count()
     cpu_perc  = []
     vmem_perc = []
     lock = threading.Lock()
     
-    def __init__(self): 
-        threading.Thread.__init__(self) 
-        ResourceMonitor.lock.acquire() 
+    def __init__(self, load_average_scan_minutes): 
+        threading.Thread.__init__(self)
+        ResourceMonitor.load_average_scan_minutes = load_average_scan_minutes
+        ResourceMonitor.lock.acquire()
 
         ResourceMonitor.vmem_perc.append(psutil.virtual_memory().percent)
         ResourceMonitor.vmem_perc.append(psutil.virtual_memory().percent)
@@ -30,7 +32,7 @@ class ResourceMonitor(threading.Thread):
         ResourceMonitor.cpu_perc.append(psutil.cpu_percent(interval = 0, percpu= False))
         ResourceMonitor.cpu_perc.append(psutil.cpu_percent(interval = 0, percpu= False))
 
-        ResourceMonitor.lock.release() 
+        ResourceMonitor.lock.release()
 
     def proc_is_running(self, proc_names):
         for proc in psutil.process_iter(): 
@@ -64,7 +66,7 @@ class ResourceMonitor(threading.Thread):
             ResourceMonitor.vmem_perc[0] = (ResourceMonitor.vmem_perc[1] + psutil.virtual_memory().percent) / 2.0
 
             ResourceMonitor.cpu_perc[1] = ResourceMonitor.cpu_perc[0]
-            ResourceMonitor.cpu_perc[0] = psutil.cpu_percent(interval = (15*60), percpu= False)
+            ResourceMonitor.cpu_perc[0] = psutil.cpu_percent(interval = (ResourceMonitor.load_average_scan_minutes*60), percpu= False)
 
             ResourceMonitor.lock.release()
 
