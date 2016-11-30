@@ -87,7 +87,7 @@ class ServiceBot(object):
         #self._lock_running_process =  thread.allocate_lock() #critical section to access running_process from separate threads
         self.running_process={}
 
-        self._redirect_process_stdout_to_logger = False #send the process bot (aka request handler) stdout to service bot (remote wps agent) log file
+        self._redirect_process_stdout_to_logger = True #send the process bot (aka request handler) stdout to service bot (remote wps agent) log file
         self._remote_wps_endpoint = None
 
         # Allocate and start a Resource Monitoring Thread
@@ -118,7 +118,7 @@ class ServiceBot(object):
 
     def handle_invite(self, invite_message):
         """Handler for WPS invite message."""
-        logger = logging.getLogger("servicebot.handle_execute")
+        logger = logging.getLogger("servicebot.handle_invite")
         logger.info("handle invite message from WPS " + str(invite_message.originator()))
         if self.bus.state() != 'connected':
             try:

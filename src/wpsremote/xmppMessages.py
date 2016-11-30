@@ -9,6 +9,7 @@ __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights r
 __license__ = "GPL"
 
 import os, sys, inspect, urllib, json
+import logging
 import traceback
 
 os.chdir(os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))
@@ -93,7 +94,6 @@ class XMPPCompletedMessage(object):
             message = ""
             for out_param_name, out_param_values in self._outputs.items():
                 result = dict()
-                #print str(out_param_values)
                 result[out_param_name+'_value']         = out_param_values[0] #value
                 result[out_param_name+'_description']   = out_param_values[1] #description
                 result[out_param_name+'_title']         = out_param_values[2] #title
@@ -112,9 +112,10 @@ class XMPPCompletedMessage(object):
             body = ''.join(['topic=completed', '&id=', self.xmppChannel.id,"&baseURL=",self._base_url, "&message=completed","&",message])
             self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')
         except Exception, err:
-            print traceback.format_exc()
             body = ''.join(['topic=error', '&id=', self.xmppChannel.id, "&message=", "Critical error while encoding outuput!"])
             self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')
+            logging.exception(str(traceback.format_exc()))
+            raise
 
 class XMPPErrorMessage(object):
 

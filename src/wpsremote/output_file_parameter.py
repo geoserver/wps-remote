@@ -34,6 +34,7 @@ class OutputFileParameter(object):
         self._uploader = uploader
         self._backup_on_wps_execution_shared_dir = None
         self._upload_data = None
+        self._upload_data_root = None
         self._publish_as_layer = None
         self._publish_layer_name = None
         self._publish_default_style = None
@@ -77,15 +78,18 @@ class OutputFileParameter(object):
             return dst.text()
         elif self._upload_data != None and self._upload_data and self._uploader != None:
             unique_dirname = str(uuid.uuid4())
-            bkp_dir = path.path(tempfile.gettempdir() + "/" + unique_dirname)
+            bkp_dir = path.path(tempfile.gettempdir() + '/' + unique_dirname)
             bkp_dir.makedirs()
-            dst = bkp_dir.abspath() + "/" + self._filepath.basename()
+            dst = bkp_dir.abspath() + '/' + self._filepath.basename()
 
             self._filepath.copy(dst)
             dst = path.path(dst)
 
             src_path = os.path.abspath(os.path.join(dst.abspath(), os.pardir))
+            if self._upload_data_root:
+                unique_dirname = self._upload_data_root + '/' + unique_dirname
             self._uploader.Upload(hostdir=unique_dirname, text='', binary='*.*', src=src_path)
+
             return self._filepath.text()
         else:
             return self._filepath.text()
@@ -139,6 +143,7 @@ class RawFileParameter(object):
         self._uploader = uploader
         self._backup_on_wps_execution_shared_dir = None
         self._upload_data = None
+        self._upload_data_root = None
         self._publish_as_layer = None
         self._publish_layer_name = None
         self._publish_default_style = None
@@ -182,15 +187,14 @@ class RawFileParameter(object):
             return dst
         elif self._upload_data != None and self._upload_data and self._uploader != None:
             unique_dirname = str(uuid.uuid4())
-            bkp_dir = path.path(tempfile.gettempdir() + "/" + unique_dirname)
-            bkp_dir.makedirs()
-            dst = bkp_dir.abspath() + "/" + self._filepath.basename()
+            
+            if self._upload_data_root:
+                unique_dirname = self._upload_data_root + '/' + unique_dirname
+            src_path = os.path.abspath(os.path.join(self._filepath.abspath(), os.pardir))
+            basename = os.path.basename(self._filepath.abspath())
+            basename = os.path.splitext(basename)[0]
+            self._uploader.Upload(hostdir=unique_dirname, text='', binary=basename+'*.*', src=src_path)
 
-            self._filepath.copy(dst)
-            dst = path.path(dst)
-
-            src_path = os.path.abspath(os.path.join(dst.abspath(), os.pardir))
-            self._uploader.Upload(hostdir=unique_dirname, text='', binary='*.*', src=src_path)
             return path.path(unique_dirname + "/" + self._filepath.basename())
         else:
             return self._filepath
@@ -246,6 +250,7 @@ class OWCFileParameter(object):
         self._uploader = uploader
         self._backup_on_wps_execution_shared_dir = None
         self._upload_data = None
+        self._upload_data_root = None
         self._publish_as_layer = "true"
         self._publish_layer_name = None
         self._publish_metadata = None
@@ -317,21 +322,24 @@ class OWCFileParameter(object):
             return files_to_publish
         elif self._upload_data != None and self._upload_data and self._uploader != None:
             unique_dirname = str(uuid.uuid4())
-            bkp_dir = path.path(tempfile.gettempdir() + "/" + unique_dirname)
+            bkp_dir = path.path(tempfile.gettempdir() + '/' + unique_dirname)
             bkp_dir.makedirs()
 
             tokens = self._files_to_publish.split(';')
 
+            if self._upload_data_root:
+                unique_dirname = self._upload_data_root + '/' + unique_dirname
+
             files_to_publish = ""
             for token in tokens:
                 filepath = path.path(token)
-                dst = bkp_dir.abspath() + "/" + filepath.basename()
+                dst = bkp_dir.abspath() + '/' + filepath.basename()
                 filepath.copy(dst)
                 dst = path.path(dst)
 
                 if len(files_to_publish) > 0:
-                    files_to_publish = files_to_publish + ";"
-                files_to_publish = files_to_publish + "/" + unique_dirname + "/" + filepath.basename()
+                    files_to_publish = files_to_publish + ';'
+                files_to_publish = files_to_publish + '/' + unique_dirname + '/' + filepath.basename()
 
             self._uploader.Upload(hostdir=unique_dirname, text='', binary='*.*', src=bkp_dir.abspath())
 

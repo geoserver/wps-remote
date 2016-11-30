@@ -39,11 +39,18 @@ class ComputationJobInput(object):
                 return value
         elif self._type=='application/json':
             return json.loads(value)
-        elif (self._type=='datetime' and self._formatter!=None):
-            #to check
-            return datetime.datetime.strptime(str(value), self._formatter)
-        else:
-            raise TypeError("Cannot validate and convert value " + str(value) + " for type " + self._type)
+        elif (self._type=='datetime'):
+            if self._formatter:
+                try:
+                    date_value = datetime.datetime.strptime(str(value), self._formatter)
+                    return date_value
+                except:
+                    pass
+
+            if all(c in  self._allowed_chars for c in value):
+                return value
+
+        raise TypeError("Cannot validate and convert value " + str(value) + " for type " + self._type)
 
 
     def _type_checking(self, value):

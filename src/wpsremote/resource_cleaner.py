@@ -99,7 +99,7 @@ class Resource(object):
         return self._processbot_pid
 
     def set_processbot_pid(self, pid):
-        self._processbot_pid = pid
+        self._processbot_pid = int(pid)
 
     def spawned_process_pids(self):
         return self._spawned_process_pids 
@@ -129,6 +129,7 @@ class Resource(object):
         self._spawned_process_cmd = []
         removed=[]
         for pid in self._spawned_process_pids:
+            pid = int(pid)
             #if pid is dead remove it from the list
             #if not pid in psutil.pids():
             if not psutil.pid_exists(pid):
@@ -232,26 +233,31 @@ class Resource(object):
 
     def kill_process(self, pid, cmd_line):
         logger = logging.getLogger("Resource.kill_process")
-        logger.info("request for killing process " + str(pid))
-        #if pid in psutil.pids():
-        if psutil.pid_exists(pid):
-            logger.info("process " + str(pid) + " exists try to kill...")
-            proc = psutil.Process( pid )
-            if proc.cmdline() == cmd_line:
-                try:
-                    proc.kill()
-                    logger.info("process " + str(pid) + " killed")
+        if pid:
+            try:
+                logger.info("request for killing process " + str(pid))
+                pid = int(pid)
+                #if pid in psutil.pids():
+                if psutil.pid_exists(pid):
+                    logger.info("process " + str(pid) + " exists try to kill...")
+                    proc = psutil.Process( pid )
+                    if proc.cmdline() == cmd_line:
+                        try:
+                            proc.kill()
+                            logger.info("process " + str(pid) + " killed")
+                            return True
+                        except Exception as ex:
+                            logger.warning("Failure trying to kill process " + str(pid) + " due to: " + str(ex))
+                            logger.debug( traceback.format_exc() )
+                            return False
+                    else:
+                        logger.info("pid " + str(pid) + " found but with wrong command line. Assuming resource was already correcly cleaned-up")
                     return True
-                except Exception as ex:
-                    logger.warning("Failure trying to kill process " + str(pid) + " due to: " + str(ex))
-                    logger.debug( traceback.format_exc() )
-                    return False
-            else:
-                logger.info("pid " + str(pid) + " found but with wrong command line. Assuming resource was already correcly cleaned-up")
-            return True
-        else:
-            logger.warning("pid " + str(pid) + " doesn't exist")
-            return True
+                else:
+                    logger.warning("pid " + str(pid) + " doesn't exist")
+                    return True
+            except:
+                logger.info("could not kill process " + str(pid))
 
     def delete_sandbox_dir(self):
         logger = logging.getLogger("Resource.delete_sandbox_dir")

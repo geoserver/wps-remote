@@ -8,17 +8,16 @@ __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
 
-import sys
 import subprocess
 import thread
 import re
 import datetime
 import os
-from collections import OrderedDict
 import introspection
 import thread
 import logging
 import traceback
+import base64
 import sys
 
 import busIndipendentMessages
@@ -29,6 +28,10 @@ import output_parameters
 import action
 import resource_cleaner
 from time import sleep
+from collections import OrderedDict
+from Crypto.PublicKey import RSA
+from Crypto.Signature import PKCS1_v1_5
+from Crypto.Hash import SHA
 
 
 class ProcessBot(object):
@@ -38,8 +41,7 @@ class ProcessBot(object):
     information and error information if something unexpected happens.
     All the output including the log file is generated in a sand box directory created with joint information from service.config and external process start-up information.
     """
-    def __init__(self, remote_config_filepath, service_config_filepath, execute_message): 
-
+    def __init__(self, remote_config_filepath, service_config_filepath, execute_message):
         self._uniqueExeId = execute_message.UniqueId()
         self._remote_wps_endpoint = execute_message.originator()
         self._remote_wps_baseurl = execute_message.BaseURL()
@@ -84,6 +86,14 @@ class ProcessBot(object):
             uploader_host = remote_config.get("UPLOADER", "uploader_host")
             uploader_username = remote_config.get("UPLOADER", "uploader_username")
             uploader_password = remote_config.get("UPLOADER", "uploader_password")
+
+            if remote_config.has_option("UPLOADER", "uploader_private_rsa_key") and remote_config.has_option("UPLOADER", "uploader_passphrase"):
+                uploader_private_rsa_key = remote_config.get("UPLOADER", "uploader_private_rsa_key")
+                uploader_passphrase = remote_config.get("UPLOADER", "uploader_passphrase")
+                privatekey = open(uploader_private_rsa_key, "r")
+                rsa_key = RSA.importKey(privatekey, passphrase=uploader_passphrase)
+                uploader_password = rsa_key.decrypt(base64.b64decode(uploader_password))
+            
             self._uploader = introspection.get_class_four_arg(uploader_class_name, uploader_host, uploader_username, uploader_password, self._uniqueExeId)
         else:
             self._uploader = None
@@ -106,6 +116,8 @@ class ProcessBot(object):
         #create the concrete bus object
         self._lock_bus =  thread.allocate_lock()
         self.bus = introspection.get_class_four_arg(bus_class_name, remote_config, self.service, self.namespace, self._uniqueExeId)
+
+        self._finished = False
 
         #event handlers
         self.bus.RegisterMessageCallback(busIndipendentMessages.FinishMessage, self.handle_finish)
@@ -271,8 +283,19 @@ class ProcessBot(object):
                         # self.bus.xmpp.get_roster()
                     except:
                         logger.info( "[XMPP Disconnected]: Process "+str(self._uniqueExeId)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
-                logger.info("sending 'completed' message")
-                self.bus.SendMessage(busIndipendentMessages.CompletedMessage( self._remote_wps_endpoint, self._remote_wps_baseurl, outputs ))
+
+                counter = 1
+                while not self._finished:
+                    logger.info("sending 'completed' message tentative #" + str(counter))
+                    self.bus.SendMessage(busIndipendentMessages.CompletedMessage( self._remote_wps_endpoint, self._remote_wps_baseurl, outputs ))
+                    counter = counter + 1
+                    if counter < 100:
+                        sleep(10)
+                    else:
+                        logger.error("Could not contact Remote WPS with. Forcibly shutdown the process..." )
+                        thread.interrupt_main()
+                        os._exit(-1)
+
             logger.info( "after send job-completed message to WPS")
         else:
             error_message = "process exit code is " + str(return_code) + ": failure\n" + "\n".join(str(e) for e in stack_trace)
@@ -289,6 +312,7 @@ class ProcessBot(object):
     def handle_finish(self, finished_message):
         logger = logging.getLogger("ProcessBot.handle_finish")
         logger.info("received finish mesasge from WPS")
+        self._finished = True
         with self._lock_bus:
             self.bus.disconnect()
         logger.info("disconnected from communication bus")

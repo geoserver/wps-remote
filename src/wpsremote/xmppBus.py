@@ -121,15 +121,19 @@ class XMPPBus(bus.Bus):
             elif origin.user in roster:
                 role = self.xmpp.plugin['xep_0045'].rooms[self._get_MUC_JId()][origin.user]['role']
 
-            if role == 'moderator':
+            logging.info("handle message from WPS Role " + str(role))
+            if role != 'visitor':
                 if ("topic=request" in payload):
+                    logging.info("handle request message from WPS " + str(payload))
                     variables = dict([tuple(each.strip().split('=')) for each in payload.split('&')])
                     requestParams=pickle.loads(urllib.unquote(variables['message'])) if variables['message'] is not None else None
                     #print str(variables)
                     return busIndipendentMessages.ExecuteMessage( msg['from'], variables['id'], variables['baseURL'], requestParams )  
                 elif ("topic=invite" in payload):
+                    logging.info("handle invite message from WPS " + str(payload))
                     return busIndipendentMessages.InviteMessage(payload, msg['from'])
                 elif ("topic=finish" in payload):
+                    logging.info("handle finish message from WPS " + str(payload))
                     return busIndipendentMessages.FinishMessage(payload, msg['from'])
                 elif ("topic=getloadavg" in payload):
                     return busIndipendentMessages.GetLoadAverageMessage(payload, msg['from'])

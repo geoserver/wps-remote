@@ -4,25 +4,17 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
-__author__ = "Ned Batchelder"
+__author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
 
 """
-FtpUpload
+SFtpUpload
 
-Upload files via FTP based on their content changing.
-
-Based on original code by
-   Ned Batchelder
-   http://www.nedbatchelder.com
-   version = '1.0a'
-
-Modified by
-   Alessio Fabiani, GeoSolutions S.A.S.
+Based on paramiko sftp client.
 """
 
-import ftplib, pickle, sys, md5, os, string
+import paramiko, pickle, sys, md5, os, string
 import logging      # if not std, http://www.red-dove.com/python_logging.html
 import path         # http://www.jorendorff.com/articles/python/path
 import upload
@@ -44,8 +36,8 @@ class EzFtp:
         Set the remote directory that we'll call the root.
         """
         self.cd(dir, create=True)
-        self.ftp.cwd("..")
-        self.ftp.cwd(dir)
+        self.ftp.exec_command('cd ..; pwd')
+        self.ftp.exec_command('cd '+dir+'; pwd')
 
     def cd(self, dir, create=1):
         """
@@ -57,7 +49,7 @@ class EzFtp:
             # Move up to the common root.
             while not dir.startswith(self.serverDir):
                 logging.info("ftpcd ..")
-                self.ftp.cwd("..")
+                self.ftp.exec_command('cd ..; pwd')
                 self.serverDir = os.path.split(self.serverDir)[0]
             # Move down to the right directory
             doDirs = dir[len(self.serverDir):]
@@ -65,12 +57,15 @@ class EzFtp:
                 if d:
                     try:
                         logging.info("ftpcd %s" % d)
-                        self.ftp.cwd(d)
+                        self.ftp.exec_command('cd '+d+'; pwd')
                     except:
                         if create:
                             logging.info("ftpmkdir %s" % d)
-                            self.ftp.mkd(d)
-                            self.ftp.cwd(d)
+                            try:
+                                self.ftp.mkdir(d)
+                            except:
+                                pass
+                            self.ftp.exec_command('cd '+d+'; pwd')
                         else:
                             return 0
                     self.serverDir = os.path.join(self.serverDir, d)
@@ -84,11 +79,7 @@ class EzFtp:
         self.cd(thatDir)
         f = open(this, "r")
         logging.info("ftpstorasc %s" % that)
-        try:
-            self.ftp.storlines("STOR %s" % (thatFile),f)
-        except Exception, e:
-            logging.exception(e)
-            raise
+        self.ftp.putfo(f,thatFile)
 
     def putbin(self, this, that):
         """
@@ -98,11 +89,7 @@ class EzFtp:
         self.cd(thatDir)
         f = open(this, "rb")
         logging.info("ftpstorbin %s" % that)
-        try:
-            self.ftp.storbinary("STOR %s" % (thatFile), f, 1024)
-        except Exception, e:
-            logging.exception(e)
-            raise
+        self.ftp.putfo(f,thatFile)
 
     def delete(self, that):
         """
@@ -112,7 +99,7 @@ class EzFtp:
         if self.cd(thatDir, 0):
             logging.info("ftpdel %s" % that)
             try:
-                self.ftp.delete(thatFile)
+                self.ftp.remove(thatFile)
             except:
                 pass
 
@@ -120,10 +107,10 @@ class EzFtp:
         """
         Quit.
         """
-        self.ftp.quit()
+        self.ftp.close()
 
 
-class FtpUpload(upload.Upload):
+class SFtpUpload(upload.Upload):
     """
     Provides intelligent FTP uploading of files, using MD5 hashes to track
     which files have to be uploaded.  Each upload is recorded in a local
@@ -138,7 +125,7 @@ class FtpUpload(upload.Upload):
 
     ::
 
-        fu = FtpUpload(config, 'ftp.myhost.com', 'myusername', 'password')
+        fu = SFtpUpload(config, 'ftp.myhost.com', 'myusername', 'password')
         fu.setHost('ftp.myhost.com', 'myusername', 'password')
         fu.setMd5File('myhost.md5') # optional
         fu.upload(
@@ -154,33 +141,29 @@ class FtpUpload(upload.Upload):
     def __init__(self, host, username, password, id="master"):
         upload.Upload.__init__(self, host, username, password, id)
 
+        self.setHost(host, username, password)
         self.ftp = None
         self.ezftp = None
         self.md5file = None
         self.md5DictIn = {}
         self.md5DictOut = {}
         self.md5DictUp = {}
-        # self.setHost(host, username, password)
 
     def setHost(self, host, username, password):
         """
         Set the host, the username and password.
         """
-        if not self.ftp:
-            try:
-                hoststr, portstr = host.split(':')
-            except:
-                hoststr = host
-                portstr = None
-            self.ftp = ftplib.FTP()
-            self.ftp.set_debuglevel(3)
-            if portstr:
-                port = int(portstr)
-                self.ftp.connect(hoststr, port)
-            else:
-                self.ftp.connect(hoststr, 21)
-            self.ftp.login(username, password)
-            self.ftp.set_pasv(1)
+        try:
+            hoststr, portstr = host.split(':')
+        except:
+            hoststr = host
+            portstr = None
+        if portstr:
+            transport = paramiko.Transport((hoststr, int(portstr)))
+        else:
+            transport = paramiko.Transport((hoststr, 22))
+        transport.connect(username = username, password = password)
+        self.ftp = paramiko.SFTPClient.from_transport(transport)
 
     def setMd5File(self, md5file):
         """
