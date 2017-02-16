@@ -1,0 +1,8 @@
+*.py[cod]
+*.suo
+
+RemoteWPS1.pyproj
+RemoteWPS1.sln
+Include
+Lib/
+Scripts/

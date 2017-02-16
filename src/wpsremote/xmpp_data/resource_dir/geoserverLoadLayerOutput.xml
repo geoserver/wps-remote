@@ -1,0 +1,49 @@
+<resources>
+  <resource class="vectorialLayer">
+    <workspace>it.geosolutions</workspace>
+    <name>#LAYER_NAME#</name>
+    <persistent>true</persistent>
+    <defaultStyle>
+      <name>line</name>
+      <filename>line.sld</filename>
+    </defaultStyle>
+    <title>GDAL Contour Test</title>
+    <abstract>GDAL Contour Test</abstract>
+    <keywords>
+      <string>WPS Remote Example</string>
+    </keywords>
+    <nativeCRS>GEOGCS["GCS_WGS_1984",
+                        	DATUM["WGS_1984",
+                        	SPHEROID["WGS_1984", 6378137.0, 298.257223563]],
+                        	PRIMEM["Greenwich",
+                        	0.0],
+                        	UNIT["degree", 0.017453292519943295],
+                        	AXIS["Longitude", EAST],
+                        	AXIS["Latitude", NORTH]]
+               	</nativeCRS>
+    <srs>EPSG:4326</srs>
+    <!-- nativeBoundingBox> <minx>6.346</minx> <maxx>20.83</maxx> <miny>36.492</miny>
+                        	<maxy>46.591</maxy> <crs>EPSG:4326</crs> </nativeBoundingBox -->
+    <latLonBoundingBox>
+      <minx>-180</minx>
+      <maxx>180</maxx>
+      <miny>-90</miny>
+      <maxy>90</maxy>
+      <crs>EPSG:4326</crs>
+    </latLonBoundingBox>
+    <metadata>
+      <cacheAgeMax>3600</cacheAgeMax>
+      <kml.regionateFeatureLimit>10</kml.regionateFeatureLimit>
+      <indexingEnabled>false</indexingEnabled>
+      <cachingEnabled>true</cachingEnabled>
+      <dirName>states</dirName>
+    </metadata>
+    <translateContext>
+      <item class="dataStore" order="0">
+        <store>
+          <url>file:#LAYER_PATH#</url>
+        </store>
+      </item>
+    </translateContext>
+  </resource>
+</resources>

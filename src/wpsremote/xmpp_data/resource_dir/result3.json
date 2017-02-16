@@ -1,0 +1,32 @@
+"title" : "Result 3",
+"updated" : "${lastUpdated}",
+"content" : "Sample Content Description for result 3 goes here",
+"authors" : [
+    {
+      "name" : "GeoServer Administrator",
+      "email" : "info@sample.author.com"
+    }
+],
+"authors" : [{"name" : "Author3.1 Name"}, {"name" : "Author3.2 Name"}],
+"contributors" : [{"name" : "Contrib3.1 Name"}, {"name" : "Contrib3.2 Name"}],
+"categories" : [{"name" : "Category3.1 Name"}, {"name" : "Category3.2 Name"}],
+"links" : [
+    {
+     "rel" : "enclosure",
+     "type" : "image/png",
+     "title" : "WMS output for ${title}",
+     "href" : "${getMapBaseUrl}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&SRS=${srs}&BBOX=${bbox}&WIDTH=500&HEIGHT=500&LAYERS=${layers}&FORMAT=image/png&BGCOLOR=0xffffff&TRANSPARENT=TRUE&EXCEPTIONS=application/vnd.ogc.se_xml"
+    },
+    {
+     "rel" : "icon",
+     "type" : "image/png",
+     "title" : "Preview for ${title}",
+     "href" : "${getMapBaseUrl}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&SRS=${srs}&BBOX=${bbox}&WIDTH=100&HEIGHT=100&LAYERS=${layers}&STYLES=${styles}&FORMAT=image/png&BGCOLOR=0xffffff&TRANSPARENT=TRUE&EXCEPTIONS=application/vnd.ogc.se_xml"
+    },
+    {
+     "rel" : "via",
+     "type" : "application/vnd.ogc.wms_xml",
+     "title" : "Original GetCapabilities document",
+     "href" : "${getMapBaseUrl}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities"
+    }
+]
