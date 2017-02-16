@@ -1,0 +1,134 @@
+{
+    "Config": {
+        "randomSeed": 0.345597888, 
+        "evaluatorAMGA2": "evaluateAMGA2", 
+        "latLim": [
+            0, 
+            20
+        ], 
+        "lonLim": [
+            50, 
+            70
+        ], 
+        "debugMode": 0, 
+        "acceptanceThreshold": -1, 
+        "pathFilename": "tracks.csv", 
+        "postprocessorAMGA2": "postprocessAMGA2", 
+        "nConstr": 0, 
+        "waypointFilename": "waypoints.csv", 
+        "eliteSize": 50, 
+        "costName": [
+            "Average R_w", 
+            "Average Area Coverage", 
+            "Total Cost"
+        ], 
+        "loadStructInstrList": [
+            {
+                "name": "riskStruct", 
+                "nanValue": 9999, 
+                "source": "InputData/PAGMaps/", 
+                "reader": "geotiff", 
+                "type": "dynamicgrid", 
+                "FieldValue": {
+                    "isTimeDependent": 1
+                }
+            }, 
+            {
+                "reader": "coast", 
+                "type": "staticconstraint", 
+                "FieldValue": {
+                    "allowInside": 0, 
+                    "isTimeDependent": 0, 
+                    "hard": 1, 
+                    "name": "coastline"
+                }, 
+                "name": "staticConstraint"
+            }, 
+            {
+                "type": "staticconstraint", 
+                "name": "staticConstraint", 
+                "FieldValue": {
+                    "name": "bbox", 
+                    "hard": 1, 
+                    "lon": [
+                        50, 
+                        70, 
+                        70, 
+                        50, 
+                        50
+                    ], 
+                    "lat": [
+                        20, 
+                        20, 
+                        0, 
+                        0, 
+                        20
+                    ], 
+                    "isTimeDependent": 0, 
+                    "allowInside": 1
+                }
+            }, 
+            {
+                "source": "/tmp/", 
+                "type": "asset", 
+                "name": "Asset", 
+                "reader": "json"
+            } 
+        ], 
+        "proj": {
+            "projVarList": [
+                [
+                    "x", 
+                    "y"
+                ], 
+                [
+                    "xLim", 
+                    "yLim"
+                ], 
+                [
+                    "xV", 
+                    "yV"
+                ], 
+                [
+                    "x0", 
+                    "y0"
+                ]
+            ], 
+            "geoVarList": [
+                [
+                    "lat", 
+                    "lon"
+                ], 
+                [
+                    "latLim", 
+                    "lonLim"
+                ], 
+                [
+                    "latV", 
+                    "lonV"
+                ], 
+                [
+                    "lat0", 
+                    "lon0"
+                ]
+            ]
+        }, 
+        "paretoFile": "pareto_AMGA2.dat", 
+        "decoderAMGA2": "decodeAMGA2_hs", 
+        "optimizer": "optimizeAMGA2", 
+        "stopSurveillanceAtLastWP": 0, 
+        "showEachXeval": {
+            "X": 10, 
+            "t_start": 0
+        }, 
+        "preprocessorAMGA2": "preprocessAMGA2_hs", 
+        "nEvaluations": 0, 
+        "extSolFilename": "", 
+        "waypointSamplingPeriod": 10800, 
+        "refDate": "2014-08-01T00:00:00Z", 
+        "downSamplingAssetTrajectoryRate": 3, 
+        "timeHorizon": 0, 
+        "costFilename": "costs.csv", 
+        "pathSamplingPeriod": 1800
+    }
+}

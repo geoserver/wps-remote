@@ -1,0 +1,43 @@
+[DEFAULT]
+
+
+class_name = oaaWrapper.OAAWrapper
+
+runname=OAAIndianOceanNOAAWW3
+
+root_working_dir={{workdir}}\
+daily_working_dir = %(root_working_dir)s
+
+executable=foo/executable.exe
+
+#if main_config_dir is empty files are already present in %(root_working_dir)s
+main_config_dir=
+config_file = config.json
+config_file_path = %(root_working_dir)s%(config_file)s
+
+
+retrive_init_position_up_to_days_ago = 3
+
+oaa_cmd = %(executable)s %(daily_working_dir)s%(config_file)s
+
+input_data_dir =  %(daily_working_dir)sInputData\PAGMaps\
+
+tracks_file = tracks.csv
+output_tracks_file =  %(daily_working_dir)s%(tracks_file)s
+
+waypoints_file = waypoints.csv
+output_waypoints_file =  %(daily_working_dir)s%(waypoints_file)s
+
+costs_file = costs.csv
+output_costs_file =  %(daily_working_dir)s%(costs_file)s
+
+tracks_file_filtered = tracks_filtered.csv
+output_tracks_file_filtered = %(daily_working_dir)s%(tracks_file_filtered)s
+
+
+cost_weight=
+
+set_asset_initial_position_from_previous_runs=False
+
+
+

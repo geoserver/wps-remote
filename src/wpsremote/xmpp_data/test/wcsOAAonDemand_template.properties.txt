@@ -1,0 +1,32 @@
+[DEFAULT]
+
+class_name = wcsQuery.WCSQuery
+
+geoserver_address =  http://localhost:8080
+
+geoserver_URL= %(geoserver_address)s/geoserver/wcs
+geoserver_rest_url= %(geoserver_address)s/geoserver/rest/
+geoserver_user=admin
+geoserver_password=******
+
+output_crs=4326
+request_crs=4326
+
+
+minlongitude=50
+maxlongitude=70
+minlatitude=0
+maxlatitude=20
+
+layer_list=[PAGM]
+out_filename_prefix=[ PAG ]
+
+
+outdir = {{workdir}}\inputData\PAGMaps\
+
+workspace = [TDA]
+single_run_mode = False
+time_horizont_sec = 259200
+cleanup_download_dir=*.*
+
+

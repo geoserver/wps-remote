@@ -1,0 +1,52 @@
+{
+    "Asset": {
+        "type": "object", 
+        "properties": {
+            "id": {
+                "type": "integer", 
+                "minimum": 0, 
+                "maximum": 10,
+                "exclusiveMaximum": false
+            }, 
+            "name": {
+                "type": "string"
+            }, 
+            "type": {
+                "type": "string"
+            }, 
+            "minSpeed": {
+                "type": "number"
+            }, 
+            "maxSpeed": {
+                "type": "number"
+            }, 
+            "maxHeading": {
+                "type": "number"
+            }, 
+            "minHeading": {
+                "type": "number"
+            }, 
+            "lat0": {
+                "type": "number"
+            }, 
+            "lon0": {
+                "type": "number"
+            }, 
+            "heading0": {
+                "type": "number"
+            }, 
+            "cost": {
+                "type": "number"
+            }, 
+            "obsRange": {
+                "type": "number"
+            }, 
+            "Pd": {
+                "type": "number"
+            }, 
+            "Pfa": {
+                "type": "number"
+            }
+        }
+    }
+}
