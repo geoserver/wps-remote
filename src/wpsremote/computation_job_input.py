@@ -23,7 +23,7 @@ class ComputationJobInput(object):
         self._description = description
         self._value = None
         self._value_converted = None
-        self._allowed_chars = string.printable.replace('-','').replace(' ','')
+        self._allowed_chars = string.printable.replace(' ','')
         self._allowed_chars_url = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;="
 
     def _validate_and_convert(self, value):
