@@ -42,7 +42,7 @@ class ComputationJobInput(object):
         elif (self._type=='datetime'):
             if self._formatter:
                 try:
-                    date_value = datetime.datetime.strptime(str(value), self._formatter)
+                    date_value = value.strftime(self._formatter)
                     return date_value
                 except:
                     pass
@@ -86,9 +86,9 @@ class ComputationJobInput(object):
         try:
             res= self.validate()
             if not res:
-                raise TypeError()
+                raise TypeError("cannot set value " + str(self._value) + " for parameter " + self.get_name() + " with type " + self._type)
         except:
-            raise TypeError()
+            raise TypeError("cannot set value " + str(self._value) + " for parameter " + self.get_name() + " with type " + self._type)
 
 
 
@@ -103,7 +103,10 @@ class ComputationJobInput(object):
 
     def get_value_string(self):
         if type(self._value) is list and len(self._value)==1:
-            return self._value[0]
+            if type(self._value[0]) is datetime.datetime:
+                return self._value[0].strftime(self._formatter)
+            else:
+                return self._value[0]
         else:
             return self._value
 
