@@ -28,7 +28,6 @@ import resource_cleaner
 #-r .\configs\remote.config -s .\configs\OAAonDemand\service.config service
 #-r .\configs\remote.config -s .\configs\OAAonDemand\service.config -p d:\users\cimino\appdata\local\temp\wps_params_ullgiw.tmp process
 
-
 class WPSAgent(object):
     def __init__(self, args):
         #remove sleek xmpp logging 
@@ -121,19 +120,24 @@ class WPSAgentProcess(WPSAgent):
         except Exception as e:
             #here log is not available use log_bootstrap_error func to log somewhere else (e.g. operating system error log, tmp file, stdout)
             msg = "Failure during bot bootstrap due to : " + str(e)
-            self.log_bootstrap_error(msg, traceback.format_exc())
+            WPSAgent.log_bootstrap_error(msg, traceback.format_exc())
             sys.exit(100)
         
         #start execution
         self.run()
 
     def create_bot(self):
-        logger = logging.getLogger("WPSAgentProcess.create_bot")
-        logger.info("Create process bot")
-        bot =  processbot.ProcessBot( self.args.remoteconfig, self.args.serviceconfig,  self.exe_msg )
-        #create resource cleaner
-        self.set_resource_cleaner_parameters(bot.get_resource_file_dir(), bot.max_execution_time(), bot.max_execution_time(), bot.max_execution_time())
-        return bot
+        try:
+            logger = logging.getLogger("WPSAgentProcess.create_bot")
+            logger.info("Create process bot")
+            bot =  processbot.ProcessBot( self.args.remoteconfig, self.args.serviceconfig,  self.exe_msg )
+            #create resource cleaner
+            self.set_resource_cleaner_parameters(bot.get_resource_file_dir(), bot.max_execution_time(), bot.max_execution_time(), bot.max_execution_time())
+            return bot
+        except Exception as e:
+            msg = "Failure during bot bootstrap due to : " + str(e)
+            WPSAgent.log_bootstrap_error(msg, traceback.format_exc())
+            sys.exit(100)
 
 class WPSAgentService(WPSAgent):
 
@@ -152,14 +156,19 @@ class WPSAgentService(WPSAgent):
         self.run()
 
     def create_bot(self):
-        logger = logging.getLogger("WPSAgentService.create_bot")
-        logger.info("Create process bot")
-        bot = servicebot.ServiceBot(self.args.remoteconfig, self.args.serviceconfig)
-        logger.info("Create resource cleaner")
-        WPSAgent.set_resource_cleaner_parameters(bot.get_resource_file_dir(), bot.max_execution_time(), bot.max_execution_time(), bot.max_execution_time())
-        #start infinite loop for resource clenaer thread
-        thread.start_new_thread( resource_cleaner.Resource.clean_up_all,())
-        return bot
+        try:
+            logger = logging.getLogger("WPSAgentService.create_bot")
+            logger.info("Create process bot")
+            bot = servicebot.ServiceBot(self.args.remoteconfig, self.args.serviceconfig)
+            logger.info("Create resource cleaner")
+            WPSAgent.set_resource_cleaner_parameters(bot.get_resource_file_dir(), bot.max_execution_time(), bot.max_execution_time(), bot.max_execution_time())
+            #start infinite loop for resource clenaer thread
+            thread.start_new_thread( resource_cleaner.Resource.clean_up_all,())
+            return bot
+        except Exception as e:
+            msg = "Failure during bot bootstrap due to : " + str(e)
+            WPSAgent.log_bootstrap_error(msg, traceback.format_exc())
+            sys.exit(100)
 
 class SleekXMPPLoggerFilter(logging.Filter):
 
