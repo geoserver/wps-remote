@@ -162,7 +162,7 @@ class ServiceBot(object):
         logger.info("created process " + self.service +  " with PId " + str(invoked_process.pid) + " and cmd: " + cmd )
         
         #use a parallel thread to wait the end of the request handler process and get the exit code of the just created asynchronous process computation 
-        thread.start_new_thread(self.output_parser_verbose, (invoked_process,))
+        thread.start_new_thread(self.output_parser_verbose, (invoked_process, param_filepath,))
 
         logger.info("end of execute message handler, going back in listening mode")
 
@@ -209,7 +209,7 @@ class ServiceBot(object):
     #    if return_code != 0:
     #        logger.critical("Process " + self.service +  " PId " + str(invoked_process.pid)  + " terminated with exit code " + str(return_code))
 
-    def output_parser_verbose(self, invoked_process):
+    def output_parser_verbose(self, invoked_process, param_filepath):
         logger = logging.getLogger("servicebot.output_parser_verbose")
         logger.info("wait for end of execution of created process " + self.service +  ", PId " + str(invoked_process.pid) )
 
@@ -245,8 +245,23 @@ class ServiceBot(object):
             msg = "Process " + self.service +  " PId " + str(invoked_process.pid)  + " terminated with exit code " + str(return_code)
             logger.critical(msg)
 
+            logger.debug("gs_UID[%s] / gs_JID[%s]" % (gs_UID, gs_JID))
             if gs_UID and gs_JID:
                 self.bus.SendMessage( busIndipendentMessages.ErrorMessage( gs_JID, msg + " Exception: " + str(gs_MSG), gs_UID ) )
+            elif self._remote_wps_endpoint:
+                self.bus.SendMessage( busIndipendentMessages.ErrorMessage( self._remote_wps_endpoint, msg ) )
+            else:
+                exe_msg = None
+                try:
+                    logger.debug("Trying to recover Originator from Process Params!")
+                    exe_msg = busIndipendentMessages.ExecuteMessage.deserialize( param_filepath )
+                    if exe_msg.originator():
+                        self.bus.SendMessage( busIndipendentMessages.ErrorMessage( exe_msg.originator(), msg + " Exception: remote process exception. Please check outputs!", exe_msg.UniqueId() ) )
+                except:
+                    pass
+                if not exe_msg:
+                    msg = "Process " + self.service +  " PId " + str(invoked_process.pid)  + " STALLED! Don't know who to send ERROR Message..."
+                    logger.error(msg)
         else:
             msg = "Process " + self.service +  " PId " + str(invoked_process.pid)  + " terminated successfully!"
             logger.debug(msg)
@@ -261,7 +276,11 @@ class ServiceBot(object):
                 # self.bus.xmpp.get_roster()
             except:
                 logger.info( "[XMPP Disconnected]: Service "+str(self.service)+" Could not send error message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
-        self.bus.SendMessage( busIndipendentMessages.ErrorMessage(  self._remote_wps_endpoint, msg ) )
+        if self._remote_wps_endpoint:
+            self.bus.SendMessage( busIndipendentMessages.ErrorMessage(  self._remote_wps_endpoint, msg ) )
+        else:
+            msg = "Process " + str(self.service) +  " STALLED! Don't know who to send ERROR Message..."
+            logger.error(msg)
 
     def disconnect(self):
         self.bus.disconnect()
