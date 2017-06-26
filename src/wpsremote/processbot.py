@@ -164,11 +164,20 @@ class ProcessBot(object):
         invoked_process = subprocess.Popen(args=cmd.split(), cwd=self._executable_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False) 
         logger.info("process " + self.service +  " created with PId " + str(invoked_process.pid) + " and command line: " + cmd)
 
-        #read the resource file        
-        rc = resource_cleaner.Resource.create_from_file(self._uniqueExeId, os.getpid())
-        #add the pid of the computational job to the resource file
-        rc.set_from_processbot( os.getpid(), [ invoked_process.pid ] ) #todo: check if cmds contains ","!!! --> pickle?
-        rc.write()
+        try:
+            #read the resource file        
+            rc = resource_cleaner.Resource.create_from_file(self._uniqueExeId, os.getpid())
+            #add the pid of the computational job to the resource file
+            rc.set_from_processbot( os.getpid(), [ invoked_process.pid ] ) #todo: check if cmds contains ","!!! --> pickle?
+            rc.write()
+        except Exception as ex:
+            logging.exception( "Process "+str(self._uniqueExeId)+" Exception: "+str(traceback.format_exc(sys.exc_info())))
+            error_message = "process failure\n" + str(ex)
+            self.send_error_message( error_message )
+            #self.bus.disconnect()
+            logger.info( "after send job-error message to WPS")
+            thread.interrupt_main()
+            os._exit(return_code)
 
         #go to process output synchronuosly
         self.process_output_parser( invoked_process ) 

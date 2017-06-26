@@ -149,12 +149,15 @@ class ServiceBot(object):
         logger.debug("save parameters file for executing process " + self.service+  " in " + param_filepath)
 
         #create the Resource Cleaner file containing the process info. The "invoked_process.pid" will be set by the spawned process itself
-
-        r = resource_cleaner.Resource()
-        #create a resource... 
-        r.set_from_servicebot(execute_message.UniqueId(), self._output_dir / execute_message.UniqueId())
-        #... and save to file
-        r.write()
+        try:
+            r = resource_cleaner.Resource()
+            #create a resource... 
+            r.set_from_servicebot(execute_message.UniqueId(), self._output_dir / execute_message.UniqueId())
+            #... and save to file
+            logger.info("Start the resource cleaner!")
+            r.write()
+        except Exception as ex:
+            logger.exception("Resource Cleaner initialization error")
 
         #invoke the process bot (aka request handler) asynchronously
         cmd = 'python wpsagent.py -r ' + self._remote_config_filepath + ' -s ' + self._service_config_file + ' -p ' + param_filepath + ' process'
@@ -198,8 +201,8 @@ class ServiceBot(object):
                     outputs
                     )
                 )
-        except Exception, err:
-            print traceback.format_exc()
+        except Exception as ex:
+            logger.exception("Load Average initialization error")
 
     #def output_parser(self, invoked_process):
     #    #silently wait the end of the computaion
