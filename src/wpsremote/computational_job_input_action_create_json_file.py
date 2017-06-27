@@ -38,12 +38,12 @@ class ComputationalJobInputActionCreateJSONFile(computational_job_input_action.C
         logger.debug("start creating JSON file")
         if self._input_ref in inputs.names():
             text2write = inputs[self._input_ref].get_value()
-            if type(text2write) == list and self._json_path_expr != None:
+            if type(text2write) == list:
                 logger.debug("a list of asset is given, iterate over json texts")
                 for single_json_text in text2write:
                     if self.validate_json(single_json_text):
                         self.create_json_file(single_json_text)
-            elif type(text2write) != list and self._json_path_expr  != None:
+            elif type(text2write) != list:
                 logger.debug("only one json string is give, just write the file with the value of the json path expr")
                 if self.validate_json(text2write):
                     self.create_json_file(text2write)
@@ -75,9 +75,12 @@ class ComputationalJobInputActionCreateJSONFile(computational_job_input_action.C
 
 
     def _extract_id_from_json(self, json_text):
-        _id = eval( "json_text" + self._json_path_expr )
-        self._json_filepath = str(self._json_filepath).replace('${json_path_expr}', '%i')
-        fp = self._json_filepath % _id
+        if self._json_path_expr != None and not self._json_path_expr:
+            _id = eval( "json_text" + self._json_path_expr )
+            self._json_filepath = str(self._json_filepath).replace('${json_path_expr}', '%i')
+            fp = self._json_filepath % _id
+        else:
+            fp = self._json_filepath
         return path.path(fp)
 
     def exists(self):
