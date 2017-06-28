@@ -148,23 +148,23 @@ class ProcessBot(object):
         self.bus.Listen()
 
     def SpawnProcess(self):
-        logger = logging.getLogger("ProcessBot.SpawnProcess")
-        self.ensure_output_dir_exists()
-
-        #set the actual value of input parameters to input parameters definitions
-        self._input_parameters_defs.set_values( self._input_values )
-
-        #execute actions associated to input parameters
-        self._input_params_actions.execute( self._input_parameters_defs )
-
-        #prepare cmd line
-        cmd = self._executable_cmd + " " +  self._input_params_actions.get_cmd_line()
-        
-        #spawn the computational job process
-        invoked_process = subprocess.Popen(args=cmd.split(), cwd=self._executable_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False) 
-        logger.info("process " + self.service +  " created with PId " + str(invoked_process.pid) + " and command line: " + cmd)
-
         try:
+            logger = logging.getLogger("ProcessBot.SpawnProcess")
+            self.ensure_output_dir_exists()
+
+            #set the actual value of input parameters to input parameters definitions
+            self._input_parameters_defs.set_values( self._input_values )
+
+            #execute actions associated to input parameters
+            self._input_params_actions.execute( self._input_parameters_defs )
+
+            #prepare cmd line
+            cmd = self._executable_cmd + " " +  self._input_params_actions.get_cmd_line()
+        
+            #spawn the computational job process
+            invoked_process = subprocess.Popen(args=cmd.split(), cwd=self._executable_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False) 
+            logger.info("process " + self.service +  " created with PId " + str(invoked_process.pid) + " and command line: " + cmd)
+
             #read the resource file        
             rc = resource_cleaner.Resource.create_from_file(self._uniqueExeId, os.getpid())
             #add the pid of the computational job to the resource file
