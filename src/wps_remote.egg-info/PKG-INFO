@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: wps-remote
-Version: 2.11.2
+Version: 2.11.3
 Summary: A library that allows users to publish their executables as GeoServer WPS Processes through the XMPP protocol
 Home-page: https://github.com/geoserver/wps-remote
 Author: GeoServer Developers
@@ -64,6 +64,17 @@ Description: [![Build Status](https://travis-ci.org/geoserver/wps-remote.svg?bra
         
         Change Log
         ==========
+        2.12.0 [2017-07-03 12:13:10]
+         (aligned with GeoServer Remote WPS Plugin - 2.12.x)
+         - Fix for: Inputs application/json mapping error
+         - Fix for: Inputs application/vnd.geo+json support
+         - Fix for: Date input / output parsing
+         - Fix for: JSON ID error
+         - Improved robustness of wps agent
+         - Allowed "-" in string input parameters
+         - Fix for: Catch resource clean exception
+         - Fix for: Input / output parameters are not sorted according to the process definition
+        
         2.11.2 [2017-02-16 10:12:23]
          - SFTP/FTP pluggable uploaders support
          - Minor refactoring and code cleanup
