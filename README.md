@@ -56,6 +56,17 @@ Visit the [website](http://geoserver.org/) or read the [docs](http://docs.geoser
 
 Change Log
 ==========
+2.12.0 [2017-07-03 12:13:10]
+ (aligned with GeoServer Remote WPS Plugin - 2.12.x)
+ - Fix for: Inputs application/json mapping error
+ - Fix for: Inputs application/vnd.geo+json support
+ - Fix for: Date input / output parsing
+ - Fix for: JSON ID error
+ - Improved robustness of wps agent
+ - Allowed "-" in string input parameters
+ - Fix for: Catch resource clean exception
+ - Fix for: Input / output parameters are not sorted according to the process definition
+
 2.11.2 [2017-02-16 10:12:23]
  - SFTP/FTP pluggable uploaders support
  - Minor refactoring and code cleanup
