@@ -21,7 +21,7 @@ RemoteWPS licensed under the [GPL](http://www.gnu.org/licenses/old-licenses/gpl-
 
 You can install the "wps-remote" Python package by using the PyPi distribution ::
 
-    pip install wps-remote==2.11.2
+    pip install wps-remote==2.12.0
 
 Please refer to the [user guide](http://docs.geoserver.org/latest/en/user/community/remote-wps/index.html) for detailed 
 information on how to install and use RemoteWPS.
@@ -56,8 +56,7 @@ Visit the [website](http://geoserver.org/) or read the [docs](http://docs.geoser
 
 Change Log
 ==========
-2.12.0 [2017-07-03 12:13:10]
- (aligned with GeoServer Remote WPS Plugin - 2.12.x)
+2.12.0 [2017-07-03 12:13:10] (aligned with GeoServer Remote WPS Plugin - 2.12.x)
  - Fix for: Inputs application/json mapping error
  - Fix for: Inputs application/vnd.geo+json support
  - Fix for: Date input / output parsing
