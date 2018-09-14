@@ -13,6 +13,7 @@ import datetime
 import json
 
 class InputParameter(object):
+
     def __init__(self, name):
         self._name=name
         self._alias=None
@@ -23,6 +24,7 @@ class InputParameter(object):
         self._max=1
         self._default = None
         self._formatter = None
+        self._input_mime_type = None
         self._allowed_chars = string.printable.replace('-','').replace(' ','')
 
         self._value=None
@@ -90,6 +92,9 @@ class InputParameter(object):
     def get_name(self):
         return self._alias if self._alias <> None else self._name
 
+    def get_input_mime_type(self):
+        return self._input_mime_type
+
     def get_name_no_alias(self):
         return self._name
 
@@ -99,9 +104,9 @@ class InputParameter(object):
     def as_json_string(self):
         #{"type": "string", "description": "A persons surname", "max": 1, "default": "Meier"}
         res={}
-        attrib_to_convert = ['_type', "_title", "_description", "_min", "_max", "_default"]
+        attrib_to_convert = ['_type', '_title', '_description', '_min', '_max', '_default', '_input_mime_type']
         attribute_list = [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]
         attribute_list_filtered = [x for x in attribute_list if x in attrib_to_convert]
         for a in attribute_list_filtered:
             res[a[1:]] = getattr(self, a)
-        return  json.dumps(res)
+        return json.dumps(res)

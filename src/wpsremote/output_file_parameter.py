@@ -63,7 +63,7 @@ class OutputFileParameter(object):
         attribute_list_filtered = [x for x in attribute_list if x in attrib_to_convert]
         for a in attribute_list_filtered:
             res[a[1:]] = getattr(self, a)
-        return  json.dumps(res)
+        return json.dumps(res)
 
     def get_value(self):
         if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir and self._wps_execution_shared_dir != None:
@@ -102,6 +102,9 @@ class OutputFileParameter(object):
 
     def get_title(self):
         return self._title
+
+    def get_output_mime_type(self):
+        return self._output_mime_type
 
     def is_publish_as_layer(self):
         return (self._publish_as_layer != None and self._publish_as_layer == "true")
@@ -207,6 +210,9 @@ class RawFileParameter(object):
 
     def get_title(self):
         return self._title
+
+    def get_output_mime_type(self):
+        return self._output_mime_type
 
     def is_publish_as_layer(self):
         return (self._publish_as_layer != None and self._publish_as_layer == "true")
@@ -314,7 +320,7 @@ class OWCFileParameter(object):
                 dst = bkp_dir.abspath() + "/" + filepath.basename()
                 filepath.copy(dst)
                 dst = path.path(dst)
-                
+
                 if len(files_to_publish) > 0:
                     files_to_publish = files_to_publish + ";"
                 files_to_publish = files_to_publish + dst.abspath()
@@ -356,6 +362,9 @@ class OWCFileParameter(object):
     def get_title(self):
         return self._title
 
+    def get_output_mime_type(self):
+        return self._output_mime_type
+
     def is_publish_as_layer(self):
         return (self._publish_as_layer != None and self._publish_as_layer == "true")
 
@@ -375,5 +384,3 @@ class OWCFileParameter(object):
             if metadata_file.isfile():
                 return metadata_file.text() 
         return ' '
-
-

@@ -15,14 +15,13 @@ import command_line_parameter
 
 class InputParameters(object):
 
-
         @staticmethod
         def create_from_config(input_sections):
             '''Create a InputParameters object.
 
             input_sections: a dictionary such as { input1 : [( 'par1_input1_name' , par1_input1_value ), ( 'par2_input1_name' , par2_input1_value ), ...], input2 : [ .... ], ... }
             '''
-            input_sections_reshaped=OrderedDict()
+            input_sections_reshaped = OrderedDict()
             #force the order of sections in config files: [input1], [input2], etc
             for k in sorted(input_sections):
                 d=dict(input_sections[k])
@@ -88,7 +87,7 @@ class InputParameters(object):
             maliciousCommands = ['>', '<', '>>', '|', '>&', '<&']
             # Check for bad code insertion
             maliciousCode = ['eval(', 'exec(', 'execfile(', 'input(']
-        
+
             # Evaluate malicious commands
             if any(e in maliciousCommands for e in argList):
                 raise IOError('Found bad code in user input')

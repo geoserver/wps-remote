@@ -1,5 +1,6 @@
 *.py[cod]
 *.suo
+*.bak
 
 /build/
 RemoteWPS1.pyproj

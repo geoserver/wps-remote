@@ -31,6 +31,7 @@ import resource_monitor
 
 
 class ServiceBot(object):
+
     """This script is the remote WPS agent. One instance of this agent runs on each computational node connected to the WPS for each algorithm available. The script runs continuosly.
     """
     def __init__(self, remote_config_filepath, service_config_filepath):
