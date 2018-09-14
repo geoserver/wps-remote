@@ -14,13 +14,14 @@ import json
 
 class ComputationJobInput(object):
 
-    def __init__(self, name, input_type, title, description, default=None, formatter=None):
+    def __init__(self, name, input_type, title, description, default=None, formatter=None, input_mime_type=None):
         self._name = name
         self._type = input_type
         self._default = default
         self._formatter = formatter
         self._title = title
         self._description = description
+        self._input_mime_type = input_mime_type
         self._value = None
         self._value_converted = None
         self._allowed_chars = string.printable.replace(' ','')
@@ -37,7 +38,7 @@ class ComputationJobInput(object):
         elif (self._type=='url'):
             if all(c in  self._allowed_chars_url for c in value):
                 return value
-        elif self._type=='application/json':
+        elif self._type in ['application/json', 'application/xml']:
             return json.loads(value)
         elif (self._type=='datetime'):
             if self._formatter:
@@ -52,15 +53,13 @@ class ComputationJobInput(object):
 
         raise TypeError("Cannot validate and convert value " + str(value) + " for type " + self._type)
 
-
     def _type_checking(self, value):
         try:
             self._validate_and_convert( value )
             return self._type
         except TypeError:
             return False
-        
-                
+
     def validate(self):
         if (not self.has_value()):
             raise TypeError("cannot find a value for parameter " + self.get_name())
@@ -84,13 +83,11 @@ class ComputationJobInput(object):
 
         res = False
         try:
-            res= self.validate()
+            res = self.validate()
             if not res:
                 raise TypeError("cannot set value " + str(self._value) + " for parameter " + self.get_name() + " with type " + self._type)
         except:
             raise TypeError("cannot set value " + str(self._value) + " for parameter " + self.get_name() + " with type " + self._type)
-
-
 
     def get_value(self):
         if type(self._value_converted) is list and len(self._value_converted)==1:
@@ -100,6 +97,9 @@ class ComputationJobInput(object):
 
     def get_type(self):
         return self._type
+
+    def get_input_mime_type(self):
+        return self._input_mime_type
 
     def get_value_string(self):
         if type(self._value) is list and len(self._value)==1:
@@ -138,7 +138,7 @@ class ComputationJobInput(object):
     def as_json_string(self):
         #{"type": "string", "description": "A persons surname", "max": 1, "default": "Meier"}
         res={}
-        attrib_to_convert = ['_type', "_title", "_default", "_description", "_min", "_max"] #missing _enum
+        attrib_to_convert = ['_type', '_title', '_default', '_description', '_min', '_max', '_input_mime_type'] #missing _enum
         attribute_list = [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]
         attribute_list_filtered = [x for x in attribute_list if x in attrib_to_convert]
         for a in attribute_list_filtered:

@@ -75,10 +75,16 @@ class ProcessBot(object):
 
         self._executable_path = serviceConfig.get("DEFAULT", "executable_path")
         self._executable_cmd = serviceConfig.get("DEFAULT", "executable_cmd")
+        if not os.path.isabs(self._executable_path):
+            full_executable_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self._executable_path)
+            self._executable_cmd = self._executable_cmd.replace(self._executable_path, full_executable_path)
+            self._executable_path = full_executable_path
 
         self._stdout_parser = serviceConfig.get_list("Logging", "stdout_parser")
         self._stdout_action = serviceConfig.get_list("Logging", "stdout_action")
         self._output_dir =  serviceConfig.get_path("DEFAULT", "output_dir")
+        if not os.path.isabs(self._output_dir):
+            self._output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), self._output_dir)
         self._max_running_time = datetime.timedelta(seconds = serviceConfig.getint("DEFAULT", "max_running_time_seconds"))
 
         #create the concrete uploader object

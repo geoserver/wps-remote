@@ -44,7 +44,8 @@ class ComputationJobInputs(object):
                     formatter = d['formatter'] if "formatter" in d else None
                     mininum = int(d['min']) if "min" in d else 1
                     maximum = int(d['max']) if "max" in d else 1
-                    input_to_add = computation_job_param.ComputationJobParam(name, d['type'], title, d['description'], default, formatter, mininum, maximum)
+                    input_mime_type = d['input_mime_type'] if "input_mime_type" in d else None
+                    input_to_add = computation_job_param.ComputationJobParam(name, d['type'], title, d['description'], default, formatter, mininum, maximum, input_mime_type)
                 elif d['class'] == 'const':
                     title = d['title'] if "title" in d else None
                     input_to_add = computation_job_const.ComputationJobConst(name, d['type'], title, d['description'], d['value'])
@@ -53,7 +54,7 @@ class ComputationJobInputs(object):
             else:
                 raise TypeError("Cannot create computational job input without attribute class")
             cji.add_input( input_to_add )
-            
+
         return cji
 
     def __init__(self):
@@ -87,7 +88,6 @@ class ComputationJobInputs(object):
 
     def __getitem__(self, k):
         return self._inputs[k] 
-
 
     def as_DLR_protocol(self):
         #[('result', '{"type": "string", ...ut.xml" }')]

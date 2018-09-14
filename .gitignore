@@ -1,8 +1,16 @@
 *.py[cod]
 *.suo
+*.bak
 
+/build/
 RemoteWPS1.pyproj
 RemoteWPS1.sln
-Include
-Lib/
-Scripts/
+/Include
+/Lib/
+/Scripts/
+
+/RemoteWPS.pyproj
+/RemoteWPS.sln
+/.vs/config/applicationhost.config
+/dist/
+/src/wps_remote.egg-info/
