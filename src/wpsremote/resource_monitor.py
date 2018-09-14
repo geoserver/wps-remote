@@ -35,27 +35,31 @@ class ResourceMonitor(threading.Thread):
         ResourceMonitor.lock.release()
 
     def proc_is_running(self, proc_names):
-        for proc in psutil.process_iter(): 
-        
-            process = psutil.Process(proc.pid).as_dict() # Get the process info using PID
+        for proc in psutil.process_iter():
+            try:
+                process = psutil.Process(proc.pid).as_dict() # Get the process info using PID
 
-            pid    = str(process["pid"])
-            ppid   = str(process["ppid"])
-            status = process["status"]
+                pid    = str(process["pid"])
+                ppid   = str(process["ppid"])
+                status = process["status"]
 
-            cpu_percent = process["cpu_percent"]
-            mem_percent = process["memory_percent"]
-        
-            rss = str(process["memory_info"].rss)
-            vms = str(process["memory_info"].vms)
-            username = process["username"]
-            name = process["name"] # Here is the process name
-            path = process["cwd"]
+                cpu_percent = process["cpu_percent"]
+                mem_percent = process["memory_percent"]
 
-            for proc_name in proc_names:
-                if status.lower() == "running" and proc_name in name.lower():
-                    return True
+                rss = str(process["memory_info"].rss)
+                vms = str(process["memory_info"].vms)
+                username = process["username"]
+                name = process["name"] # Here is the process name
+                path = process["cwd"]
 
+                for proc_name in proc_names:
+                    if status.lower() == "running" and proc_name in name.lower():
+                        return True
+            except:
+                import traceback
+                tb = traceback.format_exc()
+                # print(tb)
+                continue
         return False
 
     def run(self): 

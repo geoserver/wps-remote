@@ -21,8 +21,9 @@ import zipfile
 #id = os.urandom(10)
 id = str(uuid.uuid4())
 gdalContour = r'/usr/bin/gdal_contour'
-src = r'/share/xmpp_data/resource_dir/srtm_39_04/srtm_39_04_c.tif'
 dst = r'contour_'+id[:13]
+src = '%s/../../../resource_dir/srtm_39_04/srtm_39_04_c.tif' % os.path.dirname(os.path.abspath(__file__))
+trg = '%s/../../../output/%s.shp' % (os.path.dirname(os.path.abspath(__file__)), dst)
 cmd = '-a elev'  # just for example!
 interval = '-i'
 
@@ -35,7 +36,7 @@ class GDALTest(object):
 
     def run(self):
         #fullCmd = ' '.join([gdalContour, cmd, self.youCanQuoteMe(src), self.youCanQuoteMe(dst), interval, self.args.interval])
-        fullCmd = ' '.join([gdalContour, cmd, src, self.args.workdir+'/'+dst+'.shp', interval, self.args.interval])
+        fullCmd = ' '.join([gdalContour, cmd, src, trg, interval, self.args.interval])
         self.logger.debug("Running command > " + fullCmd)
         proc=subprocess.Popen(fullCmd.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False)
         for line in proc.stdout:
@@ -46,8 +47,11 @@ class GDALTest(object):
         ret = proc.returncode
         
         if (ret == 0):
-            zipf = zipfile.ZipFile(self.args.workdir+'/contour.zip', 'w')
-            self.zipdir(self.args.workdir+'/', zipf)
+            # zipf = zipfile.ZipFile(self.args.workdir+'/contour.zip', 'w')
+            # self.zipdir(self.args.workdir+'/', zipf)
+            output_dir = '%s/../../../output/' % os.path.dirname(os.path.abspath(__file__))
+            zipf = zipfile.ZipFile(output_dir+'/contour.zip', 'w')
+            self.zipdir(output_dir+'/', zipf)
             zipf.close()
             
             self.logger.info("ProgressInfo:100%")
