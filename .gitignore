@@ -12,3 +12,4 @@ RemoteWPS1.sln
 /RemoteWPS.sln
 /.vs/config/applicationhost.config
 /dist/
+/src/wps_remote.egg-info/
