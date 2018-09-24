@@ -8,7 +8,7 @@ import subprocess
 import logging.config
 import logging
 import argparse
-import sys 
+import sys
 import thread
 import traceback
 import logging
@@ -41,23 +41,23 @@ class GDALTest(object):
         proc=subprocess.Popen(fullCmd.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False)
         for line in proc.stdout:
             self.logger.info(line)
-        
+
         #call communicate to retrieve return code of subprocess
         proc.communicate()
         ret = proc.returncode
-        
+
         if (ret == 0):
             # zipf = zipfile.ZipFile(self.args.workdir+'/contour.zip', 'w')
             # self.zipdir(self.args.workdir+'/', zipf)
-            output_dir = '%s/../../../output/' % os.path.dirname(os.path.abspath(__file__))
+            output_dir = '%s/../../../output/%s' % (os.path.dirname(os.path.abspath(__file__)), self.args.execution_id)
             zipf = zipfile.ZipFile(output_dir+'/contour.zip', 'w')
             self.zipdir(output_dir+'/', zipf)
             zipf.close()
-            
+
             self.logger.info("ProgressInfo:100%")
         else:
             self.logger.critical("Error occurred during processing.")
-            
+
         return ret
     # see note below
     def youCanQuoteMe(self, item):
@@ -79,10 +79,11 @@ class GDALTest(object):
         self.logger.debug("Logger initialized with file " + str(logger_config_file))
 
 if __name__ == '__main__':
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--interval", nargs='?', default="10", help="Elevation interval between contours.")
     parser.add_argument("-w", "--workdir", nargs='?', default="", help="Remote process sandbox working directory.")
+    parser.add_argument("-e", "--execution_id", nargs='?', default="", help="Remote process Unique Execution Id.")
     cmdargs = parser.parse_args()
 
     gdalTest = GDALTest(cmdargs)

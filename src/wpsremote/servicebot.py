@@ -57,7 +57,7 @@ class ServiceBot(object):
         self.namespace = serviceConfig.get("DEFAULT", "namespace")
         self.description = serviceConfig.get("DEFAULT", "description") #WPS service description
         self._active = serviceConfig.get("DEFAULT", "active").lower() == "true" #True
-        self._output_dir =  serviceConfig.get_path("DEFAULT", "output_dir") 
+        self._output_dir =  serviceConfig.get_path("DEFAULT", "output_dir")
         self._max_running_time = datetime.timedelta( seconds = serviceConfig.getint("DEFAULT", "max_running_time_seconds") )
 
         try:
@@ -67,7 +67,7 @@ class ServiceBot(object):
 
         input_sections = OrderedDict()
         for input_section in [s for s in serviceConfig.sections() if 'input' in s.lower() or 'const' in s.lower()]:
-            #service bot doesn't have yet the execution unique id, thus the serviceConfig is read with raw=True to avoid config file variables interpolation 
+            #service bot doesn't have yet the execution unique id, thus the serviceConfig is read with raw=True to avoid config file variables interpolation
             input_sections[input_section] = serviceConfig.items_without_defaults(input_section, raw=True)
         self._input_parameters_defs = computation_job_inputs.ComputationJobInputs.create_from_config( input_sections )
 
@@ -75,16 +75,16 @@ class ServiceBot(object):
         for output_section in [s for s in serviceConfig.sections() if 'output' in s.lower()]:
             output_sections[output_section] = serviceConfig.items_without_defaults(output_section, raw=True)
         self._output_parameters_defs = output_parameters.OutputParameters.create_from_config( output_sections, self._wps_execution_shared_dir )
-        
+
         #create the concrete bus object
         self.bus = introspection.get_class_three_arg(bus_class_name, remote_config, self.service, self.namespace)
 
-        self.bus.RegisterMessageCallback(busIndipendentMessages.InviteMessage, self.handle_invite) 
+        self.bus.RegisterMessageCallback(busIndipendentMessages.InviteMessage, self.handle_invite)
         self.bus.RegisterMessageCallback(busIndipendentMessages.ExecuteMessage, self.handle_execute)
 
         # -- Register here the callback to the "getloadavg" message
         self.bus.RegisterMessageCallback(busIndipendentMessages.GetLoadAverageMessage, self.handle_getloadavg)
-        
+
         #self._lock_running_process =  thread.allocate_lock() #critical section to access running_process from separate threads
         self.running_process={}
 
@@ -115,7 +115,7 @@ class ServiceBot(object):
             self.bus.Listen()
         else:
             logger.error("This service is disabled, exit process")
-            return 
+            return
 
     def handle_invite(self, invite_message):
         """Handler for WPS invite message."""
@@ -129,11 +129,11 @@ class ServiceBot(object):
             except:
                 logger.info( "[XMPP Disconnected]: Service "+str(self.service)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
         self.bus.SendMessage(
-            busIndipendentMessages.RegisterMessage(invite_message.originator(), 
-                                                   self.service, 
-                                                   self.namespace, 
-                                                   self.description, 
-                                                   self._input_parameters_defs.as_DLR_protocol(), 
+            busIndipendentMessages.RegisterMessage(invite_message.originator(),
+                                                   self.service,
+                                                   self.namespace,
+                                                   self.description,
+                                                   self._input_parameters_defs.as_DLR_protocol(),
                                                    self._output_parameters_defs.as_DLR_protocol()
                                                    )
         )
@@ -152,7 +152,7 @@ class ServiceBot(object):
         #create the Resource Cleaner file containing the process info. The "invoked_process.pid" will be set by the spawned process itself
         try:
             r = resource_cleaner.Resource()
-            #create a resource... 
+            #create a resource...
             r.set_from_servicebot(execute_message.UniqueId(), self._output_dir / execute_message.UniqueId())
             #... and save to file
             logger.info("Start the resource cleaner!")
@@ -164,8 +164,8 @@ class ServiceBot(object):
         cmd = 'python wpsagent.py -r ' + self._remote_config_filepath + ' -s ' + self._service_config_file + ' -p ' + param_filepath + ' process'
         invoked_process = subprocess.Popen(args=cmd.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         logger.info("created process " + self.service +  " with PId " + str(invoked_process.pid) + " and cmd: " + cmd )
-        
-        #use a parallel thread to wait the end of the request handler process and get the exit code of the just created asynchronous process computation 
+
+        #use a parallel thread to wait the end of the request handler process and get the exit code of the just created asynchronous process computation
         thread.start_new_thread(self.output_parser_verbose, (invoked_process, param_filepath,))
 
         logger.info("end of execute message handler, going back in listening mode")
@@ -198,7 +198,7 @@ class ServiceBot(object):
                     logger.info( "[XMPP Disconnected]: Service "+str(self.service)+" Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
             self.bus.SendMessage(
                 busIndipendentMessages.LoadAverageMessage(
-                    getloadavg_message.originator(), 
+                    getloadavg_message.originator(),
                     outputs
                     )
                 )
@@ -272,7 +272,7 @@ class ServiceBot(object):
 
     def send_error_message(self, msg):
         logger = logging.getLogger("ServiceBot.send_error_message")
-        logger.error( msg ) 
+        logger.error( msg )
         if self.bus.state() != 'connected':
             try:
                 self.bus.xmpp.reconnect()
@@ -288,4 +288,3 @@ class ServiceBot(object):
 
     def disconnect(self):
         self.bus.disconnect()
-

@@ -170,6 +170,9 @@ class XMPPBus(bus.Bus):
         if (type(busIndipendentMsg) is busIndipendentMessages.ErrorMessage):
             return xmppMessages.XMPPErrorMessage(busIndipendentMsg.originator, self, busIndipendentMsg.msg, busIndipendentMsg.id)
 
+        if (type(busIndipendentMsg) is busIndipendentMessages.AbortMessage):
+            return xmppMessages.XMPPErrorMessage(busIndipendentMsg.originator, self, busIndipendentMsg.msg, busIndipendentMsg.id)
+
         if (type(busIndipendentMsg) is busIndipendentMessages.LoadAverageMessage):
             return xmppMessages.XMPPLoadAverageMessage(busIndipendentMsg.originator, self, busIndipendentMsg.outputs() )
 

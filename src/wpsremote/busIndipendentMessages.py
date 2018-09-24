@@ -21,9 +21,9 @@ class InviteMessage(BusInipendentMessage):
     def __init__(self, payload, originator):
         self._originator=originator
         self._payload=payload
-    
+
     def originator(self):
-        return self._originator 
+        return self._originator
 
 class RegisterMessage(BusInipendentMessage):
 
@@ -37,9 +37,9 @@ class RegisterMessage(BusInipendentMessage):
 
     def input_parameters(self):
         return self._input_parameter
-    
+
     def originator(self):
-        return self._originator 
+        return self._originator
 
 class ExecuteMessage(BusInipendentMessage):
 
@@ -58,11 +58,11 @@ class ExecuteMessage(BusInipendentMessage):
         self._variables = variables
 
     def variables(self):
-        return self._variables 
+        return self._variables
 
     def originator(self):
-        return self._originator 
-    
+        return self._originator
+
     def UniqueId(self):
         return self._uniqueExeId
 
@@ -111,18 +111,18 @@ class ErrorMessage(BusInipendentMessage):
 
 class AbortMessage(BusInipendentMessage):
 
-    def __init__(self, originator, msg):
-        self.msg = msg
-        self.originator = originator
+    def __init__(self, payload, originator):
+        self.originator=originator
+        self.payload=payload
 
 class GetLoadAverageMessage(BusInipendentMessage):
 
     def __init__(self, payload, originator):
         self._originator=originator
         self._payload=payload
-    
+
     def originator(self):
-        return self._originator 
+        return self._originator
 
 class LoadAverageMessage(BusInipendentMessage):
 

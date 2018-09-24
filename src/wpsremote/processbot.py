@@ -334,6 +334,16 @@ class ProcessBot(object):
 
         sys.exit(0)
 
+    def handle_abort(self, aborted_message):
+        logger = logging.getLogger("ProcessBot.handle_abort")
+        logger.info("received abort mesasge from WPS")
+        self._finished = True
+        with self._lock_bus:
+            self.bus.disconnect()
+        logger.info("disconnected from communication bus")
+
+        sys.exit(-1)
+
     def send_error_message(self, msg):
         logger = logging.getLogger("ProcessBot.send_error_message to " + str(self._remote_wps_endpoint))
         logger.error( msg )
@@ -360,7 +370,3 @@ class ProcessBot(object):
     def disconnect(self):
         with self._lock_bus:
             self.bus.disconnect()
-
-    def handle_abort(self):
-        #todo
-        pass
