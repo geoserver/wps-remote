@@ -1,2 +1,2 @@
-python wpsagent.py -r /share/xmpp_data/configs/remote.config -s /share/xmpp_data/configs/myservice/service.config service &
+python wpsagent.py -r ./xmpp_data/configs/remote.config -s ./xmpp_data/configs/myservice/service.config service &
 

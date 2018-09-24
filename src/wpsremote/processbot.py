@@ -36,8 +36,8 @@ from Crypto.Hash import SHA
 
 class ProcessBot(object):
     """
-    This script starts when the user call a new WPS execution. 
-    His task is to call the proper external executable/scripts according to the service.config file (provided in the cmd line with -s option) and send back to the WPS logging/progress 
+    This script starts when the user call a new WPS execution.
+    His task is to call the proper external executable/scripts according to the service.config file (provided in the cmd line with -s option) and send back to the WPS logging/progress
     information and error information if something unexpected happens.
     All the output including the log file is generated in a sand box directory created with joint information from service.config and external process start-up information.
     """
@@ -45,7 +45,7 @@ class ProcessBot(object):
         self._uniqueExeId = execute_message.UniqueId()
         self._remote_wps_endpoint = execute_message.originator()
         self._remote_wps_baseurl = execute_message.BaseURL()
-        self._input_values = execute_message.variables()                                                                                              
+        self._input_values = execute_message.variables()
 
         #read remote config
         remote_config = configInstance.create(remote_config_filepath)
@@ -64,9 +64,9 @@ class ProcessBot(object):
                 self._wps_execution_shared_dir.mkdir()
         else:
             self._wps_execution_shared_dir = None
-        
+
         #the config file is read with raw=False because the unique_exe_id value will be used (interpolated) in the config
-        serviceConfig = configInstance.create(service_config_filepath, case_sensitive=True, variables = {'unique_exe_id' : self._uniqueExeId, 'wps_execution_shared_dir' : self._wps_execution_shared_dir}, raw=False) 
+        serviceConfig = configInstance.create(service_config_filepath, case_sensitive=True, variables = {'unique_exe_id' : self._uniqueExeId, 'wps_execution_shared_dir' : self._wps_execution_shared_dir}, raw=False)
 
         self.service = serviceConfig.get("DEFAULT", "service") #todo: what is?
         self.namespace = serviceConfig.get("DEFAULT", "namespace")
@@ -99,7 +99,7 @@ class ProcessBot(object):
                 privatekey = open(uploader_private_rsa_key, "r")
                 rsa_key = RSA.importKey(privatekey, passphrase=uploader_passphrase)
                 uploader_password = rsa_key.decrypt(base64.b64decode(uploader_password))
-            
+
             self._uploader = introspection.get_class_four_arg(uploader_class_name, uploader_host, uploader_username, uploader_password, self._uniqueExeId)
         else:
             self._uploader = None
@@ -166,12 +166,12 @@ class ProcessBot(object):
 
             #prepare cmd line
             cmd = self._executable_cmd + " " +  self._input_params_actions.get_cmd_line()
-        
+
             #spawn the computational job process
-            invoked_process = subprocess.Popen(args=cmd.split(), cwd=self._executable_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False) 
+            invoked_process = subprocess.Popen(args=cmd.split(), cwd=self._executable_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False)
             logger.info("process " + self.service +  " created with PId " + str(invoked_process.pid) + " and command line: " + cmd)
 
-            #read the resource file        
+            #read the resource file
             rc = resource_cleaner.Resource.create_from_file(self._uniqueExeId, os.getpid())
             #add the pid of the computational job to the resource file
             rc.set_from_processbot( os.getpid(), [ invoked_process.pid ] ) #todo: check if cmds contains ","!!! --> pickle?
@@ -186,7 +186,7 @@ class ProcessBot(object):
             os._exit(return_code)
 
         #go to process output synchronuosly
-        self.process_output_parser( invoked_process ) 
+        self.process_output_parser( invoked_process )
 
     def process_output_parser(self, invoked_process):
         logger = logging.getLogger("ProcessBot.process_output_parser")
@@ -258,7 +258,7 @@ class ProcessBot(object):
                                 self.bus.SendMessage( busIndipendentMessages.ErrorMessage(  self._remote_wps_endpoint, res.group(2).strip() ) )
                             match=True
                             break
-                        elif (action=="ignore"):  
+                        elif (action=="ignore"):
                             match=True
                             break
                         else:
@@ -270,7 +270,7 @@ class ProcessBot(object):
         #wait for process exit code
         return_code = invoked_process.wait()
         logger.info( "process exit code is " + str(return_code))
-        
+
         if return_code==0:
             #success
             logger.info("process exit code is " + str(return_code) + ": success")
@@ -320,7 +320,7 @@ class ProcessBot(object):
             self.send_error_message( error_message )
 
             #self.bus.disconnect()
-            logger.info( "after send job-error message to WPS") 
+            logger.info( "after send job-error message to WPS")
             thread.interrupt_main()
             os._exit(return_code)
 
@@ -336,7 +336,7 @@ class ProcessBot(object):
 
     def send_error_message(self, msg):
         logger = logging.getLogger("ProcessBot.send_error_message to " + str(self._remote_wps_endpoint))
-        logger.error( msg ) 
+        logger.error( msg )
         with self._lock_bus:
             if self.bus.state() == 'connected':
                 self.bus.SendMessage( busIndipendentMessages.ErrorMessage( self._remote_wps_endpoint, msg ) )
@@ -353,7 +353,7 @@ class ProcessBot(object):
                 except:
                     sys.stdout.write( "[XMPP Disconnected]: Process <UID>"+str(self._uniqueExeId)+"</UID> Could not send error message to GeoServer Endpoint <JID>"+str(self._remote_wps_endpoint)+"</JID> <MSG>"+msg.replace('\n', ' ').replace('\r', '')+"</MSG>")
 
-        logger.debug( "send error msg complete" ) 
+        logger.debug( "send error msg complete" )
         thread.interrupt_main()
         os._exit(-1)
 
@@ -364,5 +364,3 @@ class ProcessBot(object):
     def handle_abort(self):
         #todo
         pass
-
-

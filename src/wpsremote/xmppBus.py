@@ -32,7 +32,7 @@ class XMPPBus(bus.Bus):
         self.username=config.get("DEFAULT", "user")
         self.password=config.get("DEFAULT", "password")
         self.nameSpacePassword = config.get("DEFAULT", "mucServicePassword")
-        
+
         self._service_name = service_name
         self._service_name_namespace = service_name_namespace
         self._fully_qualified_service_name = self._service_name_namespace + "." + self._service_name
@@ -65,7 +65,7 @@ class XMPPBus(bus.Bus):
         return self._service_name_namespace + "@" + self.MUC_name
 
     def _MUC_service_nickname(self):
-        return '%s@%s' % (self._service_name, str(self.xmpp.boundjid).split('@', 1).pop())  
+        return '%s@%s' % (self._service_name, str(self.xmpp.boundjid).split('@', 1).pop())
 
 
     def CheckServerIdentity(self, serverId):
@@ -108,7 +108,7 @@ class XMPPBus(bus.Bus):
 
     def CreateIndipendentMessage(self, msg):
         if msg['type'] in ('normal', 'chat'):
-            payload = msg['body'] 
+            payload = msg['body']
             origin = msg['from']
 
             logging.info('Received XMPP bus signal from %s: "%s"' % (origin, payload))
@@ -128,13 +128,16 @@ class XMPPBus(bus.Bus):
                     variables = dict([tuple(each.strip().split('=')) for each in payload.split('&')])
                     requestParams=pickle.loads(urllib.unquote(variables['message'])) if variables['message'] is not None else None
                     #print str(variables)
-                    return busIndipendentMessages.ExecuteMessage( msg['from'], variables['id'], variables['baseURL'], requestParams )  
+                    return busIndipendentMessages.ExecuteMessage( msg['from'], variables['id'], variables['baseURL'], requestParams )
                 elif ("topic=invite" in payload):
                     logging.info("handle invite message from WPS " + str(payload))
                     return busIndipendentMessages.InviteMessage(payload, msg['from'])
                 elif ("topic=finish" in payload):
                     logging.info("handle finish message from WPS " + str(payload))
                     return busIndipendentMessages.FinishMessage(payload, msg['from'])
+                elif ("topic=abort" in payload):
+                    logging.info("handle abort message from WPS " + str(payload))
+                    return busIndipendentMessages.AbortMessage(payload, msg['from'])
                 elif ("topic=getloadavg" in payload):
                     return busIndipendentMessages.GetLoadAverageMessage(payload, msg['from'])
                 else:
@@ -154,10 +157,10 @@ class XMPPBus(bus.Bus):
     def Convert(self, busIndipendentMsg):
         if (type(busIndipendentMsg) is busIndipendentMessages.RegisterMessage):
             return xmppMessages.XMPPRegisterMessage(self, busIndipendentMsg.originator(), busIndipendentMsg.service, busIndipendentMsg.namespace, busIndipendentMsg.description, busIndipendentMsg.input_parameters(), busIndipendentMsg.output)
-        
+
         if (type(busIndipendentMsg) is busIndipendentMessages.ProgressMessage):
             return xmppMessages.XMPPProgressMessage(  busIndipendentMsg.originator, self, busIndipendentMsg.progress )
-        
+
         if (type(busIndipendentMsg) is busIndipendentMessages.LogMessage):
             return xmppMessages.XMPPLogMessage(busIndipendentMsg.originator, self, busIndipendentMsg.level, busIndipendentMsg.msg)
 
@@ -176,6 +179,6 @@ class XMPPBus(bus.Bus):
 
     def disconnect(self):
         self.xmpp.disconnect(wait=True)
-    
+
     def state(self):
         return self.xmpp.state.current_state()

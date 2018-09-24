@@ -6,20 +6,20 @@
 
 """
    To deploy a new version of the package on PyPi
-   
-   1. Update "version" 
+
+   1. Update "version"
    2. Update REAMDE.md Change Log and pip install version
-   
+
    3. Follow the instruction at http://peterdowns.com/posts/first-time-with-pypi.html
-   
+
    4. Deploy on pypitest:
-      
+
       python setup.py sdist upload -r pypitest
       python setup.py bdist --format=gztar upload -r pypitest
       python setup.py bdist_wheel upload -r pypitest
 
    5. Deploy on pypi:
-      
+
       python setup.py sdist upload -r pypi
       python setup.py bdist --format=gztar upload -r pypi
       python setup.py bdist_wheel upload -r pypi
@@ -33,7 +33,7 @@ except IOError,e:
 
 setup(
     name = "wps-remote",
-    version = "2.14.1",
+    version = "2.14.2",
     author = "GeoServer Developers",
     author_email = "geoserver-devel@lists.sourceforge.net",
     description = "A library that allows users to publish their executables as GeoServer WPS Processes through the XMPP protocol",
@@ -55,16 +55,16 @@ setup(
     packages = find_packages('src'),
     package_data = {
         '': [
-            'xmpp_data/*.*', 
-            'xmpp_data/configs/*.*', 
+            'xmpp_data/*.*',
+            'xmpp_data/configs/*.*',
             'xmpp_data/configs/myservice/*.*',
             'xmpp_data/configs/myservice/code/*.*',
-            'xmpp_data/output/*.*', 
-            'xmpp_data/resource_dir/*.*', 
-            'xmpp_data/resource_dir/srtm_39_04/*.*', 
-            'xmpp_data/share/placemark', 
-            'xmpp_data/ssl/*.*', 
-            'xmpp_data/test/*.*', 
+            'xmpp_data/output/*.*',
+            'xmpp_data/resource_dir/*.*',
+            'xmpp_data/resource_dir/srtm_39_04/*.*',
+            'xmpp_data/share/placemark',
+            'xmpp_data/ssl/*.*',
+            'xmpp_data/test/*.*',
         ]
     },
     include_package_data = True,
