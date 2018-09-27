@@ -21,7 +21,7 @@ class ComputationalJobInputActionCreateJSONFile(computational_job_input_action.C
         self._input_ref = input_ref
         self._json_filepath = json_filepath if isinstance(json_filepath, path.path) else path.path(json_filepath)
 
-        # Python-like expression to access json data in memory. 
+        # Python-like expression to access json data in memory.
         # This value is used in case of multiple json file creation to enumerate the file names (e.g. outfile1.json, outfile2.json) using an id from the input json data
         self._json_path_expr = json_path_expr
         self.json_files_created = []
@@ -30,7 +30,7 @@ class ComputationalJobInputActionCreateJSONFile(computational_job_input_action.C
             self._json_schema = json.loads(json_schema.text())
         else:
             self._json_schema = json.loads(json_schema)
-        
+
 
     def set_inputs(self, inputs):
         #for par_name in self._input_refs:
@@ -64,7 +64,7 @@ class ComputationalJobInputActionCreateJSONFile(computational_job_input_action.C
             msg = "Invalid json for asset: " + str(ex)
             logger.fatal(msg)
             raise ex
-                   
+
     def create_json_file(self, json_text):
         json_filepath = self._extract_id_from_json(json_text)
         #json_filepath.write_text( json_text )
@@ -75,7 +75,7 @@ class ComputationalJobInputActionCreateJSONFile(computational_job_input_action.C
 
 
     def _extract_id_from_json(self, json_text):
-        if self._json_path_expr != None and not self._json_path_expr:
+        if self._json_path_expr != None and self._json_path_expr != '':
             _id = eval( "json_text" + self._json_path_expr )
             self._json_filepath = str(self._json_filepath).replace('${json_path_expr}', '%i')
             fp = self._json_filepath % _id
@@ -87,4 +87,3 @@ class ComputationalJobInputActionCreateJSONFile(computational_job_input_action.C
         files_exists = map(lambda fp: fp.exists(),  self.json_files_created)
         files_exists = list(set(files_exists))
         return len(files_exists)==1 and files_exists[0]
-

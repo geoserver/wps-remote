@@ -20,7 +20,7 @@ import uuid
 #                                                                                                               #
 # ############################################################################################################# #
 class OutputFileParameter(object):
-    
+
     def __init__(self, par_name, d, template_vars_for_param_types=None, wps_execution_shared_dir=None, uploader=None):
         #{"type": "string", "description": "xml OAA output file", "filepath" : "%workdir\\\\output_file.xml" }
         self._name=par_name
@@ -47,7 +47,7 @@ class OutputFileParameter(object):
                     for var, val in template_vars_for_param_types.items():
                         if var in v:
                             v=v.replace("%" + var,val)
-                    
+
                 setattr(self, "_" + k, v)
 
         self._filepath = path.path(self._filepath)
@@ -66,7 +66,7 @@ class OutputFileParameter(object):
         return json.dumps(res)
 
     def get_value(self):
-        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir and self._wps_execution_shared_dir != None:
+        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir.lower() is "true" and self._wps_execution_shared_dir != None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(self._wps_execution_shared_dir + "/" + unique_dirname)
             bkp_dir.makedirs()
@@ -76,7 +76,7 @@ class OutputFileParameter(object):
             dst = path.path(dst)
 
             return dst.text()
-        elif self._upload_data != None and self._upload_data and self._uploader != None:
+        elif self._upload_data != None and self._upload_data.lower() is "true" and self._uploader != None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(tempfile.gettempdir() + '/' + unique_dirname)
             bkp_dir.makedirs()
@@ -107,7 +107,7 @@ class OutputFileParameter(object):
         return self._output_mime_type
 
     def is_publish_as_layer(self):
-        return (self._publish_as_layer != None and self._publish_as_layer == "true")
+        return (self._publish_as_layer != None and self._publish_as_layer.lower() is "true")
 
     def get_publish_layer_name(self):
         return self._publish_layer_name
@@ -123,7 +123,7 @@ class OutputFileParameter(object):
             metadata_file = path.path(self._publish_metadata)
 
             if metadata_file.isfile():
-                return metadata_file.text() 
+                return metadata_file.text()
         return ' '
 
 # ############################################################################################################# #
@@ -132,7 +132,7 @@ class OutputFileParameter(object):
 #                                                                                                               #
 # ############################################################################################################# #
 class RawFileParameter(object):
-    
+
     def __init__(self, par_name, d, template_vars_for_param_types=None, wps_execution_shared_dir=None, uploader=None):
         #{"type": "string", "description": "xml OAA output file", "filepath" : "%workdir\\\\output_file.xml" }
         self._name=par_name
@@ -159,7 +159,7 @@ class RawFileParameter(object):
                     for var, val in template_vars_for_param_types.items():
                         if var in v:
                             v=v.replace("%" + var,val)
-                    
+
                 setattr(self, "_" + k, v)
 
         self._filepath = path.path(self._filepath)
@@ -178,7 +178,7 @@ class RawFileParameter(object):
         return  json.dumps(res)
 
     def get_value(self):
-        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir and self._wps_execution_shared_dir != None:
+        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir.lower() is "true" and self._wps_execution_shared_dir != None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(self._wps_execution_shared_dir + "/" + unique_dirname)
             bkp_dir.makedirs()
@@ -188,9 +188,9 @@ class RawFileParameter(object):
             dst = path.path(dst)
 
             return dst
-        elif self._upload_data != None and self._upload_data and self._uploader != None:
+        elif self._upload_data != None and self._upload_data.lower() is "true" and self._uploader != None:
             unique_dirname = str(uuid.uuid4())
-            
+
             if self._upload_data_root:
                 unique_dirname = self._upload_data_root + '/' + unique_dirname
             src_path = os.path.abspath(os.path.join(self._filepath.abspath(), os.pardir))
@@ -215,7 +215,7 @@ class RawFileParameter(object):
         return self._output_mime_type
 
     def is_publish_as_layer(self):
-        return (self._publish_as_layer != None and self._publish_as_layer == "true")
+        return (self._publish_as_layer != None and self._publish_as_layer.lower() is "true")
 
     def get_publish_layer_name(self):
         return self._publish_layer_name
@@ -231,7 +231,7 @@ class RawFileParameter(object):
             metadata_file = path.path(self._publish_metadata)
 
             if metadata_file.isfile():
-                return metadata_file.text() 
+                return metadata_file.text()
         return ' '
 
 
@@ -241,7 +241,7 @@ class RawFileParameter(object):
 #                                                                                                               #
 # ############################################################################################################# #
 class OWCFileParameter(object):
-    
+
     def __init__(self, par_name, d, parameters_types_defs, template_vars_for_param_types=None, wps_execution_shared_dir=None, uploader=None):
         #{"type": "string", "description": "xml OAA output file", "filepath" : "%workdir\\\\output_file.xml" }
         self._name=par_name
@@ -267,7 +267,7 @@ class OWCFileParameter(object):
                     for var, val in template_vars_for_param_types.items():
                         if var in v:
                             v=v.replace("%" + var,val)
-                    
+
                 setattr(self, "_" + k, v)
 
         self._files_to_publish  = ''
@@ -307,7 +307,7 @@ class OWCFileParameter(object):
         return  json.dumps(res)
 
     def get_value(self):
-        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir and self._wps_execution_shared_dir != None:
+        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir.lower() is "true" and self._wps_execution_shared_dir != None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(self._wps_execution_shared_dir + "/" + unique_dirname)
             bkp_dir.makedirs()
@@ -326,7 +326,7 @@ class OWCFileParameter(object):
                 files_to_publish = files_to_publish + dst.abspath()
 
             return files_to_publish
-        elif self._upload_data != None and self._upload_data and self._uploader != None:
+        elif self._upload_data != None and self._upload_data.lower() is "true" and self._uploader != None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(tempfile.gettempdir() + '/' + unique_dirname)
             bkp_dir.makedirs()
@@ -366,7 +366,7 @@ class OWCFileParameter(object):
         return self._output_mime_type
 
     def is_publish_as_layer(self):
-        return (self._publish_as_layer != None and self._publish_as_layer == "true")
+        return (self._publish_as_layer != None and self._publish_as_layer.lower() is "true")
 
     def get_publish_layer_name(self):
         return self._publish_layer_name
@@ -382,5 +382,5 @@ class OWCFileParameter(object):
             metadata_file = path.path(self._publish_metadata)
 
             if metadata_file.isfile():
-                return metadata_file.text() 
+                return metadata_file.text()
         return ' '
