@@ -66,7 +66,7 @@ class OutputFileParameter(object):
         return json.dumps(res)
 
     def get_value(self):
-        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir.lower() is "true" and self._wps_execution_shared_dir != None:
+        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir.lower() == "true" and self._wps_execution_shared_dir != None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(self._wps_execution_shared_dir + "/" + unique_dirname)
             bkp_dir.makedirs()
@@ -76,7 +76,7 @@ class OutputFileParameter(object):
             dst = path.path(dst)
 
             return dst.text()
-        elif self._upload_data != None and self._upload_data.lower() is "true" and self._uploader != None:
+        elif self._upload_data != None and self._upload_data.lower() == "true" and self._uploader != None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(tempfile.gettempdir() + '/' + unique_dirname)
             bkp_dir.makedirs()
@@ -107,7 +107,7 @@ class OutputFileParameter(object):
         return self._output_mime_type
 
     def is_publish_as_layer(self):
-        return (self._publish_as_layer != None and self._publish_as_layer.lower() is "true")
+        return (self._publish_as_layer != None and self._publish_as_layer.lower() == "true")
 
     def get_publish_layer_name(self):
         return self._publish_layer_name
@@ -178,7 +178,7 @@ class RawFileParameter(object):
         return  json.dumps(res)
 
     def get_value(self):
-        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir.lower() is "true" and self._wps_execution_shared_dir != None:
+        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir.lower() == "true" and self._wps_execution_shared_dir != None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(self._wps_execution_shared_dir + "/" + unique_dirname)
             bkp_dir.makedirs()
@@ -188,7 +188,7 @@ class RawFileParameter(object):
             dst = path.path(dst)
 
             return dst
-        elif self._upload_data != None and self._upload_data.lower() is "true" and self._uploader != None:
+        elif self._upload_data != None and self._upload_data.lower() == "true" and self._uploader != None:
             unique_dirname = str(uuid.uuid4())
 
             if self._upload_data_root:
@@ -215,7 +215,7 @@ class RawFileParameter(object):
         return self._output_mime_type
 
     def is_publish_as_layer(self):
-        return (self._publish_as_layer != None and self._publish_as_layer.lower() is "true")
+        return (self._publish_as_layer != None and self._publish_as_layer.lower() == "true")
 
     def get_publish_layer_name(self):
         return self._publish_layer_name
@@ -307,7 +307,7 @@ class OWCFileParameter(object):
         return  json.dumps(res)
 
     def get_value(self):
-        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir.lower() is "true" and self._wps_execution_shared_dir != None:
+        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir.lower() == "true" and self._wps_execution_shared_dir != None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(self._wps_execution_shared_dir + "/" + unique_dirname)
             bkp_dir.makedirs()
@@ -326,7 +326,7 @@ class OWCFileParameter(object):
                 files_to_publish = files_to_publish + dst.abspath()
 
             return files_to_publish
-        elif self._upload_data != None and self._upload_data.lower() is "true" and self._uploader != None:
+        elif self._upload_data != None and self._upload_data.lower() == "true" and self._uploader != None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(tempfile.gettempdir() + '/' + unique_dirname)
             bkp_dir.makedirs()
@@ -366,7 +366,7 @@ class OWCFileParameter(object):
         return self._output_mime_type
 
     def is_publish_as_layer(self):
-        return (self._publish_as_layer != None and self._publish_as_layer.lower() is "true")
+        return (self._publish_as_layer != None and self._publish_as_layer.lower() == "true")
 
     def get_publish_layer_name(self):
         return self._publish_layer_name
