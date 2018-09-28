@@ -23,7 +23,6 @@ id = str(uuid.uuid4())
 gdalContour = r'/usr/bin/gdal_contour'
 dst = r'contour_'+id[:13]
 src = '%s/../../../resource_dir/srtm_39_04/srtm_39_04_c.tif' % os.path.dirname(os.path.abspath(__file__))
-trg = '%s/../../../output/%s.shp' % (os.path.dirname(os.path.abspath(__file__)), dst)
 cmd = '-a elev'  # just for example!
 interval = '-i'
 
@@ -35,6 +34,8 @@ class GDALTest(object):
 
 
     def run(self):
+        trg = '%s/../../../output/%s/%s.shp' % (os.path.dirname(os.path.abspath(__file__)), self.args.execution_id, dst)
+
         #fullCmd = ' '.join([gdalContour, cmd, self.youCanQuoteMe(src), self.youCanQuoteMe(dst), interval, self.args.interval])
         fullCmd = ' '.join([gdalContour, cmd, src, trg, interval, self.args.interval])
         self.logger.debug("Running command > " + fullCmd)
