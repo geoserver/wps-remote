@@ -12,6 +12,10 @@ import threading
 import thread
 import time
 import psutil
+import logging
+
+logger = logging.getLogger("servicebot.resource_monitor")
+
 
 class ResourceMonitor(threading.Thread):
 
@@ -20,8 +24,8 @@ class ResourceMonitor(threading.Thread):
     cpu_perc  = []
     vmem_perc = []
     lock = threading.Lock()
-    
-    def __init__(self, load_average_scan_minutes): 
+
+    def __init__(self, load_average_scan_minutes):
         threading.Thread.__init__(self)
         ResourceMonitor.load_average_scan_minutes = load_average_scan_minutes
         ResourceMonitor.lock.acquire()
@@ -34,37 +38,44 @@ class ResourceMonitor(threading.Thread):
 
         ResourceMonitor.lock.release()
 
-    def proc_is_running(self, proc_names):
+    def proc_is_running(self, proc_defs):
         for proc in psutil.process_iter():
             try:
-                process = psutil.Process(proc.pid).as_dict() # Get the process info using PID
+                process = psutil.Process(proc.pid) # Get the process info using PID
+                if process.is_running():
+                    pid    = str(process.pid)
+                    ppid   = str(process.ppid)
+                    status = process.status()
 
-                pid    = str(process["pid"])
-                ppid   = str(process["ppid"])
-                status = process["status"]
+                    cpu_percent = process.cpu_percent()
+                    mem_percent = process.memory_percent()
 
-                cpu_percent = process["cpu_percent"]
-                mem_percent = process["memory_percent"]
+                    rss = str(process.memory_info().rss)
+                    vms = str(process.memory_info().vms)
+                    username = process.username()
+                    name     = process.name() # Here is the process name
+                    path     = process.cwd()
+                    cmdline  = ' '.join(process.cmdline())
 
-                rss = str(process["memory_info"].rss)
-                vms = str(process["memory_info"].vms)
-                username = process["username"]
-                name = process["name"] # Here is the process name
-                path = process["cwd"]
-
-                for proc_name in proc_names:
-                    if status.lower() == "running" and proc_name in name.lower():
-                        return True
+                    print("Get the process info using (path, name, cmdline): [%s / %s / %s]" % (path, name, cmdline))
+                    for _p in proc_defs:
+                        # logger.info("Look for process: [%s] / Status [%s]" % (_p, status.lower()))
+                        # print("Look for process: [%s] / Status [%s]" % (_p, status.lower()))
+                        if (status.lower() != "sleeping") and \
+                            ('name' in _p and _p['name'] in name) and \
+                                ('cwd' in _p and _p['cwd'] in path) and \
+                                    ('cmdline' in _p and _p['cmdline'] in cmdline):
+                            return True
             except:
                 import traceback
                 tb = traceback.format_exc()
-                # print(tb)
-                continue
+                logger.debug(tb)
+                print(tb)
         return False
 
-    def run(self): 
-        while True: 
-            ResourceMonitor.lock.acquire() 
+    def run(self):
+        while True:
+            ResourceMonitor.lock.acquire()
 
             ResourceMonitor.vmem_perc[1] = (ResourceMonitor.vmem_perc[0] + ResourceMonitor.vmem_perc[1]) / 2.0
             ResourceMonitor.vmem_perc[0] = (ResourceMonitor.vmem_perc[1] + psutil.virtual_memory().percent) / 2.0
@@ -73,4 +84,3 @@ class ResourceMonitor(threading.Thread):
             ResourceMonitor.cpu_perc[0] = psutil.cpu_percent(interval = (ResourceMonitor.load_average_scan_minutes*60), percpu= False)
 
             ResourceMonitor.lock.release()
-

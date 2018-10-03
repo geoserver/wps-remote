@@ -14,3 +14,7 @@ RemoteWPS1.sln
 /.vs/config/applicationhost.config
 /dist/
 /src/wps_remote.egg-info/
+
+/json_out.json
+/json_out_1.json
+/json_out_2.json

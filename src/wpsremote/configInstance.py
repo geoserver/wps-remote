@@ -25,15 +25,15 @@ def create(filePath, moreSerchPath=[], variables={}, raw=False, case_sensitive=F
     fp.close()
 
     config.items_without_defaults = types.MethodType(items_without_defaults,config)
-    config.get_list = types.MethodType(get_list_impl,config)
-    config.get_list_list = types.MethodType(get_list_list_impl,config)
-    config.get_list_int = types.MethodType(get_list_int_impl,config)
-    config.get_list_float = types.MethodType(get_list_float_impl,config)
-    config.get_password =  types.MethodType(get_password,config)
-    config.get_path =  types.MethodType(get_path,config)
-    config.get_list_path = types.MethodType( get_list_path_impl, config) 
+    config.get_list = types.MethodType(get_list_impl, config)
+    config.get_list_list = types.MethodType(get_list_list_impl, config)
+    config.get_list_int = types.MethodType(get_list_int_impl, config)
+    config.get_list_float = types.MethodType(get_list_float_impl, config)
+    config.get_password =  types.MethodType(get_password, config)
+    config.get_path =  types.MethodType(get_path, config)
+    config.get_list_path = types.MethodType(get_list_path_impl, config)
     return config
-  
+
 def items_without_defaults(target, section_name, raw=False):
     #return [s for s in target.items(section_name, raw=raw) if not s[0] in target.defaults().keys()]
     res=[]
@@ -48,7 +48,7 @@ def items_without_defaults(target, section_name, raw=False):
             res.append(s)
     return res
 
-     
+
 def get_list_impl(target, section, itemname):
     v=target.get(section, itemname)
     if (v==None or v==''):

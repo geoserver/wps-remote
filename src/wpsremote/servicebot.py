@@ -61,7 +61,8 @@ class ServiceBot(object):
         self._max_running_time = datetime.timedelta( seconds = serviceConfig.getint("DEFAULT", "max_running_time_seconds") )
 
         try:
-            self._process_blacklist = serviceConfig.get_list("DEFAULT", "process_blacklist")
+            import json
+            self._process_blacklist = json.loads(serviceConfig.get("DEFAULT", "process_blacklist"))
         except:
             self._process_blacklist = []
 
@@ -180,9 +181,13 @@ class ServiceBot(object):
             loadavg = self._resource_monitor.cpu_perc[0]
             vmem    = self._resource_monitor.vmem_perc[0]
 
+            logger.info("Scanning Running Process. Declared Black List: %s" % self._process_blacklist)
             if self._resource_monitor.proc_is_running(self._process_blacklist) == True:
+                logger.info("A process listed in blacklist is running! Setting loadavg and vmem to (100.0, 100.0)")
                 loadavg = 100.0
                 vmem    = 100.0
+            else:
+                logger.info("No blacklisted process was found. Setting loadavg and vmem to (%s, %s)" % (loadavg, vmem))
 
             outputs = dict()
             outputs['loadavg'] = [loadavg, 'Average Load on CPUs during the last 15 minutes.']
