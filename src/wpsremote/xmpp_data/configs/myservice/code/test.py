@@ -8,7 +8,7 @@ import subprocess
 import logging.config
 import logging
 import argparse
-import sys
+import sys 
 import thread
 import traceback
 import logging
@@ -16,6 +16,7 @@ import sys
 import os
 import uuid
 import zipfile
+import time
 
 # constants
 #id = os.urandom(10)
@@ -39,6 +40,10 @@ class GDALTest(object):
         #fullCmd = ' '.join([gdalContour, cmd, self.youCanQuoteMe(src), self.youCanQuoteMe(dst), interval, self.args.interval])
         fullCmd = ' '.join([gdalContour, cmd, src, trg, interval, self.args.interval])
         self.logger.debug("Running command > " + fullCmd)
+
+        self.logger.info("going to sleep again...");
+        time.sleep(30)   # Delays for 30 seconds. You can also use a float value.
+
         proc=subprocess.Popen(fullCmd.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False)
         for line in proc.stdout:
             self.logger.info(line)
@@ -47,6 +52,9 @@ class GDALTest(object):
         proc.communicate()
         ret = proc.returncode
 
+        self.logger.info("...waking up and going to sleep again...");
+        time.sleep(30)   # Delays for 30 seconds. You can also use a float value.
+        
         if (ret == 0):
             # zipf = zipfile.ZipFile(self.args.workdir+'/contour.zip', 'w')
             # self.zipdir(self.args.workdir+'/', zipf)
@@ -54,12 +62,13 @@ class GDALTest(object):
             zipf = zipfile.ZipFile(output_dir+'/contour.zip', 'w')
             self.zipdir(output_dir+'/', zipf)
             zipf.close()
-
+            
             self.logger.info("ProgressInfo:100%")
         else:
             self.logger.critical("Error occurred during processing.")
-
+            
         return ret
+
     # see note below
     def youCanQuoteMe(self, item):
         return "\"" + item + "\""
@@ -80,7 +89,6 @@ class GDALTest(object):
         self.logger.debug("Logger initialized with file " + str(logger_config_file))
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--interval", nargs='?', default="10", help="Elevation interval between contours.")
     parser.add_argument("-w", "--workdir", nargs='?', default="", help="Remote process sandbox working directory.")
