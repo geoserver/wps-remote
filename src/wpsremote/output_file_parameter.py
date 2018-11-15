@@ -4,27 +4,29 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
-__author__ = "Alessio Fabiani"
-__copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
-__license__ = "GPL"
-
 import os
 import tempfile
 import path
 import json
 import uuid
 
+__author__ = "Alessio Fabiani"
+__copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
+__license__ = "GPL"
+
 # ############################################################################################################# #
 #                                                                                                               #
 #    Text/Plain Output Map Format                                                                               #
 #                                                                                                               #
 # ############################################################################################################# #
+
+
 class OutputFileParameter(object):
 
     def __init__(self, par_name, d, template_vars_for_param_types=None, wps_execution_shared_dir=None, uploader=None):
-        #{"type": "string", "description": "xml OAA output file", "filepath" : "%workdir\\\\output_file.xml" }
-        self._name=par_name
-        self._type=None
+        # {"type": "string", "description": "xml OAA output file", "filepath" : "%workdir\\\\output_file.xml" }
+        self._name = par_name
+        self._type = None
         self._description = None
         self._title = None
         self._filepath = None
@@ -41,12 +43,12 @@ class OutputFileParameter(object):
         self._publish_target_workspace = None
         self._publish_metadata = None
 
-        for k,v in d.items():
+        for k, v in d.items():
             if hasattr(self, "_" + k):
-                if template_vars_for_param_types != None and isinstance(v, basestring):
+                if template_vars_for_param_types is not None and isinstance(v, basestring):
                     for var, val in template_vars_for_param_types.items():
                         if var in v:
-                            v=v.replace("%" + var,val)
+                            v = v.replace("%" + var, val)
 
                 setattr(self, "_" + k, v)
 
@@ -56,9 +58,17 @@ class OutputFileParameter(object):
         return self._name
 
     def as_json_string(self):
-        #{"type": "string", "description": "A persons surname", "max": 1, "default": "Meier"}
-        res={}
-        attrib_to_convert = ['_type', '_description', '_title', '_output_mime_type', '_publish_as_layer', '_publish_layer_name', '_publish_default_style', '_publish_target_workspace']
+        # {"type": "string", "description": "A persons surname", "max": 1, "default": "Meier"}
+        res = {}
+        attrib_to_convert = [
+    '_type',
+    '_description',
+    '_title',
+    '_output_mime_type',
+    '_publish_as_layer',
+    '_publish_layer_name',
+    '_publish_default_style',
+     '_publish_target_workspace']
         attribute_list = [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]
         attribute_list_filtered = [x for x in attribute_list if x in attrib_to_convert]
         for a in attribute_list_filtered:
@@ -66,7 +76,8 @@ class OutputFileParameter(object):
         return json.dumps(res)
 
     def get_value(self):
-        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir.lower() == "true" and self._wps_execution_shared_dir != None:
+        if self._backup_on_wps_execution_shared_dir is not None and self._backup_on_wps_execution_shared_dir.lower(
+        ) == "true" and self._wps_execution_shared_dir is not None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(self._wps_execution_shared_dir + "/" + unique_dirname)
             bkp_dir.makedirs()
@@ -76,7 +87,7 @@ class OutputFileParameter(object):
             dst = path.path(dst)
 
             return dst.text()
-        elif self._upload_data != None and self._upload_data.lower() == "true" and self._uploader != None:
+        elif self._upload_data is not None and self._upload_data.lower() == "true" and self._uploader is not None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(tempfile.gettempdir() + '/' + unique_dirname)
             bkp_dir.makedirs()
@@ -107,7 +118,7 @@ class OutputFileParameter(object):
         return self._output_mime_type
 
     def is_publish_as_layer(self):
-        return (self._publish_as_layer != None and self._publish_as_layer.lower() == "true")
+        return (self._publish_as_layer is not None and self._publish_as_layer.lower() == "true")
 
     def get_publish_layer_name(self):
         return self._publish_layer_name
@@ -119,7 +130,7 @@ class OutputFileParameter(object):
         return self._publish_target_workspace
 
     def get_metadata(self):
-        if self._publish_metadata != None:
+        if self._publish_metadata is not None:
             metadata_file = path.path(self._publish_metadata)
 
             if metadata_file.isfile():
@@ -131,12 +142,14 @@ class OutputFileParameter(object):
 #    RAW File Output Map Format                                                                                 #
 #                                                                                                               #
 # ############################################################################################################# #
+
+
 class RawFileParameter(object):
 
     def __init__(self, par_name, d, template_vars_for_param_types=None, wps_execution_shared_dir=None, uploader=None):
-        #{"type": "string", "description": "xml OAA output file", "filepath" : "%workdir\\\\output_file.xml" }
-        self._name=par_name
-        self._type=None
+        # {"type": "string", "description": "xml OAA output file", "filepath" : "%workdir\\\\output_file.xml" }
+        self._name = par_name
+        self._type = None
         self._description = None
         self._title = None
         self._filepath = None
@@ -153,12 +166,12 @@ class RawFileParameter(object):
         self._publish_target_workspace = None
         self._publish_metadata = None
 
-        for k,v in d.items():
+        for k, v in d.items():
             if hasattr(self, "_" + k):
-                if template_vars_for_param_types != None and isinstance(v, basestring):
+                if template_vars_for_param_types is not None and isinstance(v, basestring):
                     for var, val in template_vars_for_param_types.items():
                         if var in v:
-                            v=v.replace("%" + var,val)
+                            v = v.replace("%" + var, val)
 
                 setattr(self, "_" + k, v)
 
@@ -168,17 +181,26 @@ class RawFileParameter(object):
         return self._name
 
     def as_json_string(self):
-        #{"type": "string", "description": "A persons surname", "max": 1, "default": "Meier"}
-        res={}
-        attrib_to_convert = ['_type', '_description', '_title', '_output_mime_type', '_publish_as_layer', '_publish_layer_name', '_publish_default_style', '_publish_target_workspace']
+        # {"type": "string", "description": "A persons surname", "max": 1, "default": "Meier"}
+        res = {}
+        attrib_to_convert = [
+    '_type',
+    '_description',
+    '_title',
+    '_output_mime_type',
+    '_publish_as_layer',
+    '_publish_layer_name',
+    '_publish_default_style',
+     '_publish_target_workspace']
         attribute_list = [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]
         attribute_list_filtered = [x for x in attribute_list if x in attrib_to_convert]
         for a in attribute_list_filtered:
             res[a[1:]] = getattr(self, a)
-        return  json.dumps(res)
+        return json.dumps(res)
 
     def get_value(self):
-        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir.lower() == "true" and self._wps_execution_shared_dir != None:
+        if self._backup_on_wps_execution_shared_dir is not None and self._backup_on_wps_execution_shared_dir.lower(
+        ) == "true" and self._wps_execution_shared_dir is not None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(self._wps_execution_shared_dir + "/" + unique_dirname)
             bkp_dir.makedirs()
@@ -188,7 +210,7 @@ class RawFileParameter(object):
             dst = path.path(dst)
 
             return dst
-        elif self._upload_data != None and self._upload_data.lower() == "true" and self._uploader != None:
+        elif self._upload_data is not None and self._upload_data.lower() == "true" and self._uploader is not None:
             unique_dirname = str(uuid.uuid4())
 
             if self._upload_data_root:
@@ -215,7 +237,7 @@ class RawFileParameter(object):
         return self._output_mime_type
 
     def is_publish_as_layer(self):
-        return (self._publish_as_layer != None and self._publish_as_layer.lower() == "true")
+        return (self._publish_as_layer is not None and self._publish_as_layer.lower() == "true")
 
     def get_publish_layer_name(self):
         return self._publish_layer_name
@@ -227,7 +249,7 @@ class RawFileParameter(object):
         return self._publish_target_workspace
 
     def get_metadata(self):
-        if self._publish_metadata != None:
+        if self._publish_metadata is not None:
             metadata_file = path.path(self._publish_metadata)
 
             if metadata_file.isfile():
@@ -242,10 +264,17 @@ class RawFileParameter(object):
 # ############################################################################################################# #
 class OWCFileParameter(object):
 
-    def __init__(self, par_name, d, parameters_types_defs, template_vars_for_param_types=None, wps_execution_shared_dir=None, uploader=None):
-        #{"type": "string", "description": "xml OAA output file", "filepath" : "%workdir\\\\output_file.xml" }
-        self._name=par_name
-        self._type=None
+    def __init__(
+    self,
+    par_name,
+    d,
+    parameters_types_defs,
+    template_vars_for_param_types=None,
+    wps_execution_shared_dir=None,
+     uploader=None):
+        # {"type": "string", "description": "xml OAA output file", "filepath" : "%workdir\\\\output_file.xml" }
+        self._name = par_name
+        self._type = None
         self._description = None
         self._title = None
         self._output_mime_type = None
@@ -261,53 +290,63 @@ class OWCFileParameter(object):
         self._publish_layer_name = None
         self._publish_metadata = None
 
-        for k,v in d.items():
+        for k, v in d.items():
             if hasattr(self, "_" + k):
-                if template_vars_for_param_types != None and isinstance(v, basestring):
+                if template_vars_for_param_types is not None and isinstance(v, basestring):
                     for var, val in template_vars_for_param_types.items():
                         if var in v:
-                            v=v.replace("%" + var,val)
+                            v = v.replace("%" + var, val)
 
                 setattr(self, "_" + k, v)
 
-        self._files_to_publish  = ''
-        self._default_styles    = ''
+        self._files_to_publish = ''
+        self._default_styles = ''
         self._target_workspaces = ''
 
-        if self._layers_to_publish != None:
+        if self._layers_to_publish is not None:
             self._parameters_types_defs = parameters_types_defs
 
             layer_names = self._layers_to_publish.split(';')
             for name in layer_names:
-                if self._parameters_types_defs[name] != None:
+                if self._parameters_types_defs[name] is not None:
                     publish_layer_name = self._parameters_types_defs[name].get('publish_layer_name')
-                    publish_layer_name = publish_layer_name if publish_layer_name != None else ' '
+                    publish_layer_name = publish_layer_name if publish_layer_name is not None else ' '
 
                     publish_default_style = self._parameters_types_defs[name].get('publish_default_style')
-                    publish_default_style = publish_default_style if publish_default_style != None else ' '
+                    publish_default_style = publish_default_style if publish_default_style is not None else ' '
 
                     publish_target_workspace = self._parameters_types_defs[name].get('publish_target_workspace')
-                    publish_target_workspace = publish_target_workspace if publish_target_workspace != None else ' '
+                    publish_target_workspace = publish_target_workspace if publish_target_workspace is not None else ' '
 
                     self._files_to_publish += publish_layer_name + ";"
-                    self._default_styles   += publish_default_style + ";"
-                    self._target_workspaces+= publish_target_workspace + ";"
+                    self._default_styles += publish_default_style + ";"
+                    self._target_workspaces += publish_target_workspace + ";"
 
     def get_name(self):
         return self._name
 
     def as_json_string(self):
-        #{"type": "string", "description": "A persons surname", "max": 1, "default": "Meier"}
-        res={}
-        attrib_to_convert = ['_type', '_description', '_title', '_output_mime_type', '_publish_as_layer', '_publish_layer_name', '_files_to_publish', '_default_styles', '_target_workspaces']
+        # {"type": "string", "description": "A persons surname", "max": 1, "default": "Meier"}
+        res = {}
+        attrib_to_convert = [
+    '_type',
+    '_description',
+    '_title',
+    '_output_mime_type',
+    '_publish_as_layer',
+    '_publish_layer_name',
+    '_files_to_publish',
+    '_default_styles',
+     '_target_workspaces']
         attribute_list = [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]
         attribute_list_filtered = [x for x in attribute_list if x in attrib_to_convert]
         for a in attribute_list_filtered:
             res[a[1:]] = getattr(self, a)
-        return  json.dumps(res)
+        return json.dumps(res)
 
     def get_value(self):
-        if self._backup_on_wps_execution_shared_dir != None and self._backup_on_wps_execution_shared_dir.lower() == "true" and self._wps_execution_shared_dir != None:
+        if self._backup_on_wps_execution_shared_dir is not None and self._backup_on_wps_execution_shared_dir.lower(
+        ) == "true" and self._wps_execution_shared_dir is not None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(self._wps_execution_shared_dir + "/" + unique_dirname)
             bkp_dir.makedirs()
@@ -326,7 +365,7 @@ class OWCFileParameter(object):
                 files_to_publish = files_to_publish + dst.abspath()
 
             return files_to_publish
-        elif self._upload_data != None and self._upload_data.lower() == "true" and self._uploader != None:
+        elif self._upload_data is not None and self._upload_data.lower() == "true" and self._uploader is not None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(tempfile.gettempdir() + '/' + unique_dirname)
             bkp_dir.makedirs()
@@ -366,7 +405,7 @@ class OWCFileParameter(object):
         return self._output_mime_type
 
     def is_publish_as_layer(self):
-        return (self._publish_as_layer != None and self._publish_as_layer.lower() == "true")
+        return (self._publish_as_layer is not None and self._publish_as_layer.lower() == "true")
 
     def get_publish_layer_name(self):
         return self._publish_layer_name
@@ -378,7 +417,7 @@ class OWCFileParameter(object):
         return self._target_workspaces
 
     def get_metadata(self):
-        if self._publish_metadata != None:
+        if self._publish_metadata is not None:
             metadata_file = path.path(self._publish_metadata)
 
             if metadata_file.isfile():

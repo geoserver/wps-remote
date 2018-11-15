@@ -4,6 +4,15 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
+import paramiko
+import pickle
+import md5
+import os
+import string
+import logging      # if not std, http://www.red-dove.com/python_logging.html
+import path         # http://www.jorendorff.com/articles/python/path
+import upload
+
 __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
@@ -14,11 +23,6 @@ SFtpUpload
 Based on paramiko sftp client.
 """
 
-import paramiko, pickle, sys, md5, os, string
-import logging      # if not std, http://www.red-dove.com/python_logging.html
-import path         # http://www.jorendorff.com/articles/python/path
-import upload
-
 
 class EzFtp:
     """
@@ -27,6 +31,7 @@ class EzFtp:
     Lets you use full pathnames, with server-side
     directory management handled automatically.
     """
+
     def __init__(self, ftp):
         self.ftp = ftp
         self.serverDir = ''
@@ -58,12 +63,12 @@ class EzFtp:
                     try:
                         logging.info("ftpcd %s" % d)
                         self.ftp.exec_command('cd '+d+'; pwd')
-                    except:
+                    except BaseException:
                         if create:
                             logging.info("ftpmkdir %s" % d)
                             try:
                                 self.ftp.mkdir(d)
-                            except:
+                            except BaseException:
                                 pass
                             self.ftp.exec_command('cd '+d+'; pwd')
                         else:
@@ -79,7 +84,7 @@ class EzFtp:
         self.cd(thatDir)
         f = open(this, "r")
         logging.info("ftpstorasc %s" % that)
-        self.ftp.putfo(f,thatFile)
+        self.ftp.putfo(f, thatFile)
 
     def putbin(self, this, that):
         """
@@ -89,7 +94,7 @@ class EzFtp:
         self.cd(thatDir)
         f = open(this, "rb")
         logging.info("ftpstorbin %s" % that)
-        self.ftp.putfo(f,thatFile)
+        self.ftp.putfo(f, thatFile)
 
     def delete(self, that):
         """
@@ -100,7 +105,7 @@ class EzFtp:
             logging.info("ftpdel %s" % that)
             try:
                 self.ftp.remove(thatFile)
-            except:
+            except BaseException:
                 pass
 
     def quit(self):
@@ -155,14 +160,14 @@ class SFtpUpload(upload.Upload):
         """
         try:
             hoststr, portstr = host.split(':')
-        except:
+        except BaseException:
             hoststr = host
             portstr = None
         if portstr:
             transport = paramiko.Transport((hoststr, int(portstr)))
         else:
             transport = paramiko.Transport((hoststr, 22))
-        transport.connect(username = username, password = password)
+        transport.connect(username=username, password=password)
         self.ftp = paramiko.SFTPClient.from_transport(transport)
 
     def setMd5File(self, md5file):
@@ -270,4 +275,3 @@ class SFtpUpload(upload.Upload):
             outf = open(self.md5file, "w")
             pickle.dump(self.md5DictUp, outf)
             outf.close()
-

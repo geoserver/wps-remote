@@ -4,6 +4,9 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
+import re
+import UserDict as _UserDict
+
 __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
@@ -103,8 +106,6 @@ except ImportError:
     # fallback for setup.py which hasn't yet built _collections
     _default_dict = dict
 
-import re
-
 __all__ = ["NoSectionError", "DuplicateSectionError", "NoOptionError",
            "InterpolationError", "InterpolationDepthError",
            "InterpolationSyntaxError", "ParsingError",
@@ -115,7 +116,6 @@ __all__ = ["NoSectionError", "DuplicateSectionError", "NoOptionError",
 DEFAULTSECT = "DEFAULT"
 
 MAX_INTERPOLATION_DEPTH = 10
-
 
 
 # exception classes
@@ -146,6 +146,7 @@ class Error(Exception):
 
     __str__ = __repr__
 
+
 class NoSectionError(Error):
     """Raised when no section matches a requested option."""
 
@@ -154,6 +155,7 @@ class NoSectionError(Error):
         self.section = section
         self.args = (section, )
 
+
 class DuplicateSectionError(Error):
     """Raised when a section is multiply-created."""
 
@@ -161,6 +163,7 @@ class DuplicateSectionError(Error):
         Error.__init__(self, "Section %r already exists" % section)
         self.section = section
         self.args = (section, )
+
 
 class NoOptionError(Error):
     """A requested option was not found."""
@@ -172,6 +175,7 @@ class NoOptionError(Error):
         self.section = section
         self.args = (option, section)
 
+
 class InterpolationError(Error):
     """Base class for interpolation-related exceptions."""
 
@@ -180,6 +184,7 @@ class InterpolationError(Error):
         self.option = option
         self.section = section
         self.args = (option, section, msg)
+
 
 class InterpolationMissingOptionError(InterpolationError):
     """A string substitution required a setting which was not available."""
@@ -195,9 +200,11 @@ class InterpolationMissingOptionError(InterpolationError):
         self.reference = reference
         self.args = (option, section, rawval, reference)
 
+
 class InterpolationSyntaxError(InterpolationError):
     """Raised when the source text into which substitutions are made
     does not conform to the required syntax."""
+
 
 class InterpolationDepthError(InterpolationError):
     """Raised when substitutions are nested too deeply."""
@@ -211,6 +218,7 @@ class InterpolationDepthError(InterpolationError):
         InterpolationError.__init__(self, option, section, msg)
         self.args = (option, section, rawval)
 
+
 class ParsingError(Error):
     """Raised when a configuration file does not follow legal syntax."""
 
@@ -223,6 +231,7 @@ class ParsingError(Error):
     def append(self, lineno, line):
         self.errors.append((lineno, line))
         self.message += '\n\t[line %2d]: %s' % (lineno, line)
+
 
 class MissingSectionHeaderError(ParsingError):
     """Raised when a key-value pair is found before any section header."""
@@ -268,7 +277,7 @@ class RawConfigParser:
         case-insensitive variants.
         """
         if section.lower() == "default":
-            raise ValueError, 'Invalid section name: %s' % section
+            raise ValueError('Invalid section name: %s' % section)
 
         if section in self._sections:
             raise DuplicateSectionError(section)
@@ -377,7 +386,7 @@ class RawConfigParser:
     def getboolean(self, section, option):
         v = self.get(section, option)
         if v.lower() not in self._boolean_states:
-            raise ValueError, 'Not a boolean: %s' % v
+            raise ValueError('Not a boolean: %s' % v)
         return self._boolean_states[v.lower()]
 
     def optionxform(self, optionstr):
@@ -392,8 +401,8 @@ class RawConfigParser:
             return False
         else:
             option = self.optionxform(option)
-            return (option in self._sections[section]
-                    or option in self._defaults)
+            return (option in self._sections[section] or
+                    option in self._defaults)
 
     def set(self, section, option, value=None):
         """Set an option."""
@@ -452,7 +461,7 @@ class RawConfigParser:
         r'\['                                 # [
         r'(?P<header>[^]]+)'                  # very permissive!
         r'\]'                                 # ]
-        )
+    )
     OPTCRE = re.compile(
         r'(?P<option>[^:=\s][^:=]*)'          # very permissive!
         r'\s*(?P<vi>[:=])\s*'                 # any number of space/tab,
@@ -460,7 +469,7 @@ class RawConfigParser:
                                               # (either : or =), followed
                                               # by any # space/tab
         r'(?P<value>.*)$'                     # everything up to eol
-        )
+    )
     OPTCRE_NV = re.compile(
         r'(?P<option>[^:=\s][^:=]*)'          # very permissive!
         r'\s*(?:'                             # any number of space/tab,
@@ -469,7 +478,7 @@ class RawConfigParser:
                                               # =), followed by any #
                                               # space/tab
         r'(?P<value>.*))?$'                   # everything up to eol
-        )
+    )
 
     def _read(self, fp, fpname):
         """Parse a sectioned setup file.
@@ -563,7 +572,6 @@ class RawConfigParser:
                 if isinstance(val, list):
                     options[name] = '\n'.join(val)
 
-import UserDict as _UserDict
 
 class _Chainmap(_UserDict.DictMixin):
     """Combine multiple mappings for successive lookups.
@@ -594,6 +602,7 @@ class _Chainmap(_UserDict.DictMixin):
                     result.append(key)
                     seen.add(key)
         return result
+
 
 class ConfigParser(RawConfigParser):
 
@@ -674,7 +683,7 @@ class ConfigParser(RawConfigParser):
                 value = self._KEYCRE.sub(self._interpolation_replace, value)
                 try:
                     value = value % vars
-                except KeyError, e:
+                except KeyError as e:
                     raise InterpolationMissingOptionError(
                         option, section, rawval, e.args[0])
             else:
@@ -723,7 +732,7 @@ class SafeConfigParser(ConfigParser):
                 m = self._interpvar_re.match(rest)
                 if m is None:
                     raise InterpolationSyntaxError(option, section,
-                        "bad interpolation variable reference %r" % rest)
+                                                   "bad interpolation variable reference %r" % rest)
                 var = self.optionxform(m.group(1))
                 rest = rest[m.end():]
                 try:
@@ -759,5 +768,5 @@ class SafeConfigParser(ConfigParser):
             # then, check if there's a lone percent sign left
             if '%' in tmp_value:
                 raise ValueError("invalid interpolation syntax in %r at "
-                                "position %d" % (value, tmp_value.find('%')))
+                                 "position %d" % (value, tmp_value.find('%')))
         ConfigParser.set(self, section, option, value)

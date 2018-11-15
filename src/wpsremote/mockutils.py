@@ -8,22 +8,19 @@ __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
 
-import os
 
 class FileLikeObjectMock(object):
     def __init__(self, lines, linesep="\n"):
-        if type(lines) is list:
+        if isinstance(lines, list):
             self._lines = lines
         else:
             self._lines = lines.split(linesep)
-            self._lines = map(lambda l : l.strip(), self._lines)
-        self._lp=0
-    
+            self._lines = map(lambda l: l.strip(), self._lines)
+        self._lp = 0
+
     def readline(self):
         if self._lp-1 >= len(self._lines):
             return ''
         else:
             self._lp += 1
             return self._lines[self._lp-1]
-
-

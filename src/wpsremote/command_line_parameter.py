@@ -4,26 +4,27 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
+import input_parameter
+
 __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
 
-import input_parameter
 
 class CommandLineParameter(input_parameter.InputParameter):
     def __init__(self, name):
         input_parameter.InputParameter.__init__(self, name)
-        self._template=None
+        self._template = None
 
     def get_cmd_line(self):
-        cmd=''
+        cmd = ''
         hasName = False
         hasValue = False
         if 'name' in self._template:
             self._template = self._template.replace("name", "%s")
             hasName = True
         if 'value' in self._template:
-            self._template = self._template.replace("value","%s")  
+            self._template = self._template.replace("value", "%s")
             hasValue = True
         for v in self._value:
             if (hasName and hasValue):
@@ -34,18 +35,23 @@ class CommandLineParameter(input_parameter.InputParameter):
                 cmd += self._template % (v) + " "
             else:
                 raise Exception("Bad template for command line parameter " + self.get_name())
-        return cmd 
+        return cmd
+
 
 class CommandLineParameterConst(CommandLineParameter):
     def __init__(self, name):
         CommandLineParameter.__init__(self, name)
-        self._template=None
+        self._template = None
 
     def inject_values(self, paremeters_types_defs):
         super(CommandLineParameterConst, self).inject_values(paremeters_types_defs)
-        if type(self._value) is not list:
+        if not isinstance(self._value, list):
             self._value = [self._value]
 
     def set_actual_value(self, value):
-        """override this function because in this case the param value is set in the constructor not with this function"""
+        """
+        Override this function because in this case the param value is set in the
+        constructor not with this function
+        """
+
         pass

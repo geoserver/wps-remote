@@ -3,4 +3,3 @@
 # (c) 2013 - 2014 German Aerospace Center (DLR)
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
-

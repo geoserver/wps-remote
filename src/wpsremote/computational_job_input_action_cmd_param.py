@@ -4,34 +4,36 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
+import copy
+import computational_job_input_action
+
 __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
 
-import copy
-import computational_job_input_action
 
-class ComputationalJobInputActionCmdParam(computational_job_input_action.ComputationalJobInputAction): #computational_job_input_action.ComputationalJobInputAction
+class ComputationalJobInputActionCmdParam(
+        computational_job_input_action.ComputationalJobInputAction):
 
     def __init__(self, input_ref, template="--name=value", alias=None):
         super(ComputationalJobInputActionCmdParam, self).__init__()
-        #if not type(input_refs) is list:
+        # if not type(input_refs) is list:
         #    self._input_refs = [input_refs]
-        #else:
+        # else:
         self._input_ref = input_ref
         self._template = template
         self._cmdline = ""
         self._alias = alias
 
     def set_inputs(self, inputs):
-        #for varname in self._input_ref:
+        # for varname in self._input_ref:
         if self._input_ref in inputs.names():
-            self._cmdline += ' ' + self._instance_template( self._input_ref, inputs[self._input_ref].get_value_string() ) 
+            self._cmdline += ' ' + self._instance_template(self._input_ref, inputs[self._input_ref].get_value_string())
         self._cmdline = self._cmdline.strip()
 
     def _instance_template(self, name, value_str):
-        cmd=''
-        if self._alias!=None:
+        cmd = ''
+        if self._alias is not None:
             name = self._alias
         hasName = False
         hasValue = False
@@ -40,11 +42,11 @@ class ComputationalJobInputActionCmdParam(computational_job_input_action.Computa
             template = template.replace("name", "%s")
             hasName = True
         if 'value' in self._template:
-            template =template.replace("value","%s")  
+            template = template.replace("value", "%s")
             hasValue = True
 
         if (hasName and hasValue):
-            cmd += template % (name, value_str) 
+            cmd += template % (name, value_str)
         elif hasName:
             cmd += template % (name)
         elif hasValue:
@@ -52,8 +54,7 @@ class ComputationalJobInputActionCmdParam(computational_job_input_action.Computa
         else:
             raise Exception("Bad template for command line parameter " + name)
 
-        return cmd 
+        return cmd
 
     def get_cmd_line(self):
         return self._cmdline
-

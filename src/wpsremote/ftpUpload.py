@@ -4,6 +4,15 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
+import ftplib
+import pickle
+import md5
+import os
+import string
+import logging      # if not std, http://www.red-dove.com/python_logging.html
+import path         # http://www.jorendorff.com/articles/python/path
+import upload
+
 __author__ = "Ned Batchelder"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
@@ -22,11 +31,6 @@ Modified by
    Alessio Fabiani, GeoSolutions S.A.S.
 """
 
-import ftplib, pickle, sys, md5, os, string
-import logging      # if not std, http://www.red-dove.com/python_logging.html
-import path         # http://www.jorendorff.com/articles/python/path
-import upload
-
 
 class EzFtp:
     """
@@ -35,6 +39,7 @@ class EzFtp:
     Lets you use full pathnames, with server-side
     directory management handled automatically.
     """
+
     def __init__(self, ftp):
         self.ftp = ftp
         self.serverDir = ''
@@ -66,7 +71,7 @@ class EzFtp:
                     try:
                         logging.info("ftpcd %s" % d)
                         self.ftp.cwd(d)
-                    except:
+                    except BaseException:
                         if create:
                             logging.info("ftpmkdir %s" % d)
                             self.ftp.mkd(d)
@@ -85,8 +90,8 @@ class EzFtp:
         f = open(this, "r")
         logging.info("ftpstorasc %s" % that)
         try:
-            self.ftp.storlines("STOR %s" % (thatFile),f)
-        except Exception, e:
+            self.ftp.storlines("STOR %s" % (thatFile), f)
+        except Exception as e:
             logging.exception(e)
             raise
 
@@ -100,7 +105,7 @@ class EzFtp:
         logging.info("ftpstorbin %s" % that)
         try:
             self.ftp.storbinary("STOR %s" % (thatFile), f, 1024)
-        except Exception, e:
+        except Exception as e:
             logging.exception(e)
             raise
 
@@ -113,7 +118,7 @@ class EzFtp:
             logging.info("ftpdel %s" % that)
             try:
                 self.ftp.delete(thatFile)
-            except:
+            except BaseException:
                 pass
 
     def quit(self):
@@ -169,7 +174,7 @@ class FtpUpload(upload.Upload):
         if not self.ftp:
             try:
                 hoststr, portstr = host.split(':')
-            except:
+            except BaseException:
                 hoststr = host
                 portstr = None
             self.ftp = ftplib.FTP()
@@ -287,4 +292,3 @@ class FtpUpload(upload.Upload):
             outf = open(self.md5file, "w")
             pickle.dump(self.md5DictUp, outf)
             outf.close()
-

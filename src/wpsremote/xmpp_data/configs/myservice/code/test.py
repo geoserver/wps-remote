@@ -8,10 +8,6 @@ import subprocess
 import logging.config
 import logging
 import argparse
-import sys 
-import thread
-import traceback
-import logging
 import sys
 import os
 import uuid
@@ -19,7 +15,7 @@ import zipfile
 import time
 
 # constants
-#id = os.urandom(10)
+# id = os.urandom(10)
 id = str(uuid.uuid4())
 gdalContour = r'/usr/bin/gdal_contour'
 dst = r'contour_'+id[:13]
@@ -27,34 +23,36 @@ src = '%s/../../../resource_dir/srtm_39_04/srtm_39_04_c.tif' % os.path.dirname(o
 cmd = '-a elev'  # just for example!
 interval = '-i'
 
+
 class GDALTest(object):
     def __init__(self, args):
-        self.args=args
+        self.args = args
         self.create_logger("logger_test.properties")
         self.logger.info("ProgressInfo:0.0%")
-
 
     def run(self):
         trg = '%s/../../../output/%s/%s.shp' % (os.path.dirname(os.path.abspath(__file__)), self.args.execution_id, dst)
 
-        #fullCmd = ' '.join([gdalContour, cmd, self.youCanQuoteMe(src), self.youCanQuoteMe(dst), interval, self.args.interval])
+        # fullCmd = ' '.join([gdalContour, cmd, self.youCanQuoteMe(src), \
+        #     self.youCanQuoteMe(dst), interval, self.args.interval])
         fullCmd = ' '.join([gdalContour, cmd, src, trg, interval, self.args.interval])
         self.logger.debug("Running command > " + fullCmd)
 
-        self.logger.info("going to sleep again...");
+        self.logger.info("going to sleep again...")
         time.sleep(30)   # Delays for 30 seconds. You can also use a float value.
 
-        proc=subprocess.Popen(fullCmd.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False)
+        proc = subprocess.Popen(fullCmd.split(), stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False)
         for line in proc.stdout:
             self.logger.info(line)
 
-        #call communicate to retrieve return code of subprocess
+        # call communicate to retrieve return code of subprocess
         proc.communicate()
         ret = proc.returncode
 
-        self.logger.info("...waking up and going to sleep again...");
+        self.logger.info("...waking up and going to sleep again...")
         time.sleep(30)   # Delays for 30 seconds. You can also use a float value.
-        
+
         if (ret == 0):
             # zipf = zipfile.ZipFile(self.args.workdir+'/contour.zip', 'w')
             # self.zipdir(self.args.workdir+'/', zipf)
@@ -62,11 +60,11 @@ class GDALTest(object):
             zipf = zipfile.ZipFile(output_dir+'/contour.zip', 'w')
             self.zipdir(output_dir+'/', zipf)
             zipf.close()
-            
+
             self.logger.info("ProgressInfo:100%")
         else:
             self.logger.critical("Error occurred during processing.")
-            
+
         return ret
 
     # see note below
@@ -75,18 +73,19 @@ class GDALTest(object):
 
     def zipdir(self, path, zip):
         for root, dirs, files in os.walk(path):
-            files = [ fi for fi in files if fi.startswith(dst) ]
+            files = [fi for fi in files if fi.startswith(dst)]
             for file in files:
                 zip.write(os.path.join(root, file))
 
     def create_logger(self, logger_config_file):
-        defaults={}
+        defaults = {}
 
-        logging.config.fileConfig(str(logger_config_file),  defaults=defaults)
+        logging.config.fileConfig(str(logger_config_file), defaults=defaults)
 
         self.logger = logging.getLogger("main.create_logger")
 
         self.logger.debug("Logger initialized with file " + str(logger_config_file))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

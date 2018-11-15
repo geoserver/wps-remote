@@ -8,6 +8,7 @@ __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
 
+
 class ComputationalJobInputAction(object):
 
     def __init__(self):

@@ -8,9 +8,10 @@ __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
 
+
 class Upload(object):
     def __init__(self, host, username, password, id):
-        self.callbacks={}
+        self.callbacks = {}
         self.id = id
         self.host = host
         self.username = username

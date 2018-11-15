@@ -1,8 +1,9 @@
-from Crypto.PublicKey import RSA
-from Crypto.Signature import PKCS1_v1_5
-from Crypto.Hash import SHA
+from Crypto.PublicKey import RSA  # noqa
+from Crypto.Signature import PKCS1_v1_5  # noqa
+from Crypto.Hash import SHA  # noqa
 import base64
 import sys
+
 
 def decrypt(message, externKey, passphrase):
     privatekey = open(externKey, "r")
@@ -11,6 +12,7 @@ def decrypt(message, externKey, passphrase):
     # h = SHA.new(message)
     decriptedData = rsa_key.decrypt(base64.b64decode(message))
     print(decriptedData)
+
 
 if __name__ == "__main__":
     if len(sys.argv) == 4:

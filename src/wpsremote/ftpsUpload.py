@@ -4,6 +4,11 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
+import ftpUpload
+import ftplib
+import ssl
+import upload
+
 __author__ = "Ned Batchelder"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
@@ -22,11 +27,7 @@ Modified by
    Alessio Fabiani, GeoSolutions S.A.S.
 """
 
-import ftpUpload
-import ftplib, socket, ssl, pickle, sys, md5, os, string
-import logging      # if not std, http://www.red-dove.com/python_logging.html
-import path         # http://www.jorendorff.com/articles/python/path
-import upload
+CRLF = "\n\r"
 
 
 class tyFTP(ftplib.FTP_TLS):
@@ -84,11 +85,13 @@ class tyFTP(ftplib.FTP_TLS):
         self.voidcmd('TYPE I')
         conn = self.transfercmd(cmd, rest)
         try:
-            while 1:
+            while True:
                 buf = fp.read(blocksize)
-                if not buf: break
+                if not buf:
+                    break
                 conn.sendall(buf)
-                if callback: callback(buf)
+                if callback:
+                    callback(buf)
             # shutdown ssl layer
             if isinstance(conn, ssl.SSLSocket):
                 conn.unwrap()
@@ -100,22 +103,25 @@ class tyFTP(ftplib.FTP_TLS):
         self.voidcmd('TYPE A')
         conn = self.transfercmd(cmd)
         try:
-            while 1:
+            while True:
                 buf = fp.readline(self.maxline + 1)
                 if len(buf) > self.maxline:
-                    raise Error("got more than %d bytes" % self.maxline)
-                if not buf: break
+                    raise Exception("got more than %d bytes" % self.maxline)
+                if not buf:
+                    break
                 if buf[-2:] != CRLF:
-                    if buf[-1] in CRLF: buf = buf[:-1]
+                    if buf[-1] in CRLF:
+                        buf = buf[:-1]
                     buf = buf + CRLF
                 conn.sendall(buf)
-                if callback: callback(buf)
+                if callback:
+                    callback(buf)
             # shutdown ssl layer
             if isinstance(conn, ssl.SSLSocket):
                 conn.unwrap()
         finally:
             conn.close()
-        return self.voidresp()    
+        return self.voidresp()
 
 
 class FtpsUpload(ftpUpload.FtpUpload):
@@ -164,7 +170,7 @@ class FtpsUpload(ftpUpload.FtpUpload):
         if not self.ftp:
             try:
                 hoststr, portstr = host.split(':')
-            except:
+            except BaseException:
                 hoststr = host
                 portstr = None
             self.ftp = tyFTP(timeout=60)
@@ -174,7 +180,8 @@ class FtpsUpload(ftpUpload.FtpUpload):
                 self.ftp.connect(hoststr, port)
             else:
                 self.ftp.connect(hoststr, 22)
-            # switch to secure data connection.. IMPORTANT! Otherwise, only the user and password is encrypted and not all the file data.
+            # switch to secure data connection.. IMPORTANT! Otherwise, only the user
+            # and password is encrypted and not all the file data.
             self.ftp.auth()
             self.ftp.login(username, password)
             self.ftp.prot_p()

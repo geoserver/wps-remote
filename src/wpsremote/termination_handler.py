@@ -4,19 +4,19 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
+import SocketServer
+import socket
+import threading
+import path
+import os
+import datetime
+
 __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
 
-import SocketServer
-import socket
-import threading
-import path 
-import os
-import thread
-import datetime
 
-class  TerminationHandler(object):
+class TerminationHandler(object):
     def __init__(self, handler):
         self._handler = handler
 
@@ -37,29 +37,33 @@ class  TerminationHandler(object):
     def _write_pid_file(self):
         pid = os.getpid()
         workdir = path.path("d:\\tmp\\wpsproc\\")
-        pidfile = workdir / path.path(str(pid) +  ".pid")
+        pidfile = workdir / path.path(str(pid) + ".pid")
 
         if pidfile.exists():
             pidfile.remove()
 
-        pidfile.write_lines( ['cmdline=', 'pid='+str(pid), 'start_time=' + str(datetime.datetime.now()), 'tcp_port=' + str(self.port) ] )
+        pidfile.write_lines(['cmdline=', 'pid='+str(pid), 'start_time=' +
+                             str(datetime.datetime.now()), 'tcp_port=' + str(self.port)])
 
 
 class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
-    
-    def handle(self):
-        data = self.request.recv(1024)
 
-        #if (data=="kill"):
+    def handle(self):
+        data = self.request.recv(1024)  # noqa
+
+        # if (data=="kill"):
         cur_thread = threading.current_thread()
-        response = "{}: {}".format( cur_thread.name, self._handle() )
+        response = "{}: {}".format(cur_thread.name, self._handle())
         self.request.sendall(response)
+
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
 
+
 def clean_up1(threadedTCPRequestHandler):
     return "clean_up1"
+
 
 def clean_up2(threadedTCPRequestHandler):
     return "clean_up2"
@@ -78,12 +82,13 @@ def client(ip, port, message):
 
 # #############################################################
 
+
 class WatchDog(object):
     """
         run as service every 15 minutes
 
         #iterate over pids of all process bots
-        for pid in path.path("d:\\tmp\\wpsproc\\").files(): #[1.pid, 2.pid,] 
+        for pid in path.path("d:\\tmp\\wpsproc\\").files(): #[1.pid, 2.pid,]
             read file:
                 cmdline=...
                 pid=...
@@ -95,26 +100,26 @@ class WatchDog(object):
                 open socket(port)
                 write "kill" to socket
 
-                
+
             elif pids is not running:
                 del "/var/proc/wpsproc/<pid>.pid
 
-           
+
     """
     pass
 
 # #############################################################
 
+
 if __name__ == '__main__':
     # Port 0 means to select an arbitrary unused port
 
-    th =TerminationHandler(clean_up1)
-
+    th = TerminationHandler(clean_up1)
 
     client(th.ip, th.port, "Hello World 1")
     client(th.ip, th.port, "Hello World 2")
     client(th.ip, th.port, "Hello World 3")
 
-    #server.shutdown()
+    # server.shutdown()
 
-    #th.set_handler(clean_up2)
+    # th.set_handler(clean_up2)

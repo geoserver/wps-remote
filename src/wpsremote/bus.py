@@ -8,9 +8,10 @@ __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
 __license__ = "GPL"
 
+
 class Bus(object):
     def __init__(self, id):
-        self.callbacks={}
+        self.callbacks = {}
         self.id = id
 
     def Listen(self):
@@ -19,7 +20,7 @@ class Bus(object):
     def CheckServerIdentity(self, serverId):
         pass
 
-    def SendMessage(self,Message):
+    def SendMessage(self, Message):
         pass
 
     def Stop(self, Message):
