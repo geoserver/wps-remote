@@ -13,17 +13,10 @@ __license__ = "GPL"
 
 class ComputationJobParam(computation_job_input.ComputationJobInput):
 
-    def __init__(
-    self,
-    name,
-    input_type,
-    title,
-    descr,
-    default=None,
-    formatter=None,
-    min_occurencies=0,
-    max_occurencies=1,
-     input_mime_type=None):
+    def __init__(self, name, input_type, title, descr,
+                 default=None, formatter=None,
+                 min_occurencies=0, max_occurencies=1,
+                 input_mime_type=None):
         super(ComputationJobParam, self).__init__(name, input_type, title, descr, default, formatter, input_mime_type)
         self._min = min_occurencies
         self._max = max_occurencies

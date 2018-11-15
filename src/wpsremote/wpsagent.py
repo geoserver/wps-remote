@@ -50,11 +50,10 @@ class WPSAgent(object):
         sys.stderr.write(stack_trace + "\n")
 
     @staticmethod
-    def set_resource_cleaner_parameters(
-    pid_files_dir,
-    process_time_threshold,
-    workdir_time_threshold,
-     sleep_time_seconds):
+    def set_resource_cleaner_parameters(pid_files_dir,
+                                        process_time_threshold,
+                                        workdir_time_threshold,
+                                        sleep_time_seconds):
         resource_cleaner.Resource.pid_files_dir = pid_files_dir
         resource_cleaner.Resource.process_time_threshold = process_time_threshold
         resource_cleaner.Resource.workdir_time_threshold = workdir_time_threshold
@@ -123,9 +122,12 @@ class WPSAgentProcess(WPSAgent):
             # read the service config file with interpolation=true (raw=False) to get
             # the proper sand box work dir using the unique id as input parameter
             # args.remoteconfig, args.serviceconfig
-            serviceConfig = configInstance.create(
-    args.serviceconfig, case_sensitive=True, variables={
-        'unique_exe_id': self.exe_msg.UniqueId()}, raw=False)
+            serviceConfig = configInstance.create(args.serviceconfig,
+                                                  case_sensitive=True,
+                                                  variables={
+                                                    'unique_exe_id': self.exe_msg.UniqueId()
+                                                  },
+                                                  raw=False)
             work_dir = serviceConfig.get_path("DEFAULT", "workdir")
 
             # ensure outdir exists
@@ -151,11 +153,10 @@ class WPSAgentProcess(WPSAgent):
             logger.info("Create process bot")
             bot = processbot.ProcessBot(self.args.remoteconfig, self.args.serviceconfig, self.exe_msg)
             # create resource cleaner
-            self.set_resource_cleaner_parameters(
-    bot.get_resource_file_dir(),
-    bot.max_execution_time(),
-    bot.max_execution_time(),
-     bot.max_execution_time())
+            self.set_resource_cleaner_parameters(bot.get_resource_file_dir(),
+                                                 bot.max_execution_time(),
+                                                 bot.max_execution_time(),
+                                                 bot.max_execution_time())
             return bot
         except Exception as e:
             msg = "Failure during bot bootstrap due to : " + str(e)
@@ -186,11 +187,10 @@ class WPSAgentService(WPSAgent):
             logger.info("Create process bot")
             bot = servicebot.ServiceBot(self.args.remoteconfig, self.args.serviceconfig)
             logger.info("Create resource cleaner")
-            WPSAgent.set_resource_cleaner_parameters(
-    bot.get_resource_file_dir(),
-    bot.max_execution_time(),
-    bot.max_execution_time(),
-     bot.max_execution_time())
+            WPSAgent.set_resource_cleaner_parameters(bot.get_resource_file_dir(),
+                                                     bot.max_execution_time(),
+                                                     bot.max_execution_time(),
+                                                     bot.max_execution_time())
             # start infinite loop for resource clenaer thread
             thread.start_new_thread(resource_cleaner.Resource.clean_up_all, ())
             return bot

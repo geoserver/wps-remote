@@ -26,10 +26,8 @@ class XMPPBus(bus.Bus):
         bus.Bus.__init__(self, id)
 
         self.config = config
-        self.address = (
-    config.get(
-        "DEFAULT", "address"), config.get(
-            "DEFAULT", "port"))  # As address use mnemonic names
+        self.address = (config.get("DEFAULT", "address"),
+                        config.get("DEFAULT", "port"))  # As address use mnemonic names
         self.domain = config.get("DEFAULT", "domain")
         self.MUC_name = config.get("DEFAULT", "mucService")
         self.username = config.get("DEFAULT", "user")
@@ -101,10 +99,9 @@ class XMPPBus(bus.Bus):
         self.JoinMUC()
 
     def JoinMUC(self):
-        self.xmpp.plugin['xep_0045'].joinMUC(
-    self._get_MUC_JId(),
-    self._MUC_service_nickname(),
-     password=self.nameSpacePassword)
+        self.xmpp.plugin['xep_0045'].joinMUC(self._get_MUC_JId(),
+                                             self._MUC_service_nickname(),
+                                             password=self.nameSpacePassword)
 
     def _handleXMPPSignal(self, msg):
         imsg = self.CreateIndipendentMessage(msg)
@@ -131,11 +128,11 @@ class XMPPBus(bus.Bus):
                 if ("topic=request" in payload):
                     logging.info("handle request message from WPS " + str(payload))
                     variables = dict([tuple(each.strip().split('=')) for each in payload.split('&')])
-                    requestParams = pickle.loads(
-    urllib.unquote(
-        variables['message'])) if variables['message'] is not None else None
-                    return busIndipendentMessages.ExecuteMessage(
-    msg['from'], variables['id'], variables['baseURL'], requestParams)
+                    requestParams = pickle.loads(urllib.unquote(variables['message'])) if variables['message'] is not None else None  # noqa
+                    return busIndipendentMessages.ExecuteMessage(msg['from'],
+                                                                 variables['id'],
+                                                                 variables['baseURL'],
+                                                                 requestParams)
                 elif ("topic=invite" in payload):
                     logging.info("handle invite message from WPS " + str(payload))
                     return busIndipendentMessages.InviteMessage(payload, msg['from'])
@@ -163,48 +160,47 @@ class XMPPBus(bus.Bus):
 
     def Convert(self, busIndipendentMsg):
         if (isinstance(busIndipendentMsg, busIndipendentMessages.RegisterMessage)):
-            return xmppMessages.XMPPRegisterMessage(
-    self,
-    busIndipendentMsg.originator(),
-    busIndipendentMsg.service,
-    busIndipendentMsg.namespace,
-    busIndipendentMsg.description,
-    busIndipendentMsg.input_parameters(),
-     busIndipendentMsg.output)
+            return xmppMessages.XMPPRegisterMessage(self,
+                                                    busIndipendentMsg.originator(),
+                                                    busIndipendentMsg.service,
+                                                    busIndipendentMsg.namespace,
+                                                    busIndipendentMsg.description,
+                                                    busIndipendentMsg.input_parameters(),
+                                                    busIndipendentMsg.output)
 
         if (isinstance(busIndipendentMsg, busIndipendentMessages.ProgressMessage)):
-            return xmppMessages.XMPPProgressMessage(busIndipendentMsg.originator, self, busIndipendentMsg.progress)
+            return xmppMessages.XMPPProgressMessage(busIndipendentMsg.originator,
+                                                    self,
+                                                    busIndipendentMsg.progress)
 
         if (isinstance(busIndipendentMsg, busIndipendentMessages.LogMessage)):
-            return xmppMessages.XMPPLogMessage(
-    busIndipendentMsg.originator,
-    self,
-    busIndipendentMsg.level,
-     busIndipendentMsg.msg)
+            return xmppMessages.XMPPLogMessage(busIndipendentMsg.originator,
+                                               self,
+                                               busIndipendentMsg.level,
+                                               busIndipendentMsg.msg)
 
         if (isinstance(busIndipendentMsg, busIndipendentMessages.CompletedMessage)):
-            return xmppMessages.XMPPCompletedMessage(
-    busIndipendentMsg.originator,
-    self,
-    busIndipendentMsg.base_url,
-     busIndipendentMsg.outputs())
+            return xmppMessages.XMPPCompletedMessage(busIndipendentMsg.originator,
+                                                     self,
+                                                     busIndipendentMsg.base_url,
+                                                     busIndipendentMsg.outputs())
 
         if (isinstance(busIndipendentMsg, busIndipendentMessages.ErrorMessage)):
-            return xmppMessages.XMPPErrorMessage(
-    busIndipendentMsg.originator,
-    self,
-    busIndipendentMsg.msg,
-     busIndipendentMsg.id)
+            return xmppMessages.XMPPErrorMessage(busIndipendentMsg.originator,
+                                                 self,
+                                                 busIndipendentMsg.msg,
+                                                 busIndipendentMsg.id)
 
         if (isinstance(busIndipendentMsg, busIndipendentMessages.AbortMessage)):
-            return xmppMessages.XMPPErrorMessage(
-    busIndipendentMsg.originator,
-    self,
-    busIndipendentMsg.msg,
-     busIndipendentMsg.id)
+            return xmppMessages.XMPPErrorMessage(busIndipendentMsg.originator,
+                                                 self,
+                                                 busIndipendentMsg.msg,
+                                                 busIndipendentMsg.id)
 
         if (isinstance(busIndipendentMsg, busIndipendentMessages.LoadAverageMessage)):
-            return xmppMessages.XMPPLoadAverageMessage(busIndipendentMsg.originator, self, busIndipendentMsg.outputs())
+            return xmppMessages.XMPPLoadAverageMessage(busIndipendentMsg.originator,
+                                                       self,
+                                                       busIndipendentMsg.outputs())
 
         else:
             raise Exception("unknown message")

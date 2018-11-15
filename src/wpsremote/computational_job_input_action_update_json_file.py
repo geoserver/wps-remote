@@ -24,13 +24,11 @@ class ComputationalJobInputActionUpdateJSONFile(computational_job_input_action.C
         self._input_ref = input_ref
         # file path that will be updated
         # self._target_json_file = target_json_file
-        self._target_json_file = target_json_file if isinstance(
-    target_json_file, path.path) else path.path(target_json_file)
+        self._target_json_file = target_json_file if isinstance(target_json_file, path.path) else path.path(target_json_file)  # noqa
         # Python-like expression to reference the attribute in the json file to be set
         self.jsonpath_expr = json_path_expr
         # If target file doesn't exists it will be created using the template at this file path
-        self._config_file_template = source_template_json_file if isinstance(
-    source_template_json_file, path.path) else path.path(source_template_json_file)
+        self._config_file_template = source_template_json_file if isinstance(source_template_json_file, path.path) else path.path(source_template_json_file)  # noqa
 
     def set_inputs(self, inputs):
         if self._input_ref in inputs.names():

@@ -57,9 +57,12 @@ class ServiceBot(object):
         # (request hanlder); for example the unique execution id value to craete
         # the sand box directory
         self._service_config_file = service_config_filepath
-        serviceConfig = configInstance.create(
-    service_config_filepath, case_sensitive=True, variables={
-        'wps_execution_shared_dir': self._wps_execution_shared_dir}, raw=True)
+        serviceConfig = configInstance.create(service_config_filepath,
+                                              case_sensitive=True,
+                                              variables={
+                                                'wps_execution_shared_dir': self._wps_execution_shared_dir
+                                              },
+                                              raw=True)
         self.service = serviceConfig.get("DEFAULT", "service")  # WPS service name?
         self.namespace = serviceConfig.get("DEFAULT", "namespace")
         self.description = serviceConfig.get("DEFAULT", "description")  # WPS service description
@@ -251,7 +254,6 @@ class ServiceBot(object):
                     try:
                         gs_UID = gs_UID_search.group(1)
                         gs_JID = gs_JID_search.group(1)
-
                         gs_MSG = gs_JID_search = re.search('<MSG>(.*)</MSG>', line, re.IGNORECASE).group(1)
                     except BaseException:
                         pass

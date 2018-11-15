@@ -22,7 +22,8 @@ class ComputationalJobInputActions(object):
 
     @staticmethod
     def create_from_config(input_sections):
-        '''Create a InputParameters object.
+        '''
+        Create a InputParameters object.
         input_sections: a dictionary such as
             { action1 : [( 'par1_input1_name' , par1_input1_value ),
                          ( 'par2_input1_name' , par2_input1_value ), ...],
@@ -38,7 +39,8 @@ class ComputationalJobInputActions(object):
 
     @staticmethod
     def create_from_dict(input_action_def_dict):
-        '''Create a input parameters set from a definitions
+        '''
+        Create a input parameters set from a definitions
         paremeters_types_defs is a dictionary such as
             {input_ref1 : { 'action1_attrubute1_name' : action1_attrubute1_value, ... },
              input_ref2 : { 'action2_attrubute1_name' : action2_attrubute1_value, ... }, ... }

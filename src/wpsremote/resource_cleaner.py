@@ -35,9 +35,7 @@ class Resource(object):
 
     @staticmethod
     def get_pid_files_dir():
-        return Resource.pid_files_dir if isinstance(
-    Resource.pid_files_dir, path.path) else path.path(
-        Resource.pid_files_dir)
+        return Resource.pid_files_dir if isinstance(Resource.pid_files_dir, path.path) else path.path(Resource.pid_files_dir)  # noqa
 
     @staticmethod
     def clean_up_all():
@@ -195,7 +193,6 @@ class Resource(object):
             self.filepath().remove()
 
         config = ConfigParser.ConfigParser()
-
         config.set("DEFAULT", "start_time", self.start_time_as_str() if self._start_time is not None else "")
         config.set("DEFAULT", "unique_id", self._unique_id)
         config.set("DEFAULT", "sendbox_path", str(self._sandbox_path))
@@ -261,10 +258,10 @@ class Resource(object):
                             logger.debug(traceback.format_exc())
                             return False
                     else:
-                        logger.info(
-    "pid " +
-    str(pid) +
-     " found but with wrong command line. Assuming resource was already correcly cleaned-up")
+                        logger.info("pid " +
+                                    str(pid) +
+                                    " found but with wrong command line. " +
+                                    "Assuming resource was already correcly cleaned-up")
                     return True
                 else:
                     logger.warning("pid " + str(pid) + " doesn't exist")
@@ -335,11 +332,10 @@ class Test(unittest.TestCase):
         # srv bot
         # create process bot
         cmd = 'python -c "import time; time.sleep(80000)"'
-        invoked_process = subprocess.Popen(
-    args=cmd,
-    stdin=subprocess.PIPE,
-    stdout=subprocess.PIPE,
-     stderr=subprocess.STDOUT)
+        invoked_process = subprocess.Popen(args=cmd,
+                                           stdin=subprocess.PIPE,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.STDOUT)
         prcbot_pid = invoked_process.pid
         unique_id = str(random.randint(1, 1000)).zfill(5)
         sendbox_path = sendbox_root / str(unique_id)

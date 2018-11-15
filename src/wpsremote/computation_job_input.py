@@ -143,13 +143,14 @@ class ComputationJobInput(object):
         # {"type": "string", "description": "A persons surname", "max": 1, "default": "Meier"}
         res = {}
         attrib_to_convert = [
-    '_type',
-    '_title',
-    '_default',
-    '_description',
-    '_min',
-    '_max',
-     '_input_mime_type']  # missing _enum
+            '_type',
+            '_title',
+            '_default',
+            '_description',
+            '_min',
+            '_max',
+            '_input_mime_type'
+        ]  # missing _enum
         attribute_list = [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]
         attribute_list_filtered = [x for x in attribute_list if x in attrib_to_convert]
         for a in attribute_list_filtered:

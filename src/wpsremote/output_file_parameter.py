@@ -60,15 +60,14 @@ class OutputFileParameter(object):
     def as_json_string(self):
         # {"type": "string", "description": "A persons surname", "max": 1, "default": "Meier"}
         res = {}
-        attrib_to_convert = [
-    '_type',
-    '_description',
-    '_title',
-    '_output_mime_type',
-    '_publish_as_layer',
-    '_publish_layer_name',
-    '_publish_default_style',
-     '_publish_target_workspace']
+        attrib_to_convert = ['_type',
+                             '_description',
+                             '_title',
+                             '_output_mime_type',
+                             '_publish_as_layer',
+                             '_publish_layer_name',
+                             '_publish_default_style',
+                             '_publish_target_workspace']
         attribute_list = [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]
         attribute_list_filtered = [x for x in attribute_list if x in attrib_to_convert]
         for a in attribute_list_filtered:
@@ -76,8 +75,9 @@ class OutputFileParameter(object):
         return json.dumps(res)
 
     def get_value(self):
-        if self._backup_on_wps_execution_shared_dir is not None and self._backup_on_wps_execution_shared_dir.lower(
-        ) == "true" and self._wps_execution_shared_dir is not None:
+        if self._backup_on_wps_execution_shared_dir is not None and \
+            self._backup_on_wps_execution_shared_dir.lower() == "true" and \
+                self._wps_execution_shared_dir is not None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(self._wps_execution_shared_dir + "/" + unique_dirname)
             bkp_dir.makedirs()
@@ -183,15 +183,14 @@ class RawFileParameter(object):
     def as_json_string(self):
         # {"type": "string", "description": "A persons surname", "max": 1, "default": "Meier"}
         res = {}
-        attrib_to_convert = [
-    '_type',
-    '_description',
-    '_title',
-    '_output_mime_type',
-    '_publish_as_layer',
-    '_publish_layer_name',
-    '_publish_default_style',
-     '_publish_target_workspace']
+        attrib_to_convert = ['_type',
+                             '_description',
+                             '_title',
+                             '_output_mime_type',
+                             '_publish_as_layer',
+                             '_publish_layer_name',
+                             '_publish_default_style',
+                             '_publish_target_workspace']
         attribute_list = [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]
         attribute_list_filtered = [x for x in attribute_list if x in attrib_to_convert]
         for a in attribute_list_filtered:
@@ -199,8 +198,9 @@ class RawFileParameter(object):
         return json.dumps(res)
 
     def get_value(self):
-        if self._backup_on_wps_execution_shared_dir is not None and self._backup_on_wps_execution_shared_dir.lower(
-        ) == "true" and self._wps_execution_shared_dir is not None:
+        if self._backup_on_wps_execution_shared_dir is not None and \
+            self._backup_on_wps_execution_shared_dir.lower() == "true" and \
+                self._wps_execution_shared_dir is not None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(self._wps_execution_shared_dir + "/" + unique_dirname)
             bkp_dir.makedirs()
@@ -328,16 +328,15 @@ class OWCFileParameter(object):
     def as_json_string(self):
         # {"type": "string", "description": "A persons surname", "max": 1, "default": "Meier"}
         res = {}
-        attrib_to_convert = [
-    '_type',
-    '_description',
-    '_title',
-    '_output_mime_type',
-    '_publish_as_layer',
-    '_publish_layer_name',
-    '_files_to_publish',
-    '_default_styles',
-     '_target_workspaces']
+        attrib_to_convert = ['_type',
+                             '_description',
+                             '_title',
+                             '_output_mime_type',
+                             '_publish_as_layer',
+                             '_publish_layer_name',
+                             '_files_to_publish',
+                             '_default_styles',
+                             '_target_workspaces']
         attribute_list = [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]
         attribute_list_filtered = [x for x in attribute_list if x in attrib_to_convert]
         for a in attribute_list_filtered:
@@ -345,8 +344,9 @@ class OWCFileParameter(object):
         return json.dumps(res)
 
     def get_value(self):
-        if self._backup_on_wps_execution_shared_dir is not None and self._backup_on_wps_execution_shared_dir.lower(
-        ) == "true" and self._wps_execution_shared_dir is not None:
+        if self._backup_on_wps_execution_shared_dir is not None and \
+            self._backup_on_wps_execution_shared_dir.lower() == "true" and \
+                self._wps_execution_shared_dir is not None:
             unique_dirname = str(uuid.uuid4())
             bkp_dir = path.path(self._wps_execution_shared_dir + "/" + unique_dirname)
             bkp_dir.makedirs()

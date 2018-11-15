@@ -66,13 +66,13 @@ class ProcessBot(object):
 
         # the config file is read with raw=False because the unique_exe_id value
         # will be used (interpolated) in the config
-        serviceConfig = configInstance.create(
-    service_config_filepath,
-    case_sensitive=True,
-    variables={
-        'unique_exe_id': self._uniqueExeId,
-        'wps_execution_shared_dir': self._wps_execution_shared_dir},
-         raw=False)
+        serviceConfig = configInstance.create(service_config_filepath,
+                                              case_sensitive=True,
+                                              variables={
+                                                'unique_exe_id': self._uniqueExeId,
+                                                'wps_execution_shared_dir': self._wps_execution_shared_dir
+                                              },
+                                              raw=False)
 
         self.service = serviceConfig.get("DEFAULT", "service")  # todo: what is?
         self.namespace = serviceConfig.get("DEFAULT", "namespace")
@@ -107,8 +107,11 @@ class ProcessBot(object):
                 rsa_key = RSA.importKey(privatekey, passphrase=uploader_passphrase)
                 uploader_password = rsa_key.decrypt(base64.b64decode(uploader_password))
 
-            self._uploader = introspection.get_class_four_arg(
-    uploader_class_name, uploader_host, uploader_username, uploader_password, self._uniqueExeId)
+            self._uploader = introspection.get_class_four_arg(uploader_class_name,
+                                                              uploader_host,
+                                                              uploader_username,
+                                                              uploader_password,
+                                                              self._uniqueExeId)
         else:
             self._uploader = None
 

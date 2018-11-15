@@ -47,8 +47,11 @@ class OutputParameters(object):
             if ('type' in d):
 
                 if ('string' == d['type']):
-                    self._params[name] = output_file_parameter.OutputFileParameter(
-    name, d, wps_execution_shared_dir=self._wps_execution_shared_dir, uploader=uploader)
+                    self._params[name] = output_file_parameter.\
+                        OutputFileParameter(name,
+                                            d,
+                                            wps_execution_shared_dir=self._wps_execution_shared_dir,
+                                            uploader=uploader)
 
                 elif ('image/geotiff' in d['type'] or
                       'text/xml' in d['type'] or
@@ -56,12 +59,19 @@ class OutputParameters(object):
                       'application/zip' in d['type'] or
                       'application/x-netcdf' in d['type'] or
                       'video/mp4' in d['type']):
-                    self._params[name] = output_file_parameter.RawFileParameter(
-    name, d, wps_execution_shared_dir=self._wps_execution_shared_dir, uploader=uploader)
+                    self._params[name] = output_file_parameter.\
+                        RawFileParameter(name,
+                                         d,
+                                         wps_execution_shared_dir=self._wps_execution_shared_dir,
+                                         uploader=uploader)
 
                 elif ('application/owc' in d['type']):
-                    self._params[name] = output_file_parameter.OWCFileParameter(
-    name, d, parameters_types_defs, wps_execution_shared_dir=self._wps_execution_shared_dir, uploader=uploader)
+                    self._params[name] = output_file_parameter.\
+                        OWCFileParameter(name,
+                                         d,
+                                         parameters_types_defs,
+                                         wps_execution_shared_dir=self._wps_execution_shared_dir,
+                                         uploader=uploader)
 
                 else:
                     logger = logging.getLogger("OutputParameters.__init__")

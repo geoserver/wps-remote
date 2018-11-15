@@ -176,11 +176,10 @@ class Test(unittest.TestCase):
                        "template": "value"})]
 
         paramValue = {'argx': 'test'}
-        paramValue = {
-    'numberOfEvaluations': 600,
-    'referenceDate': '20140901',
-    'timeHorizon': 259200,
-     'executiontType': 'oaaOnDemand'}
+        paramValue = {'numberOfEvaluations': 600,
+                      'referenceDate': '20140901',
+                      'timeHorizon': 259200,
+                      'executiontType': 'oaaOnDemand'}
 
         pip = input_parameters.InputParameters(paramsDef)
         pip.parse(paramValue)
