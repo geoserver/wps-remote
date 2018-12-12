@@ -143,10 +143,8 @@ class XMPPErrorMessage(object):
             self.id = self.xmppChannel.id
 
     def send(self):
-
         error_json = json.dumps(self.msg)
         error_json_url_enc = urllib.quote(error_json)
-
         body = ''.join(['topic=error', '&id=', self.id, "&message=", error_json_url_enc])
         self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')
 

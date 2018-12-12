@@ -137,25 +137,24 @@ class ServiceBot(object):
         """Handler for WPS invite message."""
         logger = logging.getLogger("servicebot.handle_invite")
         logger.info("handle invite message from WPS " + str(invite_message.originator()))
-        if self.bus.state() != 'connected':
-            try:
+        try:
+            if self.bus.state() != 'connected':
                 self.bus.xmpp.reconnect()
                 self.bus.xmpp.send_presence()
-                # self.bus.xmpp.get_roster()
-            except BaseException:
-                logger.info("[XMPP Disconnected]: Service " +
-                            str(self.service) +
-                            " Could not send info message to GeoServer Endpoint " +
-                            str(self._remote_wps_endpoint))
-        self.bus.SendMessage(
-            busIndipendentMessages.RegisterMessage(invite_message.originator(),
-                                                   self.service,
-                                                   self.namespace,
-                                                   self.description,
-                                                   self._input_parameters_defs.as_DLR_protocol(),
-                                                   self._output_parameters_defs.as_DLR_protocol()
-                                                   )
-        )
+            self.bus.SendMessage(
+                busIndipendentMessages.RegisterMessage(invite_message.originator(),
+                                                       self.service,
+                                                       self.namespace,
+                                                       self.description,
+                                                       self._input_parameters_defs.as_DLR_protocol(),
+                                                       self._output_parameters_defs.as_DLR_protocol()
+                                                       )
+            )
+        except BaseException:
+            logger.info("[XMPP Disconnected]: Service " +
+                        str(self.service) +
+                        " Could not send info message to GeoServer Endpoint " +
+                        str(self._remote_wps_endpoint))
 
     def handle_execute(self, execute_message):
         """Handler for WPS execute message."""
@@ -218,20 +217,19 @@ class ServiceBot(object):
             outputs['vmem'] = [vmem, 'Percentage of Memory used by the server.']
 
             # Send the message back to the WPS
-            if self.bus.state() != 'connected':
-                try:
+            try:
+                if self.bus.state() != 'connected':
                     self.bus.xmpp.reconnect()
                     self.bus.xmpp.send_presence()
-                    # self.bus.xmpp.get_roster()
-                except BaseException:
-                    logger.info("[XMPP Disconnected]: Service "+str(self.service) +
-                                " Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
-            self.bus.SendMessage(
-                busIndipendentMessages.LoadAverageMessage(
-                    getloadavg_message.originator(),
-                    outputs
+                self.bus.SendMessage(
+                    busIndipendentMessages.LoadAverageMessage(
+                        getloadavg_message.originator(),
+                        outputs
+                    )
                 )
-            )
+            except BaseException:
+                logger.info("[XMPP Disconnected]: Service "+str(self.service) +
+                            " Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
         except Exception as ex:
             logger.exception("Load Average initialization error", ex)
 
@@ -244,58 +242,78 @@ class ServiceBot(object):
         gs_JID = None
         gs_MSG = None
         while True:
-            line = invoked_process.stdout.readline()
-            if line != '':
+            try:
+                line = invoked_process.stdout.readline()
+                if line != '' and 'send error msg complete' not in line:
+                    # Look for GeoServer JID from Process
+                    gs_UID_search = re.search('<UID>(.*)</UID>', line, re.IGNORECASE)
+                    gs_JID_search = re.search('<JID>(.*)</JID>', line, re.IGNORECASE)
+                    if gs_UID_search:
+                        try:
+                            gs_UID = gs_UID_search.group(1)
+                            gs_JID = gs_JID_search.group(1)
+                            gs_MSG = gs_JID_search = re.search('<MSG>(.*)</MSG>', line, re.IGNORECASE).group(1)
+                        except BaseException:
+                            pass
 
-                # Look for GeoServer JID from Process
-                gs_UID_search = re.search('<UID>(.*)</UID>', line, re.IGNORECASE)
-                gs_JID_search = re.search('<JID>(.*)</JID>', line, re.IGNORECASE)
-                if gs_UID_search:
-                    try:
-                        gs_UID = gs_UID_search.group(1)
-                        gs_JID = gs_JID_search.group(1)
-                        gs_MSG = gs_JID_search = re.search('<MSG>(.*)</MSG>', line, re.IGNORECASE).group(1)
-                    except BaseException:
-                        pass
-
-                if self._redirect_process_stdout_to_logger:
-                    line = line.strip()
-                    logger.debug("[SERVICE] " + line)
-            else:
-                logger.debug("created process " + self.service + ", PId " +
-                             str(invoked_process.pid) + " stopped send data on stdout")
-                break  # end of stream
+                    if self._redirect_process_stdout_to_logger:
+                        line = line.strip()
+                        logger.debug("[SERVICE] " + line)
+                else:
+                    logger.debug("created process " + self.service + ", PId " +
+                                 str(invoked_process.pid) + " stopped send data on stdout")
+                    break  # end of stream
+            except SystemExit:
+                break
 
         # wait for process exit code
-        return_code = invoked_process.wait()
+        return_code = -1
+        poll = invoked_process.poll()
+        if poll:
+            return_code = poll
+        else:
+            from threading import Timer
+            timer = Timer(10, invoked_process.kill)
+            try:
+                timer.start()
+                # stdout, stderr = invoked_process.communicate()
+                return_code = invoked_process.wait()
+            finally:
+                timer.cancel()
+
         if return_code != 0:
             msg = "Process " + self.service + " PId " + \
                 str(invoked_process.pid) + " terminated with exit code " + str(return_code)
             logger.critical(msg)
-
             logger.debug("gs_UID[%s] / gs_JID[%s]" % (gs_UID, gs_JID))
-            if gs_UID and gs_JID:
-                self.bus.SendMessage(busIndipendentMessages.ErrorMessage(
-                    gs_JID, msg + " Exception: " + str(gs_MSG), gs_UID))
-            elif self._remote_wps_endpoint:
-                self.bus.SendMessage(busIndipendentMessages.ErrorMessage(self._remote_wps_endpoint, msg))
-            else:
-                exe_msg = None
-                try:
-                    logger.debug("Trying to recover Originator from Process Params!")
-                    exe_msg = busIndipendentMessages.ExecuteMessage.deserialize(param_filepath)
-                    if exe_msg.originator():
-                        self.bus.SendMessage(busIndipendentMessages.
-                                             ErrorMessage(exe_msg.originator(),
-                                                          msg +
-                                                          " Exception: remote process exception. Please check outputs!",
-                                                          exe_msg.UniqueId()))
-                except BaseException:
-                    pass
-                if not exe_msg:
-                    msg = "Process " + self.service + " PId " + \
-                        str(invoked_process.pid) + " STALLED! Don't know who to send ERROR Message..."
-                    logger.error(msg)
+            try:
+                if gs_UID and gs_JID:
+                    self.bus.SendMessage(busIndipendentMessages.ErrorMessage(
+                        gs_JID, msg + " Exception: " + str(gs_MSG), gs_UID))
+                elif self._remote_wps_endpoint:
+                    self.bus.SendMessage(busIndipendentMessages.ErrorMessage(self._remote_wps_endpoint, msg))
+                else:
+                    exe_msg = None
+                    try:
+                        logger.debug("Trying to recover Originator from Process Params!")
+                        exe_msg = busIndipendentMessages.ExecuteMessage.deserialize(param_filepath)
+                        if exe_msg.originator():
+                            self.bus.SendMessage(busIndipendentMessages.
+                                                 ErrorMessage(exe_msg.originator(),
+                                                              msg +
+                                                              " Exception: remote process exception. Please check outputs!",
+                                                              exe_msg.UniqueId()))
+                    except BaseException:
+                        pass
+                    if not exe_msg:
+                        msg = "Process " + self.service + " PId " + \
+                            str(invoked_process.pid) + " STALLED! Don't know who to send ERROR Message..."
+                        logger.error(msg)
+            except BaseException:
+                logger.info("[XMPP Disconnected]: Service " +
+                            str(self.service) +
+                            " Could not send error message to GeoServer Endpoint " +
+                            str(self._remote_wps_endpoint))
         else:
             msg = "Process " + self.service + " PId " + str(invoked_process.pid) + " terminated successfully!"
             logger.debug(msg)
@@ -303,21 +321,20 @@ class ServiceBot(object):
     def send_error_message(self, msg):
         logger = logging.getLogger("ServiceBot.send_error_message")
         logger.error(msg)
-        if self.bus.state() != 'connected':
-            try:
+        try:
+            if self.bus.state() != 'connected':
                 self.bus.xmpp.reconnect()
                 self.bus.xmpp.send_presence()
-                # self.bus.xmpp.get_roster()
-            except BaseException:
-                logger.info("[XMPP Disconnected]: Service " +
-                            str(self.service) +
-                            " Could not send error message to GeoServer Endpoint " +
-                            str(self._remote_wps_endpoint))
-        if self._remote_wps_endpoint:
-            self.bus.SendMessage(busIndipendentMessages.ErrorMessage(self._remote_wps_endpoint, msg))
-        else:
-            msg = "Process " + str(self.service) + " STALLED! Don't know who to send ERROR Message..."
-            logger.error(msg)
+            if self._remote_wps_endpoint:
+                self.bus.SendMessage(busIndipendentMessages.ErrorMessage(self._remote_wps_endpoint, msg))
+            else:
+                msg = "Process " + str(self.service) + " STALLED! Don't know who to send ERROR Message..."
+                logger.error(msg)
+        except BaseException:
+            logger.info("[XMPP Disconnected]: Service " +
+                        str(self.service) +
+                        " Could not send error message to GeoServer Endpoint " +
+                        str(self._remote_wps_endpoint))
 
     def disconnect(self):
         self.bus.disconnect()
