@@ -4,14 +4,16 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
-import introspection
+import re
+import psutil
 import thread
-from collections import OrderedDict
+import logging
+import datetime
 import tempfile
 import subprocess
-import datetime
-import logging
-import re
+import introspection
+
+from collections import OrderedDict
 
 import busIndipendentMessages
 
@@ -201,8 +203,15 @@ class ServiceBot(object):
         # Collect current Machine Load Average and Available Memory info
 
         try:
-            loadavg = self._resource_monitor.cpu_perc[0]
-            vmem = self._resource_monitor.vmem_perc[0]
+            logger.info("Fetching updated status from Resource Monitor...")
+
+            vmem = psutil.virtual_memory().percent
+            if self._resource_monitor.vmem_perc[0] > 0:
+                vmem = (vmem + self._resource_monitor.vmem_perc[0]) / 2.0
+
+            loadavg = psutil.cpu_percent(interval=0, percpu=False)
+            if self._resource_monitor.cpu_perc[0] > 0:
+                loadavg = (loadavg + self._resource_monitor.cpu_perc[0]) / 2.0
 
             logger.info("Scanning Running Process. Declared Black List: %s" % self._process_blacklist)
             if self._resource_monitor.proc_is_running(self._process_blacklist):

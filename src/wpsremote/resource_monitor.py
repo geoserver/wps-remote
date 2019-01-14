@@ -4,9 +4,10 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
-import threading
+import time
 import psutil
 import logging
+import threading
 
 __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights reserved"
@@ -71,15 +72,18 @@ class ResourceMonitor(threading.Thread):
                 print(tb)
         return False
 
+    def update_stats(self):
+        ResourceMonitor.lock.acquire()
+
+        ResourceMonitor.vmem_perc[1] = (ResourceMonitor.vmem_perc[0] + ResourceMonitor.vmem_perc[1]) / 2.0
+        ResourceMonitor.vmem_perc[0] = (ResourceMonitor.vmem_perc[1] + psutil.virtual_memory().percent) / 2.0
+
+        ResourceMonitor.cpu_perc[1] = ResourceMonitor.cpu_perc[0]
+        ResourceMonitor.cpu_perc[0] = psutil.cpu_percent(
+            interval=(ResourceMonitor.load_average_scan_minutes*60), percpu=False)
+
+        ResourceMonitor.lock.release()
+
     def run(self):
         while True:
-            ResourceMonitor.lock.acquire()
-
-            ResourceMonitor.vmem_perc[1] = (ResourceMonitor.vmem_perc[0] + ResourceMonitor.vmem_perc[1]) / 2.0
-            ResourceMonitor.vmem_perc[0] = (ResourceMonitor.vmem_perc[1] + psutil.virtual_memory().percent) / 2.0
-
-            ResourceMonitor.cpu_perc[1] = ResourceMonitor.cpu_perc[0]
-            ResourceMonitor.cpu_perc[0] = psutil.cpu_percent(
-                interval=(ResourceMonitor.load_average_scan_minutes*60), percpu=False)
-
-            ResourceMonitor.lock.release()
+            self.update_stats()
