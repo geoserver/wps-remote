@@ -1,6 +1,6 @@
-#cache:
-#  directories:
-#    - "$HOME"
+cache:
+  directories:
+    - "$HOME"
 language: python
 matrix:
   include:
