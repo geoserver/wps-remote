@@ -6,6 +6,7 @@ matrix:
   include:
     - python: 2.7.8
       dist: precise
+      before_install: pip install --upgrade pip setuptools
     - python: 2.7
 install:
   - travis_retry pip install coveralls -r requirements.txt
