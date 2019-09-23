@@ -310,7 +310,8 @@ class ServiceBot(object):
                             self.bus.SendMessage(busIndipendentMessages.
                                                  ErrorMessage(exe_msg.originator(),
                                                               msg +
-                                                              " Exception: remote process exception. Please check outputs!",
+                                                              (" Exception: remote process exception. "
+                                                               "Please check outputs!"),
                                                               exe_msg.UniqueId()))
                     except BaseException:
                         pass
