@@ -40,7 +40,7 @@ inst_req = parse_requirements('requirements.txt',
 REQUIREMENTS = [str(r.req) for r in inst_req]
 
 try:
-    readme_text = file('README.md', 'rb').read()
+    readme_text = open('README.md', 'rb').read()
 except IOError as e:
     readme_text = ''
 
