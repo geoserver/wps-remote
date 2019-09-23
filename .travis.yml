@@ -5,6 +5,9 @@ matrix:
       dist: precise
       before_install: pip install --upgrade pip setuptools
     - python: 2.7
+    - python: 3.7
+  allow_failures:
+    - python: 3.7
 install:
   - travis_retry pip install coveralls -r requirements.txt
 script:
