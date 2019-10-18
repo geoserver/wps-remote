@@ -20,9 +20,22 @@
 
    5. Deploy on pypi:
 
-      python setup.py sdist upload -r pypi
-      python setup.py bdist --format=gztar upload -r pypi
-      python setup.py bdist_wheel upload -r pypi
+      python setup.py sdist upload -r pypi; \
+      python setup.py bdist --format=gztar upload -r pypi; \
+      python setup.py bdist_wheel upload -r pypi;
+
+python setup.py check -r -s
+python setup.py sdist bdist_wheel upload -r pypi
+
+pip install setuptools==39.1.0 twine==1.11.0
+pip install setuptools --upgrade
+pip install twine --upgrade
+python setup.py sdist
+python setup.py bdist --format=gztar
+python setup.py bdist_wheel
+twine check dist/*
+twine upload dist/*
+
 """
 try:  # for pip >= 10
     from pip._internal.req import parse_requirements
