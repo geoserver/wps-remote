@@ -8,6 +8,7 @@ RemoteWPS1.sln
 /Include
 /Lib/
 /Scripts/
+.eggs/
 
 /RemoteWPS.pyproj
 /RemoteWPS.sln
@@ -18,3 +19,10 @@ RemoteWPS1.sln
 /json_out.json
 /json_out_1.json
 /json_out_2.json
+/copy_of_source_json.json
+
+# Testing output
+.coverage
+
+# IDE
+.idea
