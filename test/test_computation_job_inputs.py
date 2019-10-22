@@ -15,6 +15,7 @@ from wpsremote import computational_job_input_actions
 from wpsremote import computational_job_input_action_cmd_param
 from wpsremote import computational_job_input_action_create_json_file
 from wpsremote import computational_job_input_action_update_json_file
+from wpsremote import computational_job_input_action_copyfile
 from wpsremote import mockutils
 
 __author__ = "Alessio Fabiani"
@@ -60,15 +61,46 @@ class TestComputationJobInputs(unittest.TestCase):
         self.assertEquals(p1.get_value_string(), "1")
         self.assertEquals(p2.get_value_string(), "abc")
 
+    def test_set_float_param(self):
+        p1 = computation_job_param.ComputationJobParam("mypar", "float", "par title", "par descr")
+        p1.set_value("1.37")
+        self.assertEquals(p1.get_value_string(), "1.37")
+
+    def test_set_wrong_float_param(self):
+        p1 = computation_job_param.ComputationJobParam("mypar", "float", "par title", "par descr")
+        self.assertRaises(TypeError, lambda: p1.set_value("not float"))
+
+    def test_set_url_param(self):
+        p1 = computation_job_param.ComputationJobParam("mypar", "url", "par title", "par descr")
+        p1.set_value("https://www.google.com/")
+        self.assertEquals(p1.get_value_string(), "https://www.google.com/")
+
+    def test_set_wrong_url_param(self):
+        p1 = computation_job_param.ComputationJobParam("mypar", "url", "par title", "par descr")
+        self.assertRaises(Exception, lambda: p1.set_value("https://www.google.com/%"))
+
+    def test_set_datetime_param(self):
+        p1 = computation_job_param.ComputationJobParam(
+            "mypar", "datetime", "par title", "par descr",
+            formatter="%Y-%m-%d"
+        )
+        p1.set_value("2019-10-21")
+        self.assertEquals(p1.get_value_string(), "2019-10-21")
+
+    def test_set_wrong_datetime_param(self):
+        p1 = computation_job_param.ComputationJobParam(
+            "mypar", "datetime", "par title", "par descr"
+        )
+        self.assertIsNone(p1.get_value_string())
+
     def test_cmd_line_action(self):
         inputs = computation_job_inputs.ComputationJobInputs()
         inputs.add_input(computation_job_param.ComputationJobParam("mypar1", "int", "par 1", "par descr 1"))
 
         actions = computational_job_input_actions.ComputationalJobInputActions()
         actions.add_actions(
-    computational_job_input_action_cmd_param.ComputationalJobInputActionCmdParam(
-        "mypar1", "--name=value"))
-
+            computational_job_input_action_cmd_param.ComputationalJobInputActionCmdParam(
+                "mypar1", "--name=value"))
         inputs.set_values({"mypar1": "1"})
         actions.execute(inputs)
 
@@ -194,6 +226,22 @@ class TestComputationJobInputs(unittest.TestCase):
 
         self.assertEquals(actions.get_cmd_line(), "--mypar1=1")
 
+    def test_read_param_from_dict(self):
+        input_dict = {
+            "mypar1": {
+                "class": "param",
+                "type": "int",
+                "description": "mypar descr"
+            }
+        }
+        inputs = computation_job_inputs.ComputationJobInputs.create_from_dict(input_dict)
+        actions = computational_job_input_action_cmd_param.ComputationalJobInputActionCmdParam(
+            "mypar1", "--name=value"
+        )
+        inputs.set_values({"mypar1": "1"})
+        actions.set_inputs(inputs)
+        self.assertEquals(actions.get_cmd_line(), "--mypar1=1")
+
     def test_read_action_from_ini(self):
         ini_text = '''[Action1]
         input_ref = mypar1
@@ -216,6 +264,24 @@ class TestComputationJobInputs(unittest.TestCase):
         inputs.set_values({"mypar1": "1"})
         actions.execute(inputs)
 
+        self.assertEquals(actions.get_cmd_line(), "--mypar1=1")
+
+    def test_read_action_from_dict(self):
+        input_dict = {
+            "Action1": {
+                "input_ref": "mypar1",
+                "class": "cmdline",
+                "template": "--name=value"
+            }
+        }
+        inputs = computation_job_inputs.ComputationJobInputs()
+        inputs.add_input(
+            computation_job_param.ComputationJobParam("mypar1", "int", "par 1", "par descr")
+        )
+        actions = computational_job_input_actions. \
+            ComputationalJobInputActions.create_from_dict(input_dict)
+        inputs.set_values({"mypar1": "1"})
+        actions.execute(inputs)
         self.assertEquals(actions.get_cmd_line(), "--mypar1=1")
 
     def test_2_cmdpar_from_ini(self):
@@ -258,6 +324,39 @@ template = value'''
 
         self.assertEquals(actions.get_cmd_line(), '-w . oaaOnDemand')
 
+    def test_2_cmdpar_from_dict(self):
+        inputs_dict = {
+            "workingdir": {
+                "class": "param",
+                "type": "string",
+                "description": "OAA process working directory"
+            },
+            "etlExecutionType": {
+                "class": "const",
+                "type": "string",
+                "description": "parameter to choose what type of execution is performed by etl.py script",
+                "value": "oaaOnDemand"
+            }
+        }
+        actions_dict = {
+            "Action1": {
+                "input_ref": "workingdir",
+                "class": "cmdline",
+                "alias": "w",
+                "template": "-name value"
+            },
+            "Action2": {
+                "input_ref": "etlExecutionType",
+                "class": "cmdline",
+                "template": "value",
+            }
+        }
+        inputs = computation_job_inputs.ComputationJobInputs.create_from_dict(inputs_dict)
+        actions = computational_job_input_actions.ComputationalJobInputActions.create_from_dict(actions_dict)
+        inputs.set_values({'workingdir': '.'})
+        actions.execute(inputs)
+        self.assertEquals(actions.get_cmd_line(), '-w . oaaOnDemand')
+
     def test_cmdpar_order(self):
 
         ini_text = '''[Input2]
@@ -280,8 +379,7 @@ description = process working directory
 class = cmdline
 input_ref = workingdir
 alias = w
-template = -name value
-'''
+template = -name value'''
 
         config = ConfigParser.ConfigParser()
         import StringIO
@@ -298,6 +396,39 @@ template = -name value
 
         actions.execute(inputs)
 
+        self.assertEquals(actions.get_cmd_line(), '-w . --k=2.4')
+
+    def test_cmdpar_order_from_dict(self):
+        inputs_dict = {
+            "coeff": {
+                "class": "param",
+                "type": "float",
+                "description": "this is a coeff"
+            },
+            "workingdir": {
+                "class": "param",
+                "type": "string",
+                "description": "process working directory"
+            }
+        }
+        actions_dict = {
+            "Action1": {
+                "input_ref": "workingdir",
+                "class": "cmdline",
+                "alias": "w",
+                "template": "-name value"
+            },
+            "Action2": {
+                "input_ref": "coeff",
+                "class": "cmdline",
+                "alias": "k",
+                "template": "--name=value",
+            }
+        }
+        inputs = computation_job_inputs.ComputationJobInputs.create_from_dict(inputs_dict)
+        actions = computational_job_input_actions.ComputationalJobInputActions.create_from_dict(actions_dict)
+        inputs.set_values({'workingdir': '.', 'coeff': 2.4})
+        actions.execute(inputs)
         self.assertEquals(actions.get_cmd_line(), '-w . --k=2.4')
 
     def test_update_json_list_in_file(self):
@@ -345,6 +476,21 @@ template = -name value
         j = json.loads(json_text)
         self.assertTrue(75.5, j['Config']['latLim'][0])
         self.assertTrue(76.5, j['Config']['latLim'][1])
+
+    def test_copyfile(self):
+        target_json_file = path.path("./copy_of_source_json.json")
+        if target_json_file.exists():
+            target_json_file.remove()
+        source_template_json_file = path.path(r"./src/wpsremote/xmpp_data/test/CMREOAA_MainConfigFile_template.json")
+        action = computational_job_input_action_copyfile.ComputationalJobInputActionCopyFile(
+            source=source_template_json_file, target=target_json_file
+        )
+        action.set_inputs("test")
+        self.assertTrue(target_json_file.exists())
+        target_json_text = target_json_file.text()
+        source_json_text = source_template_json_file.text()
+        self.assertEqual(target_json_text, source_json_text)
+        target_json_file.remove()
 
     json_text1 = '''{
         "Asset": {
