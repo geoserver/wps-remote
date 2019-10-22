@@ -1,0 +1,102 @@
+# (c) 2016 Open Source Geospatial Foundation - all rights reserved
+# (c) 2014 - 2015 Centre for Maritime Research and Experimentation (CMRE)
+# (c) 2013 - 2014 German Aerospace Center (DLR)
+# This code is licensed under the GPL 2.0 license, available at the root
+# application directory.
+
+# This is a INI file to be read with python ConfigParser (https://docs.python.org/2/library/configparser.html)
+# Is possible to reference another variable in the ini file using the format %(<variable name>)s (note the 's' at the end)
+
+# ########################################### #
+# Default Service Params                      #
+# ########################################### #
+
+[DEFAULT]
+service = Greetings
+namespace = default
+description = Greetings Remote Service
+executable_path = ./xmpp_data/configs/myservice/code
+executable_cmd = python %(executable_path)s/test_xml.py
+output_dir = ./xmpp_data/output/
+unique_execution_id = %(unique_exe_id)s
+workdir = %(output_dir)s/%(unique_execution_id)s
+active = True
+max_running_time_seconds = 300
+
+# . This option allows you to set the CPU and Memory average load scan time.
+# . It is espressed in 'minutes' and if disabled here it will be set by default
+# . to 15 minutes.
+load_average_scan_minutes = 1
+
+# . Use this option to completely avoid using this host (and prevent starting a new
+# . 'processbot') whenever one of the following process names are running.
+# . In other words, if one of the following processes are currently running on this machine,
+# . GeoServer won't send any WPS execute request until they are finished.
+process_blacklist = [{"cwd": "/mnt/d/work/code/python/geonode/geonode-master", "name": "celery", "cmdline": "-A geonode.celery_app:app worker -Q default,geonode,cleanup,update,email -B -E -l INFO"}]
+
+# ########################################### #
+# Inputs and Actions Declaration              #
+# ########################################### #
+
+[Input1]
+class = param
+name = theName
+title = theName
+type = string
+description = theName.
+min = 1
+max = 1
+default = Giovanni
+
+[Action1]
+class = cmdline
+input_ref = theName
+alias = n
+template = -name value
+
+[Const1]
+class = const
+name = workdir
+type = string
+description = Remote process sandbox working directory
+value = %(workdir)s
+
+[Action2]
+class = cmdline
+input_ref = workdir
+alias = w
+template = -name value
+
+[Const2]
+class = const
+name = execution_id
+type = string
+description = Remote process unique execution id
+value = %(unique_execution_id)s
+
+[Action2]
+class = cmdline
+input_ref = execution_id
+alias = e
+template = -name value
+
+# ########################################### #
+# Output Parameters Declaration               #
+# ########################################### #
+
+[Output1]
+name = result1
+type = text/xml;subtype=gml/3.1.1
+output_mime_type = application/xml
+description = WPS Resource XML File
+title = greetings.xml
+filepath = D:/work/code/python/remote-wps/RemoteWPS/src/wpsremote/%(workdir)s/greetings.xml
+publish_as_layer = false
+
+# ########################################### #
+# Logging Options Declaration                 #
+# ########################################### #
+
+[Logging]
+stdout_parser = [.*\[DEBUG\](.*), .*\[INFO\] ProgressInfo\:([-+]?[0-9]*\.?[0-9]*)\%, .*\[(INFO)\](.*), .*\[(WARN)\](.*), .*\[(ERROR)\](.*), .*\[(CRITICAL)\](.*)]
+stdout_action = [ignore,          progress,                                          log,              log,              abort,               abort]

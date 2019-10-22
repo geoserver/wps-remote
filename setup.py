@@ -55,7 +55,7 @@ REQUIREMENTS = [str(r.req) for r in inst_req]
 try:
     readme_text = file('README.md', 'rb').read()
 except IOError as e:
-    readme_text = ''
+    readme_text = open('README.md', 'rb').read()
 
 setup(
     name="wps-remote",

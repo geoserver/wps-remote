@@ -22,7 +22,7 @@ class Greetings(object):
 
             ret = 0
             self.logger.info("ProgressInfo:100%")
-        except:
+        except BaseException:
             ret = -1
             self.logger.critical("Error occurred during processing.")
 
