@@ -6,7 +6,7 @@
 
 import unittest
 import json
-import ConfigParser
+import wpsremote.ConfigParser as ConfigParser
 
 from wpsremote import path
 from wpsremote import computation_job_param

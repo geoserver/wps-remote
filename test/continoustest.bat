@@ -22,10 +22,12 @@ pylint -r n --disable=C --disable=W0141 computational_job_input_action_update_js
 pylint -r n --disable=C --disable=W0141 computational_job_input_actions.py
 pylint -r n --disable=C --disable=W0141 test_computation_job_inputs.py
 pylint -r n --disable=C --disable=W0141 output_file_parameter.py
+pylint -r n --disable=C --disable=W0141 test_computation_job_outputs.py
 
 
 python test_computation_job_inputs.py
 python test_process_input_parameters.py
+python test_computation_job_outputs.py
 python resource_cleaner.py
 
 IF "%1"=="" GOTO exit
