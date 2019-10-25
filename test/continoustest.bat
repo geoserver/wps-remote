@@ -29,6 +29,7 @@ python test_computation_job_inputs.py
 python test_process_input_parameters.py
 python test_computation_job_outputs.py
 python test_config_parser.py
+python test_bus_independent_messages.py
 python resource_cleaner.py
 
 IF "%1"=="" GOTO exit
