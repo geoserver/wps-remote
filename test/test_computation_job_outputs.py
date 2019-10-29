@@ -140,7 +140,7 @@ class TestComputationJobOutputs(unittest.TestCase):
         output_section = config.items('Output1')
         op = OutputParameters.create_from_config({'Output1': output_section})
         self.assertEqual(self.result1_DLR, op.as_DLR_protocol())
-        self.assertEqual([''], op.get_values())
+        self.assertEqual(['test content'], op.get_values())
         # OutputFileParameter
         ofp = op._params['result1']
         self.assertIsInstance(ofp, OutputFileParameter)
@@ -155,7 +155,7 @@ class TestComputationJobOutputs(unittest.TestCase):
         self.assertEqual("textual", ofp.get_type())
         self.assertIn(ofp.as_json_string(), self.result1_DLR[0][1])
         self.assertFalse(ofp.is_publish_as_layer())
-        self.assertEqual('', ofp.get_value())
+        self.assertEqual('test content', ofp.get_value())
 
     def test_image_geotiff_output_type_from_ini(self):
         ini_text = '''[Output2]
@@ -374,7 +374,7 @@ class TestComputationJobOutputs(unittest.TestCase):
         self.assertEqual("textual", ofp.get_type())
         self.assertIn(ofp.as_json_string(), self.result1_DLR[0][1])
         self.assertFalse(ofp.is_publish_as_layer())
-        self.assertEqual('', ofp.get_value())
+        self.assertEqual('test content', ofp.get_value())
 
     def test_image_geotiff_output_type(self):
         rfp = RawFileParameter(
