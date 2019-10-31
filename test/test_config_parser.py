@@ -20,9 +20,9 @@ class TestConfigParser(unittest.TestCase):
     DEFAULT_ITEMS = [
         ('service', 'Service'), ('namespace', 'default'), ('description', 'foo service'),
         ('executable_path', '\\code\\etl'), ('executable_cmd', 'python %(executable_path)s\\etl.py'),
-        ('output_dir', '\\tmp\\oaaOnDemand'), ('unique_execution_id', '123'),
+        ('output_dir', 'src\\wpsremote\\xmpp_data\\test\\tmp'), ('unique_execution_id', '123'),
         ('workdir', '%(output_dir)s\\%(unique_execution_id)s'), ('active', 'True'),
-        ('max_running_time_seconds', '300'), ('servicepassword', 'admin')
+        ('max_running_time_seconds', '10'), ('servicepassword', 'admin'), ('load_average_scan_minutes', '1')
     ]
     CONFIG_SECTIONS = [
         'Input1', 'Action1', 'Input2', 'Action2', 'Input3', 'Action3', 'Input4', 'Action4', 'Const1', 'Action5',
@@ -64,7 +64,7 @@ class TestConfigParser(unittest.TestCase):
         options = [
             'class', 'input_ref', 'alias', 'template', 'service', 'namespace', 'description',
             'executable_path', 'executable_cmd', 'output_dir', 'unique_execution_id', 'workdir',
-            'active', 'max_running_time_seconds', 'servicepassword'
+            'active', 'max_running_time_seconds', 'servicepassword', 'load_average_scan_minutes'
         ]
         cp = configInstance.create("./src/wpsremote/xmpp_data/test/test_service.config")
         opts = cp.options("Action1")
@@ -95,12 +95,13 @@ class TestConfigParser(unittest.TestCase):
         items_list = [
             ('service', 'Service'), ('namespace', 'default'), ('description', 'foo service'),
             ('executable_path', '\\code\\etl'), ('executable_cmd', 'python \\code\\etl\\etl.py'),
-            ('output_dir', '\\tmp\\oaaOnDemand'), ('unique_execution_id', '123'),
-            ('workdir', '\\tmp\\oaaOnDemand\\123'), ('active', 'True'), ('max_running_time_seconds', '300'),
-            ('servicepassword', 'admin'), ('class', 'updateJSONfile'), ('input_ref', 'timeHorizon'),
+            ('output_dir', 'src\\wpsremote\\xmpp_data\\test\\tmp'), ('unique_execution_id', '123'),
+            ('workdir', 'src\\wpsremote\\xmpp_data\\test\\tmp\\123'), ('active', 'True'),
+            ('max_running_time_seconds', '10'), ('servicepassword', 'admin'), ('class', 'updateJSONfile'),
+            ('input_ref', 'timeHorizon'),
             ('source_filepath', '.\\configs\\OAAonDemand\\CMREOAA_MainConfigFile_template.json'),
-            ('target_filepath', '\\tmp\\oaaOnDemand\\123\\config.json'),
-            ('json_path_expr', "['Config']['timeHorizon']")
+            ('target_filepath', 'src\\wpsremote\\xmpp_data\\test\\tmp\\123\\config.json'),
+            ('json_path_expr', "['Config']['timeHorizon']"), ('load_average_scan_minutes', '1')
         ]
         cp = configInstance.create("./src/wpsremote/xmpp_data/test/test_service.config")
         for i in cp.items("Action3"):
@@ -171,7 +172,7 @@ class TestConfigParser(unittest.TestCase):
             self.assertIn(i, float_list)
 
     def test_get_list_path_impl(self):
-        path_list = ['\\tmp\\oaaOnDemand\\123', '\\tmp\\oaaOnDemand']
+        path_list = ['src\\wpsremote\\xmpp_data\\test\\tmp\\123', 'src\\wpsremote\\xmpp_data\\test\\tmp']
         cp = configInstance.create("./src/wpsremote/xmpp_data/test/test_service.config")
         items = configInstance.get_list_path_impl(cp, "Input1", "path_list")
         for i in items:
@@ -187,7 +188,7 @@ class TestConfigParser(unittest.TestCase):
         cp = configInstance.create("./src/wpsremote/xmpp_data/test/test_service.config")
         item = configInstance.get_path(cp, "DEFAULT", "output_dir")
         self.assertIsInstance(item, path.path)
-        self.assertEqual("\\tmp\\oaaOnDemand", item)
+        self.assertEqual("src\\wpsremote\\xmpp_data\\test\\tmp", item)
 
 
 if __name__ == '__main__':
