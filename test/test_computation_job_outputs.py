@@ -5,6 +5,7 @@
 # application directory.
 
 import unittest
+import os
 import wpsremote.ConfigParser as ConfigParser
 from wpsremote import mockutils
 from wpsremote.output_file_parameter import (
@@ -128,6 +129,7 @@ class TestComputationJobOutputs(unittest.TestCase):
     ]
 
     def test_string_output_type_from_ini(self):
+        os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
         ini_text = '''[Output1]
         name = result1
         type = string
@@ -355,6 +357,7 @@ class TestComputationJobOutputs(unittest.TestCase):
         self.assertEqual('', owcfp.get_value())
 
     def test_string_output_type(self):
+        os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
         ofp = OutputFileParameter(
             "result1",
             {

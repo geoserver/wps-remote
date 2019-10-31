@@ -7,7 +7,7 @@
 import unittest
 import json
 import wpsremote.ConfigParser as ConfigParser
-
+import os
 from wpsremote import path
 from wpsremote import computation_job_param
 from wpsremote import computation_job_inputs
@@ -124,6 +124,7 @@ class TestComputationJobInputs(unittest.TestCase):
         self.assertEquals(actions.get_cmd_line(), "--mypar1=1 --mypar2=abc")
 
     def test_create_json_file_action(self):
+        os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
         p1 = computation_job_param.ComputationJobParam("mypar1", "application/json", "par 1", "par descr 1")
         inputs = computation_job_inputs.ComputationJobInputs()
         inputs.add_input(p1)
@@ -142,6 +143,7 @@ class TestComputationJobInputs(unittest.TestCase):
         self.assertTrue(a1.exists())
 
     def test_create_2_json_file_action(self):
+        os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
         p1 = computation_job_param.ComputationJobParam("mypar1",
                                                        "application/json",
                                                        "par 1",
@@ -164,6 +166,7 @@ class TestComputationJobInputs(unittest.TestCase):
         self.assertTrue(a1.exists())
 
     def test_update_json_file_action_with_int(self):
+        os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
         target_json_file = path.path("./json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
@@ -187,6 +190,7 @@ class TestComputationJobInputs(unittest.TestCase):
         self.assertTrue(100, j['Config']['nEvaluations'])
 
     def test_update_json_file_action_with_string(self):
+        os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
         target_json_file = path.path("./json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
@@ -432,6 +436,7 @@ template = -name value'''
         self.assertEquals(actions.get_cmd_line(), '-w . --k=2.4')
 
     def test_update_json_list_in_file(self):
+        os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
         target_json_file = path.path("./json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
@@ -452,6 +457,7 @@ template = -name value'''
         self.assertTrue(45.5, j['Config']['latLim'][1])
 
     def test_update_json_list_in_file_two_times(self):
+        os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
         target_json_file = path.path("./json_out.json")
         if target_json_file.exists():
             target_json_file.remove()
@@ -478,6 +484,7 @@ template = -name value'''
         self.assertTrue(76.5, j['Config']['latLim'][1])
 
     def test_copyfile(self):
+        os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
         target_json_file = path.path("./copy_of_source_json.json")
         if target_json_file.exists():
             target_json_file.remove()
