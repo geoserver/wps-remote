@@ -19,3 +19,5 @@ coverage run --source=src test/test_bus_independent_messages.py
 echo "Running... test_bot"
 coverage run --source=src test/test_bot.py
 
+echo "Running... test_path"
+coverage run --source=src test/test_path.py
