@@ -17,6 +17,7 @@ class TestPath(unittest.TestCase):
     LIST_DIRS = [
         path.path('./src/wpsremote/xmpp_data/test/asset_schema.json'),
         path.path('./src/wpsremote/xmpp_data/test/test_dir'),
+        path.path('./src/wpsremote/xmpp_data/test/resource_dir'),
         path.path('./src/wpsremote/xmpp_data/test/wcsOAAonDemand_template.properties.txt'),
         path.path('./src/wpsremote/xmpp_data/test/service.config'),
         path.path('./src/wpsremote/xmpp_data/test/OAAonDemandWrapper_template.properties.txt'),
@@ -29,7 +30,10 @@ class TestPath(unittest.TestCase):
         path.path('./src/wpsremote/xmpp_data/test/CMREOAA_MainConfigFile_template.json'),
         path.path('./src/wpsremote/xmpp_data/test/logger_test.properties')
     ]
-    DIRS = [path.path('./src/wpsremote/xmpp_data/test/test_dir')]
+    DIRS = [
+        path.path('./src/wpsremote/xmpp_data/test/test_dir'),
+        path.path('./src/wpsremote/xmpp_data/test/resource_dir')
+    ]
 
     def test_path_methods(self):
         p = path.path("test/path")
@@ -65,10 +69,10 @@ class TestPath(unittest.TestCase):
         with self.assertRaises(OSError):
             p.listdir(pattern=None)
         existing_path = path.path("./src/wpsremote/xmpp_data/test")
-        self.assertEqual(len(existing_path.listdir(pattern=None)), 12)
+        self.assertEqual(len(existing_path.listdir(pattern=None)), 13)
         for d in existing_path.listdir(pattern=None):
             self.assertIn(d, TestPath.LIST_DIRS)
-        self.assertEqual(len(existing_path.dirs(pattern=None)), 1)
+        self.assertEqual(len(existing_path.dirs(pattern=None)), 2)
         for d in existing_path.dirs(pattern=None):
             self.assertIn(d, TestPath.DIRS)
         self.assertEqual(len(existing_path.files()), 11)
