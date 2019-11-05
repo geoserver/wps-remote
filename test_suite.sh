@@ -24,3 +24,9 @@ coverage run --source=src test/test_path.py
 
 echo "Running... test_ftp_uploads"
 coverage run --source=src test/test_ftp_uploads.py
+
+echo "Running... test_action"
+coverage run --source=src test/test_action.py
+
+echo "Running... test_resource_cleaner"
+coverage run --source=src test/test_resource_cleaner.py
