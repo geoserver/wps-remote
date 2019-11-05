@@ -56,7 +56,7 @@ class ResourceMonitor(threading.Thread):
                     path = process.cwd()  # noqa
                     cmdline = ' '.join(process.cmdline())  # noqa
 
-                    print("Get the process info using (path, name, cmdline): [%s / %s / %s]" % (path, name, cmdline))
+                    # print("Get the process info using (path, name, cmdline): [%s / %s / %s]" % (path, name, cmdline))
                     for _p in proc_defs:
                         # logger.info("Look for process: [%s] / Status [%s]" % (_p, status.lower()))
                         # print("Look for process: [%s] / Status [%s]" % (_p, status.lower()))
