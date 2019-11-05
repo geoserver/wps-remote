@@ -21,3 +21,6 @@ coverage run --source=src test/test_bot.py
 
 echo "Running... test_path"
 coverage run --source=src test/test_path.py
+
+echo "Running... test_ftp_uploads"
+coverage run --source=src test/test_ftp_uploads.py
