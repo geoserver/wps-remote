@@ -11,15 +11,15 @@ __copyright__ = "Copyright 2016 Open Source Geospatial Foundation - all rights r
 __license__ = "GPL"
 
 
-class BusInipendentMessage(object):
+class BusIndependentMessage(object):
     pass
 
 
-class PresenceMessage(BusInipendentMessage):
+class PresenceMessage(BusIndependentMessage):
     pass
 
 
-class InviteMessage(BusInipendentMessage):
+class InviteMessage(BusIndependentMessage):
 
     def __init__(self, payload, originator):
         self._originator = originator
@@ -29,7 +29,7 @@ class InviteMessage(BusInipendentMessage):
         return self._originator
 
 
-class RegisterMessage(BusInipendentMessage):
+class RegisterMessage(BusIndependentMessage):
 
     def __init__(self, originator, service, namespace, descritpion, par, output):
         self._originator = originator
@@ -46,7 +46,7 @@ class RegisterMessage(BusInipendentMessage):
         return self._originator
 
 
-class ExecuteMessage(BusInipendentMessage):
+class ExecuteMessage(BusIndependentMessage):
 
     @staticmethod
     def deserialize(filepath):
@@ -77,14 +77,14 @@ class ExecuteMessage(BusInipendentMessage):
         pickle.dump(self, fileptr)
 
 
-class ProgressMessage(BusInipendentMessage):
+class ProgressMessage(BusIndependentMessage):
 
     def __init__(self, originator, progress):
         self.originator = originator
         self.progress = progress
 
 
-class LogMessage(BusInipendentMessage):
+class LogMessage(BusIndependentMessage):
 
     def __init__(self, originator, level, msg):
         self.level = level
@@ -92,7 +92,7 @@ class LogMessage(BusInipendentMessage):
         self.msg = msg
 
 
-class CompletedMessage(BusInipendentMessage):
+class CompletedMessage(BusIndependentMessage):
 
     def __init__(self, originator, base_url, outputs):
         self.originator = originator
@@ -103,14 +103,14 @@ class CompletedMessage(BusInipendentMessage):
         return self._outputs
 
 
-class FinishMessage(BusInipendentMessage):
+class FinishMessage(BusIndependentMessage):
 
     def __init__(self, payload, originator):
         self.originator = originator
         self.payload = payload
 
 
-class ErrorMessage(BusInipendentMessage):
+class ErrorMessage(BusIndependentMessage):
 
     def __init__(self, originator, msg, id=None):
         self.originator = originator
@@ -118,14 +118,14 @@ class ErrorMessage(BusInipendentMessage):
         self.id = id
 
 
-class AbortMessage(BusInipendentMessage):
+class AbortMessage(BusIndependentMessage):
 
     def __init__(self, payload, originator):
         self.originator = originator
         self.payload = payload
 
 
-class GetLoadAverageMessage(BusInipendentMessage):
+class GetLoadAverageMessage(BusIndependentMessage):
 
     def __init__(self, payload, originator):
         self._originator = originator
@@ -135,7 +135,7 @@ class GetLoadAverageMessage(BusInipendentMessage):
         return self._originator
 
 
-class LoadAverageMessage(BusInipendentMessage):
+class LoadAverageMessage(BusIndependentMessage):
 
     def __init__(self, originator, outputs):
         self.originator = originator

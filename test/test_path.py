@@ -4,6 +4,7 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
+import sys
 import unittest
 import wpsremote.path as path
 
@@ -84,7 +85,11 @@ class TestPath(unittest.TestCase):
             [path.path('./src/wpsremote/xmpp_data/test/test_dir')]
         )
         existing_file = path.path("./src/wpsremote/xmpp_data/test/test_file")
-        self.assertIsInstance(existing_file.open(), file)
+        if sys.version_info[0] < 3:
+            self.assertIsInstance(existing_file.open(), file)
+        else:
+            from io import IOBase
+            self.assertIsInstance(existing_file.open(), IOBase)
         self.assertEqual(existing_file.bytes(), "test content")
         existing_file.write_bytes("test file to write")
         self.assertEqual(existing_file.bytes(), "test file to write")

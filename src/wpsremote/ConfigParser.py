@@ -313,7 +313,7 @@ class RawConfigParser:
 
         Return list of successfully read files.
         """
-        if isinstance(filenames, basestring):
+        if isinstance(filenames, str):
             filenames = [filenames]
         read_ok = []
         for filename in filenames:
@@ -758,7 +758,7 @@ class SafeConfigParser(ConfigParser):
         # - we do not allow valueless options, or
         # - we allow valueless options but the value is not None
         if self._optcre is self.OPTCRE or value:
-            if not isinstance(value, basestring):
+            if not isinstance(value, str):
                 raise TypeError("option values must be strings")
         if value is not None:
             # check for bad percent signs:

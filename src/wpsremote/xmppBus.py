@@ -10,7 +10,7 @@ import traceback
 import urllib
 import pickle
 import sleekxmpp
-import busIndipendentMessages
+import busIndependentMessages
 import xmppMessages
 import bus
 import sys
@@ -129,21 +129,21 @@ class XMPPBus(bus.Bus):
                     logging.info("handle request message from WPS " + str(payload))
                     variables = dict([tuple(each.strip().split('=')) for each in payload.split('&')])
                     requestParams = pickle.loads(urllib.unquote(variables['message'])) if variables['message'] is not None else None  # noqa
-                    return busIndipendentMessages.ExecuteMessage(msg['from'],
+                    return busIndependentMessages.ExecuteMessage(msg['from'],
                                                                  variables['id'],
                                                                  variables['baseURL'],
                                                                  requestParams)
                 elif ("topic=invite" in payload):
                     logging.info("handle invite message from WPS " + str(payload))
-                    return busIndipendentMessages.InviteMessage(payload, msg['from'])
+                    return busIndependentMessages.InviteMessage(payload, msg['from'])
                 elif ("topic=finish" in payload):
                     logging.info("handle finish message from WPS " + str(payload))
-                    return busIndipendentMessages.FinishMessage(payload, msg['from'])
+                    return busIndependentMessages.FinishMessage(payload, msg['from'])
                 elif ("topic=abort" in payload):
                     logging.info("handle abort message from WPS " + str(payload))
-                    return busIndipendentMessages.AbortMessage(payload, msg['from'])
+                    return busIndependentMessages.AbortMessage(payload, msg['from'])
                 elif ("topic=getloadavg" in payload):
-                    return busIndipendentMessages.GetLoadAverageMessage(payload, msg['from'])
+                    return busIndependentMessages.GetLoadAverageMessage(payload, msg['from'])
                 else:
                     pass
         return None
@@ -159,7 +159,7 @@ class XMPPBus(bus.Bus):
         pass
 
     def Convert(self, busIndipendentMsg):
-        if (isinstance(busIndipendentMsg, busIndipendentMessages.RegisterMessage)):
+        if (isinstance(busIndipendentMsg, busIndependentMessages.RegisterMessage)):
             return xmppMessages.XMPPRegisterMessage(self,
                                                     busIndipendentMsg.originator(),
                                                     busIndipendentMsg.service,
@@ -168,36 +168,36 @@ class XMPPBus(bus.Bus):
                                                     busIndipendentMsg.input_parameters(),
                                                     busIndipendentMsg.output)
 
-        if (isinstance(busIndipendentMsg, busIndipendentMessages.ProgressMessage)):
+        if (isinstance(busIndipendentMsg, busIndependentMessages.ProgressMessage)):
             return xmppMessages.XMPPProgressMessage(busIndipendentMsg.originator,
                                                     self,
                                                     busIndipendentMsg.progress)
 
-        if (isinstance(busIndipendentMsg, busIndipendentMessages.LogMessage)):
+        if (isinstance(busIndipendentMsg, busIndependentMessages.LogMessage)):
             return xmppMessages.XMPPLogMessage(busIndipendentMsg.originator,
                                                self,
                                                busIndipendentMsg.level,
                                                busIndipendentMsg.msg)
 
-        if (isinstance(busIndipendentMsg, busIndipendentMessages.CompletedMessage)):
+        if (isinstance(busIndipendentMsg, busIndependentMessages.CompletedMessage)):
             return xmppMessages.XMPPCompletedMessage(busIndipendentMsg.originator,
                                                      self,
                                                      busIndipendentMsg.base_url,
                                                      busIndipendentMsg.outputs())
 
-        if (isinstance(busIndipendentMsg, busIndipendentMessages.ErrorMessage)):
+        if (isinstance(busIndipendentMsg, busIndependentMessages.ErrorMessage)):
             return xmppMessages.XMPPErrorMessage(busIndipendentMsg.originator,
                                                  self,
                                                  busIndipendentMsg.msg,
                                                  busIndipendentMsg.id)
 
-        if (isinstance(busIndipendentMsg, busIndipendentMessages.AbortMessage)):
+        if (isinstance(busIndipendentMsg, busIndependentMessages.AbortMessage)):
             return xmppMessages.XMPPErrorMessage(busIndipendentMsg.originator,
                                                  self,
                                                  busIndipendentMsg.msg,
                                                  busIndipendentMsg.id)
 
-        if (isinstance(busIndipendentMsg, busIndipendentMessages.LoadAverageMessage)):
+        if (isinstance(busIndipendentMsg, busIndependentMessages.LoadAverageMessage)):
             return xmppMessages.XMPPLoadAverageMessage(busIndipendentMsg.originator,
                                                        self,
                                                        busIndipendentMsg.outputs())

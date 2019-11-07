@@ -15,7 +15,7 @@ import traceback
 import base64
 import sys
 
-import busIndipendentMessages
+import busIndependentMessages
 import computation_job_inputs
 import computational_job_input_actions
 import configInstance
@@ -141,8 +141,8 @@ class ProcessBot(object):
         self._finished = False
 
         # event handlers
-        self.bus.RegisterMessageCallback(busIndipendentMessages.FinishMessage, self.handle_finish)
-        self.bus.RegisterMessageCallback(busIndipendentMessages.AbortMessage, self.handle_abort)
+        self.bus.RegisterMessageCallback(busIndependentMessages.FinishMessage, self.handle_finish)
+        self.bus.RegisterMessageCallback(busIndependentMessages.AbortMessage, self.handle_abort)
 
     def exit(self, return_code, exception=None):
         # if exception:
@@ -225,7 +225,7 @@ class ProcessBot(object):
                 self.bus.xmpp.reconnect()
                 self.bus.xmpp.send_presence()
             if self.bus.state() == 'connected':
-                self.bus.SendMessage(busIndipendentMessages.
+                self.bus.SendMessage(busIndependentMessages.
                                      LogMessage(self._remote_wps_endpoint,
                                                 "INFO",
                                                 "start parsing stdout of created process " + self.service))
@@ -263,7 +263,7 @@ class ProcessBot(object):
                                                 " Could not send info message to GeoServer Endpoint " +
                                                 str(self._remote_wps_endpoint))
                             if self.bus.state() == 'connected':
-                                self.bus.SendMessage(busIndipendentMessages.
+                                self.bus.SendMessage(busIndependentMessages.
                                                      ProgressMessage(self._remote_wps_endpoint,
                                                                      float(res.group(1).strip())))
                             # match = True
@@ -280,7 +280,7 @@ class ProcessBot(object):
                                                 " Could not send info message to GeoServer Endpoint " +
                                                 str(self._remote_wps_endpoint))
                             if self.bus.state() == 'connected':
-                                self.bus.SendMessage(busIndipendentMessages.
+                                self.bus.SendMessage(busIndependentMessages.
                                                      LogMessage(self._remote_wps_endpoint,
                                                                 res.group(1).strip(),
                                                                 res.group(2).strip()))
@@ -298,7 +298,7 @@ class ProcessBot(object):
                                                 " Could not send info message to GeoServer Endpoint " +
                                                 str(self._remote_wps_endpoint))
                             if self.bus.state() == 'connected':
-                                self.bus.SendMessage(busIndipendentMessages.
+                                self.bus.SendMessage(busIndependentMessages.
                                                      ErrorMessage(self._remote_wps_endpoint,
                                                                   res.group(2).strip()))
                             # match = True
@@ -357,7 +357,7 @@ class ProcessBot(object):
                                     str(self._remote_wps_endpoint))
                 if self.bus.state() == 'connected':
                     logger.info("sending 'completed' message tentative #" + str(counter))
-                    self.bus.SendMessage(busIndipendentMessages.
+                    self.bus.SendMessage(busIndependentMessages.
                                          CompletedMessage(self._remote_wps_endpoint,
                                                           self._remote_wps_baseurl, outputs))
                     counter = counter + 1
@@ -411,7 +411,7 @@ class ProcessBot(object):
                             " Could not send info message to GeoServer Endpoint " +
                             str(self._remote_wps_endpoint))
         if self.bus.state() == 'connected':
-            self.bus.SendMessage(busIndipendentMessages.ErrorMessage(self._remote_wps_endpoint, msg))
+            self.bus.SendMessage(busIndependentMessages.ErrorMessage(self._remote_wps_endpoint, msg))
         else:
             try:
                 self.bus.xmpp.reconnect()
@@ -419,7 +419,7 @@ class ProcessBot(object):
                 # self.bus.xmpp.get_roster()
 
                 if self.bus.state() == 'connected':
-                    self.bus.SendMessage(busIndipendentMessages.ErrorMessage(self._remote_wps_endpoint, msg))
+                    self.bus.SendMessage(busIndependentMessages.ErrorMessage(self._remote_wps_endpoint, msg))
                 else:
                     sys.stdout.write("[XMPP Disconnected]: Process <UID>" +
                                      str(self._uniqueExeId) +

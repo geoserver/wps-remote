@@ -35,7 +35,9 @@ class GDALTest(object):
         output_dir = '/tmp/%s' % self.args.execution_id
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        # trg = '%s/../../../output/%s/%s.shp' % (os.path.dirname(os.path.abspath(__file__)), self.args.execution_id, dst)
+        """
+        trg = '%s/../../../output/%s/%s.shp' % (os.path.dirname(os.path.abspath(__file__)), self.args.execution_id, dst)
+        """
         trg = '%s/%s.shp' % (output_dir, dst)
 
         # fullCmd = ' '.join([gdalContour, cmd, self.youCanQuoteMe(src), \
@@ -59,9 +61,11 @@ class GDALTest(object):
         time.sleep(30)   # Delays for 30 seconds. You can also use a float value.
 
         if (ret == 0):
-            # zipf = zipfile.ZipFile(self.args.workdir+'/contour.zip', 'w')
-            # self.zipdir(self.args.workdir+'/', zipf)
-            # output_dir = '%s/../../../output/%s' % (os.path.dirname(os.path.abspath(__file__)), self.args.execution_id)
+            """
+            zipf = zipfile.ZipFile(self.args.workdir+'/contour.zip', 'w')
+            self.zipdir(self.args.workdir+'/', zipf)
+            output_dir = '%s/../../../output/%s' % (os.path.dirname(os.path.abspath(__file__)), self.args.execution_id)
+            """
             zipf = zipfile.ZipFile(output_dir+'/contour.zip', 'w')
             self.zipdir(output_dir+'/', zipf)
             zipf.close()
