@@ -4,15 +4,16 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
-import subprocess
-import logging.config
-import logging
-import argparse
-import sys
 import os
+import sys
+import time
 import uuid
 import zipfile
-import time
+import argparse
+import subprocess
+
+import logging
+import logging.config
 
 # constants
 # id = os.urandom(10)
@@ -31,7 +32,11 @@ class GDALTest(object):
         self.logger.info("ProgressInfo:0.0%")
 
     def run(self):
-        trg = '%s/../../../output/%s/%s.shp' % (os.path.dirname(os.path.abspath(__file__)), self.args.execution_id, dst)
+        output_dir = '/tmp/%s' % self.args.execution_id
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        # trg = '%s/../../../output/%s/%s.shp' % (os.path.dirname(os.path.abspath(__file__)), self.args.execution_id, dst)
+        trg = '%s/%s.shp' % (output_dir, dst)
 
         # fullCmd = ' '.join([gdalContour, cmd, self.youCanQuoteMe(src), \
         #     self.youCanQuoteMe(dst), interval, self.args.interval])
@@ -56,7 +61,7 @@ class GDALTest(object):
         if (ret == 0):
             # zipf = zipfile.ZipFile(self.args.workdir+'/contour.zip', 'w')
             # self.zipdir(self.args.workdir+'/', zipf)
-            output_dir = '%s/../../../output/%s' % (os.path.dirname(os.path.abspath(__file__)), self.args.execution_id)
+            # output_dir = '%s/../../../output/%s' % (os.path.dirname(os.path.abspath(__file__)), self.args.execution_id)
             zipf = zipfile.ZipFile(output_dir+'/contour.zip', 'w')
             self.zipdir(output_dir+'/', zipf)
             zipf.close()

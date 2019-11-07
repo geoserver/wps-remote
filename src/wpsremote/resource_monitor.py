@@ -69,7 +69,7 @@ class ResourceMonitor(threading.Thread):
                 import traceback
                 tb = traceback.format_exc()
                 logger.debug(tb)
-                print(tb)
+                # print(tb)
         return False
 
     def update_stats(self):
