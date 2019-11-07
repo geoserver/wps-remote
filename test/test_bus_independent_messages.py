@@ -9,7 +9,7 @@ import unittest
 import mock
 import pickle
 import wpsremote.configInstance as configInstance
-from wpsremote.busIndipendentMessages import (
+from wpsremote.busIndependentMessages import (
     RegisterMessage, ProgressMessage, LogMessage, CompletedMessage, ErrorMessage, AbortMessage,
     LoadAverageMessage, InviteMessage, GetLoadAverageMessage, ExecuteMessage, FinishMessage
 )

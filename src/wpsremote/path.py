@@ -72,18 +72,6 @@ try:
 except AttributeError:
     pass
 
-# Pre-2.3 workaround for booleans
-try:
-    True, False
-except NameError:
-    True, False = 1, 0
-
-# Pre-2.3 workaround for basestring.
-try:
-    basestring
-except NameError:
-    basestring = (str, unicode)
-
 # Universal newline support
 _textmode = 'r'
 if hasattr(file, 'newlines'):
@@ -117,7 +105,7 @@ class path(_base):
         return self.__class__(resultStr)
 
     def __radd__(self, other):
-        if isinstance(other, basestring):
+        if isinstance(other, str):
             return self.__class__(other.__add__(self))
         else:
             return NotImplemented

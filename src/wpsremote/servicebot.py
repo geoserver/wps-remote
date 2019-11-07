@@ -15,7 +15,7 @@ import introspection
 
 from collections import OrderedDict
 
-import busIndipendentMessages
+import busIndependentMessages
 
 import configInstance
 import computation_job_inputs
@@ -95,11 +95,11 @@ class ServiceBot(object):
         # create the concrete bus object
         self.bus = introspection.get_class_three_arg(bus_class_name, remote_config, self.service, self.namespace)
 
-        self.bus.RegisterMessageCallback(busIndipendentMessages.InviteMessage, self.handle_invite)
-        self.bus.RegisterMessageCallback(busIndipendentMessages.ExecuteMessage, self.handle_execute)
+        self.bus.RegisterMessageCallback(busIndependentMessages.InviteMessage, self.handle_invite)
+        self.bus.RegisterMessageCallback(busIndependentMessages.ExecuteMessage, self.handle_execute)
 
         # -- Register here the callback to the "getloadavg" message
-        self.bus.RegisterMessageCallback(busIndipendentMessages.GetLoadAverageMessage, self.handle_getloadavg)
+        self.bus.RegisterMessageCallback(busIndependentMessages.GetLoadAverageMessage, self.handle_getloadavg)
 
         # self._lock_running_process =  thread.allocate_lock() #critical section
         # to access running_process from separate threads
@@ -144,7 +144,7 @@ class ServiceBot(object):
                 self.bus.xmpp.reconnect()
                 self.bus.xmpp.send_presence()
             self.bus.SendMessage(
-                busIndipendentMessages.RegisterMessage(invite_message.originator(),
+                busIndependentMessages.RegisterMessage(invite_message.originator(),
                                                        self.service,
                                                        self.namespace,
                                                        self.description,
@@ -231,7 +231,7 @@ class ServiceBot(object):
                     self.bus.xmpp.reconnect()
                     self.bus.xmpp.send_presence()
                 self.bus.SendMessage(
-                    busIndipendentMessages.LoadAverageMessage(
+                    busIndependentMessages.LoadAverageMessage(
                         getloadavg_message.originator(),
                         outputs
                     )
@@ -297,17 +297,17 @@ class ServiceBot(object):
             logger.debug("gs_UID[%s] / gs_JID[%s]" % (gs_UID, gs_JID))
             try:
                 if gs_UID and gs_JID:
-                    self.bus.SendMessage(busIndipendentMessages.ErrorMessage(
+                    self.bus.SendMessage(busIndependentMessages.ErrorMessage(
                         gs_JID, msg + " Exception: " + str(gs_MSG), gs_UID))
                 elif self._remote_wps_endpoint:
-                    self.bus.SendMessage(busIndipendentMessages.ErrorMessage(self._remote_wps_endpoint, msg))
+                    self.bus.SendMessage(busIndependentMessages.ErrorMessage(self._remote_wps_endpoint, msg))
                 else:
                     exe_msg = None
                     try:
                         logger.debug("Trying to recover Originator from Process Params!")
-                        exe_msg = busIndipendentMessages.ExecuteMessage.deserialize(param_filepath)
+                        exe_msg = busIndependentMessages.ExecuteMessage.deserialize(param_filepath)
                         if exe_msg.originator():
-                            self.bus.SendMessage(busIndipendentMessages.
+                            self.bus.SendMessage(busIndependentMessages.
                                                  ErrorMessage(exe_msg.originator(),
                                                               msg +
                                                               (" Exception: remote process exception. "
@@ -336,7 +336,7 @@ class ServiceBot(object):
                 self.bus.xmpp.reconnect()
                 self.bus.xmpp.send_presence()
             if self._remote_wps_endpoint:
-                self.bus.SendMessage(busIndipendentMessages.ErrorMessage(self._remote_wps_endpoint, msg))
+                self.bus.SendMessage(busIndependentMessages.ErrorMessage(self._remote_wps_endpoint, msg))
             else:
                 msg = "Process " + str(self.service) + " STALLED! Don't know who to send ERROR Message..."
                 logger.error(msg)

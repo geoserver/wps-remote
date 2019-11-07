@@ -15,7 +15,7 @@ import traceback
 import servicebot
 import processbot
 import configInstance
-import busIndipendentMessages
+import busIndependentMessages
 import resource_cleaner
 
 __author__ = "Alessio Fabiani"
@@ -117,7 +117,7 @@ class WPSAgentProcess(WPSAgent):
             config_dir_service = path.path(args.serviceconfig).dirname()
             # deserilize pickled object with process startup info to get the unique_id
             # to create the sand box work dir for the process execution
-            self.exe_msg = busIndipendentMessages.ExecuteMessage.deserialize(args.params)
+            self.exe_msg = busIndependentMessages.ExecuteMessage.deserialize(args.params)
 
             # read the service config file with interpolation=true (raw=False) to get
             # the proper sand box work dir using the unique id as input parameter

@@ -45,7 +45,7 @@ class OutputFileParameter(object):
 
         for k, v in d.items():
             if hasattr(self, "_" + k):
-                if template_vars_for_param_types is not None and isinstance(v, basestring):
+                if template_vars_for_param_types is not None and isinstance(v, str):
                     for var, val in template_vars_for_param_types.items():
                         if var in v:
                             v = v.replace("%" + var, val)
@@ -168,7 +168,7 @@ class RawFileParameter(object):
 
         for k, v in d.items():
             if hasattr(self, "_" + k):
-                if template_vars_for_param_types is not None and isinstance(v, basestring):
+                if template_vars_for_param_types is not None and isinstance(v, str):
                     for var, val in template_vars_for_param_types.items():
                         if var in v:
                             v = v.replace("%" + var, val)
@@ -292,7 +292,7 @@ class OWCFileParameter(object):
 
         for k, v in d.items():
             if hasattr(self, "_" + k):
-                if template_vars_for_param_types is not None and isinstance(v, basestring):
+                if template_vars_for_param_types is not None and isinstance(v, str):
                     for var, val in template_vars_for_param_types.items():
                         if var in v:
                             v = v.replace("%" + var, val)
