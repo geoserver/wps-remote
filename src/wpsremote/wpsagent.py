@@ -14,7 +14,7 @@ import traceback
 
 import servicebot
 import processbot
-import configInstance
+import config_instance
 import busIndependentMessages
 import resource_cleaner
 
@@ -122,13 +122,13 @@ class WPSAgentProcess(WPSAgent):
             # read the service config file with interpolation=true (raw=False) to get
             # the proper sand box work dir using the unique id as input parameter
             # args.remoteconfig, args.serviceconfig
-            serviceConfig = configInstance.create(args.serviceconfig,
-                                                  case_sensitive=True,
-                                                  variables={
-                                                    'unique_exe_id': self.exe_msg.UniqueId()
-                                                  },
-                                                  raw=False)
-            work_dir = serviceConfig.get_path("DEFAULT", "workdir")
+            service_config = config_instance.create(args.serviceconfig,
+                                                    case_sensitive=True,
+                                                    variables={
+                                                        'unique_exe_id': self.exe_msg.UniqueId()
+                                                    },
+                                                    raw=False)
+            work_dir = service_config.get_path("DEFAULT", "workdir")
 
             # ensure outdir exists
             if not work_dir.exists():

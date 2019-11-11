@@ -143,3 +143,13 @@ class LoadAverageMessage(BusIndependentMessage):
 
     def outputs(self):
         return self._outputs
+
+
+class CannotExecuteMessage(BusIndependentMessage):
+
+    def __init__(self, originator, outputs):
+        self.originator = originator
+        self._outputs = outputs
+
+    def outputs(self):
+        return self._outputs

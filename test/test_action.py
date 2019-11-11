@@ -7,7 +7,7 @@
 import unittest
 import os
 from wpsremote.action import CopyFile, CopyINIFileAddParam
-import wpsremote.configInstance as configInstance
+import wpsremote.config_instance as config_instance
 
 __author__ = "Alessio Fabiani"
 __copyright__ = "Copyright 2019 Open Source Geospatial Foundation - all rights reserved"
@@ -44,7 +44,7 @@ class TestAction(unittest.TestCase):
         self.assertFalse(os.path.isfile(copy_path))
         cifap.execute(input_values)
         self.assertTrue(os.path.isfile(copy_path))
-        config = configInstance.create(copy_path)
+        config = config_instance.create(copy_path)
         self.assertEqual("Another value", config.get("Input3", "another_param"))
         os.remove(copy_path)
 

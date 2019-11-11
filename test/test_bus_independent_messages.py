@@ -8,15 +8,17 @@ import os
 import unittest
 import mock
 import pickle
-import wpsremote.configInstance as configInstance
+import wpsremote.config_instance as config_instance
 from wpsremote.busIndependentMessages import (
     RegisterMessage, ProgressMessage, LogMessage, CompletedMessage, ErrorMessage, AbortMessage,
-    LoadAverageMessage, InviteMessage, GetLoadAverageMessage, ExecuteMessage, FinishMessage
+    LoadAverageMessage, InviteMessage, GetLoadAverageMessage, ExecuteMessage, FinishMessage,
+    CannotExecuteMessage
 )
 from wpsremote.xmppBus import XMPPBus
 from wpsremote.xmppMessages import (
     XMPPRegisterMessage, XMPPProgressMessage, XMPPLogMessage,
-    XMPPCompletedMessage, XMPPErrorMessage, XMPPLoadAverageMessage
+    XMPPCompletedMessage, XMPPErrorMessage, XMPPLoadAverageMessage,
+    XMPPCannotExecuteMessage
 )
 
 __author__ = "Alessio Fabiani"
@@ -30,7 +32,7 @@ os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 class TestBusIndependentMessages(unittest.TestCase):
 
     def setUp(self):
-        self.remote_config = configInstance.create(
+        self.remote_config = config_instance.create(
             "./src/wpsremote/xmpp_data/test/test_remote.config"
         )
         self.xmpp_bus = XMPPBus(self.remote_config, "service_name", "service_name_namespace")
@@ -131,7 +133,7 @@ class TestBusIndependentMessages(unittest.TestCase):
         self.assertEqual(c_msg.progress, 1.34)
         self.assertEqual(c_msg.xmppChannel, self.xmpp_bus)
 
-    def test_covert_log_message(self):
+    def test_convert_log_message(self):
         # LogMessage
         r_msg = LogMessage(self.from_obj_mock, "INFO", "test_message_text")
         c_msg = self.xmpp_bus.Convert(r_msg)
@@ -229,7 +231,7 @@ class TestBusIndependentMessages(unittest.TestCase):
         self.assertIsInstance(message, GetLoadAverageMessage)
         self.assertEqual(message.originator(), self.from_obj_mock)
 
-    def test_covert_load_average_message(self):
+    def test_convert_load_average_message(self):
         outputs = {
             'result1': {
                 "publish_layer_name": None,
@@ -248,6 +250,29 @@ class TestBusIndependentMessages(unittest.TestCase):
         self.assertIsInstance(c_msg, XMPPLoadAverageMessage)
         self.assertEqual(c_msg.originator, self.from_obj_mock)
         self.assertEqual(c_msg._outputs, outputs)
+        self.assertEqual(c_msg.send(), None)
+
+    def test_convert_cannot_execute_message(self):
+        outputs = {
+            'result1': {
+                "publish_layer_name": None,
+                "description": "WPS Resource Plain Text",
+                "title": None,
+                "output_mime_type": None,
+                "publish_default_style": None,
+                "publish_as_layer": None,
+                "type": "string",
+                "publish_target_workspace": None
+            }
+        }
+        # CannotExecuteMessage
+        r_msg = CannotExecuteMessage(self.from_obj_mock, outputs)
+        c_msg = self.xmpp_bus.Convert(r_msg)
+        self.assertIsInstance(c_msg, XMPPCannotExecuteMessage)
+        self.assertEqual(c_msg.originator, self.from_obj_mock)
+        self.assertEqual(c_msg._outputs, outputs)
+        self.assertEqual(c_msg.xmppChannel, self.xmpp_bus)
+        self.assertEqual(c_msg.send(), None)
 
     def test_clone_for_process(self):
         clone = self.xmpp_bus.clone_for_process("not_master")

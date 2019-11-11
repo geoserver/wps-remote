@@ -5,6 +5,7 @@
 # application directory.
 
 import re
+import json
 import psutil
 import thread
 import logging
@@ -17,7 +18,7 @@ from collections import OrderedDict
 
 import busIndependentMessages
 
-import configInstance
+import config_instance
 import computation_job_inputs
 import output_parameters
 import resource_cleaner
@@ -35,18 +36,56 @@ class ServiceBot(object):
     The script runs continuosly.
     """
 
-    def __init__(self, remote_config_filepath, service_config_filepath):
+    def _setup_resource_monitor(self):
+        # read remote config file
+        self._remote_config = config_instance.create(self._remote_config_filepath)
 
+        try:
+            self._process_blacklist = json.loads(self._remote_config.get("DEFAULT", "process_blacklist"))
+        except BaseException:
+            self._process_blacklist = []
+
+        try:
+            capacity = self._remote_config.getint("DEFAULT", "capacity")
+        except BaseException:
+            capacity = 100
+
+        try:
+            load_threshold = self._remote_config.getint("DEFAULT", "load_threshold")
+        except BaseException:
+            load_threshold = 100
+
+        try:
+            load_average_scan_minutes = self._remote_config.getint("DEFAULT", "load_average_scan_minutes")
+        except BaseException:
+            load_average_scan_minutes = 15
+
+        resource_monitor.ResourceMonitor.capacity = capacity
+        resource_monitor.ResourceMonitor.load_threshold = load_threshold
+        resource_monitor.ResourceMonitor.load_average_scan_minutes = load_average_scan_minutes
+
+    def _initialize_resource_monitor(self):
+        # Update Resource Monitoring Params from Config
+        self._setup_resource_monitor()
+
+        self._resource_monitor = resource_monitor.ResourceMonitor(
+            resource_monitor.ResourceMonitor.capacity,
+            resource_monitor.ResourceMonitor.load_threshold,
+            resource_monitor.ResourceMonitor.load_average_scan_minutes
+        )
+        self._resource_monitor.start()
+
+    def __init__(self, remote_config_filepath, service_config_filepath):
         # read remote config file
         self._remote_config_filepath = remote_config_filepath
-        remote_config = configInstance.create(self._remote_config_filepath)
+        self._remote_config = config_instance.create(self._remote_config_filepath)
         # identify the class implementation of the cominication bus
-        bus_class_name = remote_config.get("DEFAULT", "bus_class_name")
+        bus_class_name = self._remote_config.get("DEFAULT", "bus_class_name")
         # directory used to store file for resource cleaner
-        self._resource_file_dir = remote_config.get_path("DEFAULT", "resource_file_dir")
-        if remote_config.has_option("DEFAULT", "wps_execution_shared_dir"):
+        self._resource_file_dir = self._remote_config.get_path("DEFAULT", "resource_file_dir")
+        if self._remote_config.has_option("DEFAULT", "wps_execution_shared_dir"):
             # directory used to store the process encoded outputs (usually on a shared fs)
-            self._wps_execution_shared_dir = remote_config.get_path("DEFAULT", "wps_execution_shared_dir")
+            self._wps_execution_shared_dir = self._remote_config.get_path("DEFAULT", "wps_execution_shared_dir")
 
             # ensure outdir exists
             if not self._wps_execution_shared_dir.exists():
@@ -55,45 +94,41 @@ class ServiceBot(object):
             self._wps_execution_shared_dir = None
 
         # read service config, with raw=true that is without config file's value
-        # interpolation. Interpolation values are prodice only for the process bot
+        # interpolation. Interpolation values are produced only for the process bot
         # (request hanlder); for example the unique execution id value to craete
         # the sand box directory
         self._service_config_file = service_config_filepath
-        serviceConfig = configInstance.create(service_config_filepath,
-                                              case_sensitive=True,
-                                              variables={
-                                                'wps_execution_shared_dir': self._wps_execution_shared_dir
-                                              },
-                                              raw=True)
-        self.service = serviceConfig.get("DEFAULT", "service")  # WPS service name?
-        self.namespace = serviceConfig.get("DEFAULT", "namespace")
-        self.description = serviceConfig.get("DEFAULT", "description")  # WPS service description
-        self._active = serviceConfig.get("DEFAULT", "active").lower() == "true"  # True
-        self._output_dir = serviceConfig.get_path("DEFAULT", "output_dir")
-        self._max_running_time = datetime.timedelta(seconds=serviceConfig.getint("DEFAULT", "max_running_time_seconds"))
+        self._service_config = config_instance.create(service_config_filepath,
+                                                      case_sensitive=True,
+                                                      variables={
+                                                          'wps_execution_shared_dir': self._wps_execution_shared_dir
+                                                      },
+                                                      raw=True)
+        self.service = self._service_config.get("DEFAULT", "service")  # WPS service name?
+        self.namespace = self._service_config.get("DEFAULT", "namespace")
+        self.description = self._service_config.get("DEFAULT", "description")  # WPS service description
+        self._active = self._service_config.get("DEFAULT", "active").lower() == "true"  # True
+        self._output_dir = self._service_config.get_path("DEFAULT", "output_dir")
+        self._max_running_time = datetime.timedelta(
+            seconds=self._service_config.getint("DEFAULT", "max_running_time_seconds"))
 
-        try:
-            import json
-            self._process_blacklist = json.loads(serviceConfig.get("DEFAULT", "process_blacklist"))
-        except BaseException:
-            self._process_blacklist = []
-
+        _sections = self._service_config.sections()
         input_sections = OrderedDict()
-        for input_section in [s for s in serviceConfig.sections() if 'input' in s.lower() or 'const' in s.lower()]:
+        for input_section in [s for s in _sections if 'input' in s.lower() or 'const' in s.lower()]:
             # service bot doesn't have yet the execution unique id, thus the
-            # serviceConfig is read with raw=True to avoid config file variables
+            # service_config is read with raw=True to avoid config file variables
             # interpolation
-            input_sections[input_section] = serviceConfig.items_without_defaults(input_section, raw=True)
+            input_sections[input_section] = self._service_config.items_without_defaults(input_section, raw=True)
         self._input_parameters_defs = computation_job_inputs.ComputationJobInputs.create_from_config(input_sections)
 
         output_sections = OrderedDict()
-        for output_section in [s for s in serviceConfig.sections() if 'output' in s.lower()]:
-            output_sections[output_section] = serviceConfig.items_without_defaults(output_section, raw=True)
+        for output_section in [s for s in self._service_config.sections() if 'output' in s.lower()]:
+            output_sections[output_section] = self._service_config.items_without_defaults(output_section, raw=True)
         self._output_parameters_defs = output_parameters.OutputParameters.create_from_config(
             output_sections, self._wps_execution_shared_dir)
 
         # create the concrete bus object
-        self.bus = introspection.get_class_three_arg(bus_class_name, remote_config, self.service, self.namespace)
+        self.bus = introspection.get_class_three_arg(bus_class_name, self._remote_config, self.service, self.namespace)
 
         self.bus.RegisterMessageCallback(busIndependentMessages.InviteMessage, self.handle_invite)
         self.bus.RegisterMessageCallback(busIndependentMessages.ExecuteMessage, self.handle_execute)
@@ -110,12 +145,7 @@ class ServiceBot(object):
         self._remote_wps_endpoint = None
 
         # Allocate and start a Resource Monitoring Thread
-        try:
-            load_average_scan_minutes = serviceConfig.getint("DEFAULT", "load_average_scan_minutes")
-        except BaseException:
-            load_average_scan_minutes = 15
-        self._resource_monitor = resource_monitor.ResourceMonitor(load_average_scan_minutes)
-        self._resource_monitor.start()
+        self._initialize_resource_monitor()
 
     def get_resource_file_dir(self):
         return self._resource_file_dir
@@ -162,6 +192,17 @@ class ServiceBot(object):
         """Handler for WPS execute message."""
         logger = logging.getLogger("servicebot.handle_execute")
 
+        # read service config, with raw=true that is without config file's value
+        # interpolation. Interpolation values are prodice only for the process bot
+        # (request hanlder); for example the unique execution id value to craete
+        # the sand box directory
+        self._service_config = config_instance.create(self._service_config_file,
+                                                      case_sensitive=True,
+                                                      variables={
+                                                          'wps_execution_shared_dir': self._wps_execution_shared_dir
+                                                      },
+                                                      raw=True)
+
         # save execute messsage to tmp file to enable the process bot to read the inputs
         tmp_file = tempfile.NamedTemporaryFile(prefix='wps_params_', suffix=".tmp", delete=False)
         execute_message.serialize(tmp_file)
@@ -169,30 +210,95 @@ class ServiceBot(object):
         tmp_file.close()
         logger.debug("save parameters file for executing process " + self.service + " in " + param_filepath)
 
-        # create the Resource Cleaner file containing the process info. The
-        # "invoked_process.pid" will be set by the spawned process itself
+        # check if there are enough resources available to keep the exec-request in charge
+        _can_execute = True
+
+        # if the load average is above threshold then we cannot run another process
+        # and we should answer with a proper message
+        if self._resource_monitor.resource_load > self._resource_monitor.load_threshold:
+            _can_execute = False
+
+        # if there is at least a single blacklisted process running there is no avail
+        # capacity to run another process and we should answer with a proper message
+        if self._resource_monitor.proc_load > self._resource_monitor.load_threshold:
+            _can_execute = False
+
+        # compute residual capacity
+        _residual_capacity = self._resource_monitor.capacity - self._resource_monitor.load
+        if _residual_capacity <= 0:
+            _can_execute = False  # no residual capacity left, no execution
+
+        # Do we have enough capacity?
+        PCk = None
         try:
-            r = resource_cleaner.Resource()
-            # create a resource...
-            r.set_from_servicebot(execute_message.UniqueId(), self._output_dir / execute_message.UniqueId())
-            # ... and save to file
-            logger.info("Start the resource cleaner!")
-            r.write()
-        except Exception as ex:
-            logger.exception("Resource Cleaner initialization error", ex)
+            process_weight_class_name = self._service_config.get("DEFAULT", "process_weight")
+            PCk = introspection.get_class_no_arg(process_weight_class_name)
+        except BaseException:
+            PCk = None
+        if not PCk:
+            try:
+                process_weight = json.loads(
+                    self._service_config.get("DEFAULT", "process_weight"))
+            except BaseException:
+                process_weight = {"weight": "0", "coefficient": "1.0"}
+            PCk = resource_monitor.ProcessWeight(process_weight)
+        logger.info(" ---------------Async Request Management------------------- ")
+        logger.info(PCk.__class__)
+        _request_load = PCk.request_weight(execute_message)
+        logger.info("Request Load: %s " % _request_load)
+        logger.info(" ---------------------------------------------------------- ")
+        if _residual_capacity < _request_load:
+            _can_execute = False  # no residual capacity left, no execution
 
-        # invoke the process bot (aka request handler) asynchronously
-        cmd = 'python wpsagent.py -r ' + self._remote_config_filepath + ' -s ' + \
-            self._service_config_file + ' -p ' + param_filepath + ' process'
-        invoked_process = subprocess.Popen(args=cmd.split(),
-                                           stdin=subprocess.PIPE,
-                                           stdout=subprocess.PIPE,
-                                           stderr=subprocess.STDOUT)
-        logger.info("created process " + self.service + " with PId " + str(invoked_process.pid) + " and cmd: " + cmd)
+        if _can_execute:
+            # create the Resource Cleaner file containing the process info. The
+            # "invoked_process.pid" will be set by the spawned process itself
+            try:
+                r = resource_cleaner.Resource()
+                # create a resource...
+                r.set_from_servicebot(execute_message.UniqueId(), self._output_dir / execute_message.UniqueId())
+                # ... and save to file
+                logger.info("Start the resource cleaner!")
+                r.write()
+            except BaseException as ex:
+                logger.exception("Resource Cleaner initialization error: " + str(ex))
 
-        # use a parallel thread to wait the end of the request handler process and
-        # get the exit code of the just created asynchronous process computation
-        thread.start_new_thread(self.output_parser_verbose, (invoked_process, param_filepath,))
+            # invoke the process bot (aka request handler) asynchronously
+            cmd = 'python wpsagent.py -r ' + self._remote_config_filepath + ' -s ' + \
+                self._service_config_file + ' -p ' + param_filepath + ' process'
+            invoked_process = subprocess.Popen(args=cmd.split(),
+                                               stdin=subprocess.PIPE,
+                                               stdout=subprocess.PIPE,
+                                               stderr=subprocess.STDOUT)
+            logger.info(
+                "created process %s with PId %s and cmd: %s" % (self.service, str(invoked_process.pid), cmd))
+
+            # use a parallel thread to wait the end of the request handler process and
+            # get the exit code of the just created asynchronous process computation
+            unique_id = execute_message.UniqueId()
+            thread.start_new_thread(self.output_parser_verbose, (unique_id, invoked_process, param_filepath,))
+
+            # Update the resource_monitor load
+            self._resource_monitor.running_procs_load[unique_id] = _request_load
+            self._resource_monitor.load += _request_load
+        else:
+            # Send the message back to the WPS
+            outputs = dict()
+            outputs['UniqueId'] = execute_message.UniqueId()
+
+            try:
+                if self.bus.state() != 'connected':
+                    self.bus.xmpp.reconnect()
+                    self.bus.xmpp.send_presence()
+                self.bus.SendMessage(
+                    busIndependentMessages.CannotExecuteMessage(
+                        execute_message.originator(),
+                        outputs
+                    )
+                )
+            except BaseException:
+                logger.info("[XMPP Disconnected]: Service "+str(self.service) +
+                            " Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
 
         logger.info("end of execute message handler, going back in listening mode")
 
@@ -200,8 +306,16 @@ class ServiceBot(object):
         """Handler for WPS 'getloadavg' message."""
         logger = logging.getLogger("servicebot.handle_getloadavg")
         logger.info("handle getloadavg message from WPS " + str(getloadavg_message.originator()))
-        # Collect current Machine Load Average and Available Memory info
 
+        logger.info(
+            "ResourceMonitor load [%s] - proc_load [%s] - resource_load [%s]" % (
+                self._resource_monitor.load, self._resource_monitor.proc_load, self._resource_monitor.resource_load)
+        )
+
+        # Update Resource Monitoring Params from Config
+        self._setup_resource_monitor()
+
+        # Collect current Machine Load Average and Available Memory info
         try:
             logger.info("Fetching updated status from Resource Monitor...")
 
@@ -240,9 +354,9 @@ class ServiceBot(object):
                 logger.info("[XMPP Disconnected]: Service "+str(self.service) +
                             " Could not send info message to GeoServer Endpoint "+str(self._remote_wps_endpoint))
         except Exception as ex:
-            logger.exception("Load Average initialization error", ex)
+            logger.exception("Load Average initialization error: " + str(ex))
 
-    def output_parser_verbose(self, invoked_process, param_filepath):
+    def output_parser_verbose(self, unique_id, invoked_process, param_filepath):
         logger = logging.getLogger("servicebot.output_parser_verbose")
         logger.info("wait for end of execution of created process " +
                     self.service + ", PId " + str(invoked_process.pid))
@@ -327,6 +441,14 @@ class ServiceBot(object):
         else:
             msg = "Process " + self.service + " PId " + str(invoked_process.pid) + " terminated successfully!"
             logger.debug(msg)
+
+        # Update the resource_monitor load
+        if unique_id in self._resource_monitor.running_procs_load:
+            _request_load = self._resource_monitor.running_procs_load[unique_id]
+            self._resource_monitor.load -= _request_load
+            if self._resource_monitor.load < 0:
+                self._resource_monitor.load = 0
+            del self._resource_monitor.running_procs_load[unique_id]
 
     def send_error_message(self, msg):
         logger = logging.getLogger("ServiceBot.send_error_message")

@@ -23,16 +23,29 @@ workdir = %(output_dir)s/%(unique_execution_id)s
 active = True
 max_running_time_seconds = 300
 
-# . This option allows you to set the CPU and Memory average load scan time.
-# . It is espressed in 'minutes' and if disabled here it will be set by default
-# . to 15 minutes.
-load_average_scan_minutes = 1
+# ########################################### #
+# Async Request Management                    #
+# ########################################### #
 
-# . Use this option to completely avoid using this host (and prevent starting a new
-# . 'processbot') whenever one of the following process names are running.
-# . In other words, if one of the following processes are currently running on this machine,
-# . GeoServer won't send any WPS execute request until they are finished.
-process_blacklist = [{"cwd": "/mnt/d/work/code/python/geonode/geonode-master", "name": "celery", "cmdline": "-A geonode.celery_app:app worker -Q default,geonode,cleanup,update,email -B -E -l INFO"}]
+# . Runtime estimated weight of this process.
+# . if (residual_capacity >= request_load) the process won't start.
+# . It is possible also to specify a more complex estimator by declaring a
+# . class which overrides the "request_weight" method of the "ProcessWeight" base.
+# . e.g.: process_weight = my_custom_module.MyProcessCapacity (see below)
+process_weight = {"weight": "20", "coefficient": "1.5"}
+
+# Sample implementation
+# process_weight = my_custom_module.ProcessWeightSampleImplementation
+#
+# On my_custom_module.py
+# class ProcessWeightSampleImplementation(ProcessWeight):
+#
+#    def __init__(self):
+#        pass
+#
+#    def request_weight(self, exec_request):
+#        # this one is the default implementation
+#        return (2.5 * self.coefficient * 10.0)
 
 # ########################################### #
 # Inputs and Actions Declaration              #
