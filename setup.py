@@ -59,7 +59,7 @@ except BaseException:
 
 setup(
     name="wps-remote",
-    version="2.15.0",
+    version="2.17.0",
     author="GeoServer Developers",
     author_email="geoserver-devel@lists.sourceforge.net",
     description="A library that allows users to publish their executables as GeoServer WPS Processes through the XMPP protocol",  # noqa
