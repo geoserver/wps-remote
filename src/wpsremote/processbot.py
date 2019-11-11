@@ -18,7 +18,7 @@ import sys
 import busIndependentMessages
 import computation_job_inputs
 import computational_job_input_actions
-import configInstance
+import config_instance
 import output_parameters
 import resource_cleaner
 from time import sleep
@@ -47,7 +47,7 @@ class ProcessBot(object):
         self._input_values = execute_message.variables()
 
         # read remote config
-        remote_config = configInstance.create(remote_config_filepath)
+        remote_config = config_instance.create(remote_config_filepath)
         bus_class_name = remote_config.get("DEFAULT", "bus_class_name")
         uploader_class_name = None
         try:
@@ -66,32 +66,33 @@ class ProcessBot(object):
 
         # the config file is read with raw=False because the unique_exe_id value
         # will be used (interpolated) in the config
-        serviceConfig = configInstance.create(service_config_filepath,
-                                              case_sensitive=True,
-                                              variables={
-                                                'unique_exe_id': self._uniqueExeId,
-                                                'wps_execution_shared_dir': self._wps_execution_shared_dir
-                                              },
-                                              raw=False)
+        service_config = config_instance.create(service_config_filepath,
+                                                case_sensitive=True,
+                                                variables={
+                                                    'unique_exe_id': self._uniqueExeId,
+                                                    'wps_execution_shared_dir': self._wps_execution_shared_dir
+                                                },
+                                                raw=False)
 
-        self.service = serviceConfig.get("DEFAULT", "service")  # todo: what is?
-        self.namespace = serviceConfig.get("DEFAULT", "namespace")
-        self.description = serviceConfig.get("DEFAULT", "description")
-        self._active = serviceConfig.get("DEFAULT", "active").lower() == "true"  # True
+        self.service = service_config.get("DEFAULT", "service")  # todo: what is?
+        self.namespace = service_config.get("DEFAULT", "namespace")
+        self.description = service_config.get("DEFAULT", "description")
+        self._active = service_config.get("DEFAULT", "active").lower() == "true"  # True
 
-        self._executable_path = serviceConfig.get("DEFAULT", "executable_path")
-        self._executable_cmd = serviceConfig.get("DEFAULT", "executable_cmd")
+        self._executable_path = service_config.get("DEFAULT", "executable_path")
+        self._executable_cmd = service_config.get("DEFAULT", "executable_cmd")
         if not os.path.isabs(self._executable_path):
             full_executable_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self._executable_path)
             self._executable_cmd = self._executable_cmd.replace(self._executable_path, full_executable_path)
             self._executable_path = full_executable_path
 
-        self._stdout_parser = serviceConfig.get_list("Logging", "stdout_parser")
-        self._stdout_action = serviceConfig.get_list("Logging", "stdout_action")
-        self._output_dir = serviceConfig.get_path("DEFAULT", "output_dir")
+        self._stdout_parser = service_config.get_list("Logging", "stdout_parser")
+        self._stdout_action = service_config.get_list("Logging", "stdout_action")
+        self._output_dir = service_config.get_path("DEFAULT", "output_dir")
         if not os.path.isabs(self._output_dir):
             self._output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), self._output_dir)
-        self._max_running_time = datetime.timedelta(seconds=serviceConfig.getint("DEFAULT", "max_running_time_seconds"))
+        self._max_running_time = datetime.timedelta(
+            seconds=service_config.getint("DEFAULT", "max_running_time_seconds"))
 
         # create the concrete uploader object
         if uploader_class_name:
@@ -116,19 +117,19 @@ class ProcessBot(object):
             self._uploader = None
 
         input_sections = OrderedDict()
-        for input_section in [s for s in serviceConfig.sections() if 'input' in s.lower() or 'const' in s.lower()]:
-            input_sections[input_section] = serviceConfig.items_without_defaults(input_section, raw=False)
+        for input_section in [s for s in service_config.sections() if 'input' in s.lower() or 'const' in s.lower()]:
+            input_sections[input_section] = service_config.items_without_defaults(input_section, raw=False)
         self._input_parameters_defs = computation_job_inputs.ComputationJobInputs.create_from_config(input_sections)
 
         output_sections = OrderedDict()
-        for output_section in [s for s in serviceConfig.sections() if 'output' in s.lower()]:
-            output_sections[output_section] = serviceConfig.items_without_defaults(output_section, raw=False)
+        for output_section in [s for s in service_config.sections() if 'output' in s.lower()]:
+            output_sections[output_section] = service_config.items_without_defaults(output_section, raw=False)
         self._output_parameters_defs = output_parameters.OutputParameters.create_from_config(
             output_sections, self._wps_execution_shared_dir, self._uploader)
 
         action_sections = OrderedDict()
-        for action_section in [s for s in serviceConfig.sections() if 'action' in s.lower()]:
-            action_sections[action_section] = serviceConfig.items_without_defaults(action_section, raw=False)
+        for action_section in [s for s in service_config.sections() if 'action' in s.lower()]:
+            action_sections[action_section] = service_config.items_without_defaults(action_section, raw=False)
         self._input_params_actions = computational_job_input_actions.ComputationalJobInputActions.create_from_config(
             action_sections)
 

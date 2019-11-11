@@ -4,7 +4,7 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
-import configInstance
+import config_instance
 import os
 import path
 import unittest
@@ -160,7 +160,7 @@ class Resource(object):
             self.read_from_file(self.filepath())
 
     def read_from_file(self, filepath):
-        config = configInstance.create(filepath, raw=True)  # todo: use file lock
+        config = config_instance.create(filepath, raw=True)  # todo: use file lock
         self._start_time = config.get("DEFAULT", "start_time")
         try:
             self._start_time = datetime.datetime.strptime(self._start_time, "%Y-%m-%dT%H:%M:%S")
@@ -322,7 +322,7 @@ class Test(unittest.TestCase):
 
         import subprocess
         import random
-        sendbox_root = path.path("./")
+        sandbox_root = path.path("./")
 
         Resource.sleep_time_seconds = datetime.timedelta(seconds=5)
         Resource.process_time_threshold = datetime.timedelta(seconds=1)
@@ -338,7 +338,7 @@ class Test(unittest.TestCase):
                                            stderr=subprocess.STDOUT)
         prcbot_pid = invoked_process.pid
         unique_id = str(random.randint(1, 1000)).zfill(5)
-        sendbox_path = sendbox_root / str(unique_id)
+        sendbox_path = sandbox_root / str(unique_id)
 
         r = Resource()
         r.set_from_servicebot(unique_id, sendbox_path)

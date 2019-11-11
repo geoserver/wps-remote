@@ -4,18 +4,20 @@
 # This code is licensed under the GPL 2.0 license, available at the root
 # application directory.
 
-import unittest
 import os
-from argparse import Namespace
-import pickle
+import json
 import mock
-import datetime
+import pickle
 import psutil
+import datetime
+import unittest
+from argparse import Namespace
+from wpsremote import introspection
 from wpsremote.processbot import ProcessBot
 from wpsremote.servicebot import ServiceBot
 from wpsremote.resource_cleaner import Resource
 import wpsremote.resource_monitor as resource_monitor
-import wpsremote.configInstance as configInstance
+import wpsremote.config_instance as config_instance
 from wpsremote.xmppBus import XMPPBus
 from wpsremote.computation_job_inputs import ComputationJobInputs
 from wpsremote.computational_job_input_actions import ComputationalJobInputActions
@@ -37,7 +39,7 @@ class TestBot(unittest.TestCase):
 
     def setUp(self):
         os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-        self.remote_config = configInstance.create(
+        self.remote_config = config_instance.create(
             "./src/wpsremote/xmpp_data/test/test_remote.config"
         )
         self.xmpp_bus = XMPPBus(self.remote_config, "service_name", "service_name_namespace")
@@ -168,7 +170,6 @@ class TestBot(unittest.TestCase):
             path('src\\wpsremote\\xmpp_data\\test\\tmp')
         )
         self.assertIsInstance(service_bot._output_parameters_defs, OutputParameters)
-        self.assertFalse(service_bot._process_blacklist)
         self.assertTrue(service_bot._redirect_process_stdout_to_logger)
         self.assertEqual(
             service_bot._remote_config_filepath,
@@ -202,6 +203,38 @@ class TestBot(unittest.TestCase):
         self.assertEqual(service_bot.namespace, 'default')
         self.assertEqual(service_bot.running_process, {})
         self.assertEqual(service_bot.service, 'Service')
+        self.assertEqual(
+            service_bot._process_blacklist,
+            json.loads(service_bot._remote_config.get("DEFAULT", "process_blacklist"))
+        )
+        self.assertEqual(
+            resource_monitor.ResourceMonitor.capacity,
+            service_bot._remote_config.getint("DEFAULT", "capacity")
+        )
+        self.assertEqual(
+            resource_monitor.ResourceMonitor.load_threshold,
+            service_bot._remote_config.getint("DEFAULT", "load_threshold")
+        )
+        self.assertEqual(
+            resource_monitor.ResourceMonitor.load_average_scan_minutes,
+            service_bot._remote_config.getint("DEFAULT", "load_average_scan_minutes")
+        )
+        PCk = None
+        try:
+            process_weight_class_name = service_bot._service_config.get("DEFAULT", "process_weight")
+            PCk = introspection.get_class_no_arg(process_weight_class_name)
+        except BaseException:
+            PCk = None
+        if not PCk:
+            try:
+                process_weight = json.loads(
+                    service_bot._service_config.get("DEFAULT", "process_weight"))
+            except BaseException:
+                process_weight = {"weight": "0", "coefficient": "1.0"}
+            PCk = resource_monitor.ProcessWeight(process_weight)
+        self.assertEqual(PCk.__class__, resource_monitor.ProcessWeight)
+        _request_load = PCk.request_weight(None)
+        self.assertEqual(_request_load, 15.0)
         # removing tmp files
         params_file_path = path(self.params_file)
         params_file_path.remove()

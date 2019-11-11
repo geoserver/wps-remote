@@ -176,3 +176,22 @@ class XMPPLoadAverageMessage(object):
             body = ''.join(['topic=log', '&id=', self.xmppChannel.id, '&level=warning', "&message=",
                             "Critical error while encoding LoadAverageMessage outuputs!"])
             self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')
+
+
+class XMPPCannotExecuteMessage(object):
+
+    def __init__(self, originator, xmppChannel, outputs):
+        self.xmppChannel = xmppChannel
+        self.originator = originator
+        self._outputs = outputs
+
+    def send(self):
+        try:
+            message = "output=Cannot%20Execute&exec_id=" + self._outputs['UniqueId']
+            body = ''.join(['topic=cantexec', '&id=', self.xmppChannel.id, "&message=cantexec", "&", message])
+            self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')
+        except Exception:
+            print traceback.format_exc()
+            body = ''.join(['topic=log', '&id=', self.xmppChannel.id, '&level=warning', "&message=",
+                            "Critical error while encoding LoadAverageMessage outuputs!"])
+            self.xmppChannel.xmpp.send_message(mto=self.originator, mbody=body, mtype='chat')

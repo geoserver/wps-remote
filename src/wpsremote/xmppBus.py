@@ -202,6 +202,11 @@ class XMPPBus(bus.Bus):
                                                        self,
                                                        busIndipendentMsg.outputs())
 
+        if (isinstance(busIndipendentMsg, busIndependentMessages.CannotExecuteMessage)):
+            return xmppMessages.XMPPCannotExecuteMessage(busIndipendentMsg.originator,
+                                                         self,
+                                                         busIndipendentMsg.outputs())
+
         else:
             raise Exception("unknown message")
 
